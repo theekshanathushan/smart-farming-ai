@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/routing/app_router.dart';
 import 'core/local_db/app_database.dart';
+import 'core/theme/app_theme.dart';
 
 // Provide the database globally
 final databaseProvider = Provider<AppDatabase>((ref) {
@@ -37,10 +38,7 @@ class AgriAIApp extends ConsumerWidget {
     
     return MaterialApp.router(
       title: 'AgriAI',
-      theme: ThemeData(
-        primarySwatch: Colors.green,
-        useMaterial3: true,
-      ),
+      theme: AppTheme.lightTheme,
       routerConfig: router,
       debugShowCheckedModeBanner: false,
     );

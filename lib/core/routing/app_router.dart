@@ -5,32 +5,7 @@ import '../../features/ai_agent/presentation/chat_screen.dart';
 
 import '../../features/camera_scan/presentation/camera_scan_screen.dart';
 
-// Placeholder screens for routing
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
-  
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('AgriAI - Home')),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ElevatedButton(
-              onPressed: () => context.go('/scan'),
-              child: const Text('Camera Scan'),
-            ),
-            ElevatedButton(
-              onPressed: () => context.go('/chat'),
-              child: const Text('AI Chat'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
+import '../../features/home/presentation/home_screen.dart';
 
 final goRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
