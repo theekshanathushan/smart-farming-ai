@@ -3,6 +3,8 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../features/ai_agent/presentation/chat_screen.dart';
 
+import '../../features/camera_scan/presentation/camera_scan_screen.dart';
+
 // Placeholder screens for routing
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -26,18 +28,6 @@ class HomeScreen extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-class CameraScanScreen extends StatelessWidget {
-  const CameraScanScreen({super.key});
-  
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Scan')),
-      body: const Center(child: Text('Camera Scan Screen')),
     );
   }
 }
