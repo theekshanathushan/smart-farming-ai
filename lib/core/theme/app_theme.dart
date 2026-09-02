@@ -66,7 +66,7 @@ class AppTheme {
           ),
         ),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: surface,
         elevation: 2,
         shadowColor: deepCanopy.withOpacity(0.1),
