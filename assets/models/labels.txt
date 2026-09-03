@@ -1,2 +1,2 @@
-Healthy Leaf
-Diseased Leaf
+0  Healthy Leaf 
+1 Diseased Leaf
