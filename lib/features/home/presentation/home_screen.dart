@@ -1,158 +1,80 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/theme/app_theme.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
-
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
-  late final AnimationController _animController;
-  late final Animation<double> _scaleAnimation;
-  late final Animation<Alignment> _alignmentAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _animController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 20),
-    )..repeat(reverse: true);
-
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.15).animate(
-      CurvedAnimation(parent: _animController, curve: Curves.easeInOutSine),
-    );
-    
-    _alignmentAnimation = AlignmentTween(
-      begin: Alignment.bottomLeft,
-      end: Alignment.topRight,
-    ).animate(
-      CurvedAnimation(parent: _animController, curve: Curves.easeInOutSine),
-    );
-  }
-
-  @override
-  void dispose() {
-    _animController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          // Background Hero with Ken Burns Effect
-          Positioned.fill(
-            bottom: MediaQuery.of(context).size.height * 0.45,
-            child: ClipRect(
-              child: AnimatedBuilder(
-                animation: _animController,
-                builder: (context, child) {
-                  return Transform.scale(
-                    scale: _scaleAnimation.value,
-                    alignment: _alignmentAnimation.value,
-                    child: child,
-                  );
-                },
-                child: Image.asset(
-                  'assets/images/hero_farm.jpg',
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      decoration: const BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [AppTheme.sprout, AppTheme.deepCanopy],
-                        ),
-                      ),
-                      child: const Center(
-                        child: Icon(Icons.yard, size: 64, color: Colors.white24),
-                      ),
-                    );
-                  },
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFF2E7D32), // Green
+              Color(0xFFF5F5DC), // Cream
+            ],
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(height: 40),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24.0),
+                child: Text(
+                  'Welcome to\nAgriAI',
+                  style: TextStyle(
+                    fontSize: 36,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    height: 1.2,
+                  ),
                 ),
               ),
-            ),
-          ),
-          // Gradient Overlay to blend image into the background
-          Positioned.fill(
-            bottom: MediaQuery.of(context).size.height * 0.45,
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.black.withOpacity(0.1),
-                    AppTheme.sunbakedClay,
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
+                child: Text(
+                  'Your local agricultural expert',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.white70,
+                  ),
+                ),
+              ),
+              const Spacer(),
+              // Navigation Cards
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _ActionCard(
+                        title: 'Camera\nScan',
+                        icon: Icons.camera_alt_rounded,
+                        color: Colors.green.shade800,
+                        onTap: () => context.go('/scan'),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: _ActionCard(
+                        title: 'AI\nChat',
+                        icon: Icons.chat_bubble_outline_rounded,
+                        color: Colors.lightGreen.shade700,
+                        onTap: () => context.go('/chat'),
+                      ),
+                    ),
                   ],
                 ),
               ),
-            ),
+              const SizedBox(height: 40),
+            ],
           ),
-          
-          // Content
-          SafeArea(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const Spacer(flex: 2),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                  child: Text(
-                    'Welcome to\nAgriAI',
-                    style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.deepCanopy,
-                      height: 1.1,
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
-                  child: Text(
-                    'Your local agricultural expert',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: AppTheme.deepCanopy.withOpacity(0.7),
-                    ),
-                  ),
-                ),
-                const Spacer(flex: 3),
-                // Navigation Cards
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: _ActionCard(
-                          title: 'Camera\nScan',
-                          icon: Icons.camera_alt_rounded,
-                          color: AppTheme.deepCanopy,
-                          onTap: () => context.go('/scan'),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: _ActionCard(
-                          title: 'AI\nChat',
-                          icon: Icons.chat_bubble_outline_rounded,
-                          color: AppTheme.sprout,
-                          onTap: () => context.go('/chat'),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const Spacer(flex: 1),
-              ],
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -174,22 +96,15 @@ class _ActionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: AppTheme.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(32),
-          topRight: Radius.circular(12),
-          bottomLeft: Radius.circular(12),
-          bottomRight: Radius.circular(32),
-        ),
+      color: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(24),
       ),
-      elevation: 4,
-      shadowColor: color.withOpacity(0.2),
+      elevation: 8,
+      shadowColor: Colors.black12,
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
-        splashColor: color.withOpacity(0.1),
-        highlightColor: color.withOpacity(0.05),
         child: Padding(
           padding: const EdgeInsets.all(24.0),
           child: Column(
@@ -206,9 +121,10 @@ class _ActionCard extends StatelessWidget {
               const SizedBox(height: 32),
               Text(
                 title,
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                style: TextStyle(
+                  fontSize: 22,
                   fontWeight: FontWeight.bold,
-                  color: AppTheme.richLoam,
+                  color: Colors.grey.shade800,
                   height: 1.2,
                 ),
               ),

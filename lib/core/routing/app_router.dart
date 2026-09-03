@@ -7,12 +7,18 @@ import '../../features/camera_scan/presentation/camera_scan_screen.dart';
 
 import '../../features/home/presentation/home_screen.dart';
 
+import '../../features/welcome/presentation/welcome_screen.dart';
+
 final goRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: '/',
     routes: [
       GoRoute(
         path: '/',
+        builder: (context, state) => const WelcomeScreen(),
+      ),
+      GoRoute(
+        path: '/home',
         builder: (context, state) => const HomeScreen(),
       ),
       GoRoute(
