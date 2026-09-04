@@ -7,7 +7,9 @@ import '../../features/camera_scan/presentation/camera_scan_screen.dart';
 
 import '../../features/home/presentation/home_screen.dart';
 
-import '../../features/welcome/presentation/welcome_screen.dart';
+import '../../features/auth/presentation/language_selection_screen.dart';
+import '../../features/auth/presentation/auth_screen.dart';
+import '../../features/auth/presentation/otp_verification_screen.dart';
 
 final goRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -15,7 +17,15 @@ final goRouterProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(
         path: '/',
-        builder: (context, state) => const WelcomeScreen(),
+        builder: (context, state) => const LanguageSelectionScreen(),
+      ),
+      GoRoute(
+        path: '/auth',
+        builder: (context, state) => const AuthScreen(),
+      ),
+      GoRoute(
+        path: '/verify-otp',
+        builder: (context, state) => const OtpVerificationScreen(),
       ),
       GoRoute(
         path: '/home',
