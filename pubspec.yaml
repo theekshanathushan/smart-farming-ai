@@ -37,5 +37,4 @@ flutter:
   assets:
     - assets/models/model.tflite
     - assets/models/labels.txt
-    - assets/farmer_background.jpg
     - assets/images/

@@ -17,7 +17,7 @@ class LanguageSelectionScreen extends StatelessWidget {
           ),
         ),
         child: Container(
-          color: Colors.white.withOpacity(0.85), // Overlay for readability
+          color: Colors.black.withOpacity(0.4), // Dark overlay for a colorful background
           child: SafeArea(
             child: Padding(
           padding: const EdgeInsets.all(24.0),
@@ -25,10 +25,10 @@ class LanguageSelectionScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Icon(
-                Icons.language,
-                size: 80,
-                color: Colors.green[800],
+              Image.asset(
+                'assets/images/logo.png',
+                width: 120,
+                height: 120,
               ),
               const SizedBox(height: 32),
               Text(
@@ -37,7 +37,7 @@ class LanguageSelectionScreen extends StatelessWidget {
                 style: GoogleFonts.inter(
                   fontSize: 28,
                   fontWeight: FontWeight.w800,
-                  color: Colors.black87,
+                  color: Colors.white,
                 ),
               ),
               const SizedBox(height: 8),
@@ -46,7 +46,7 @@ class LanguageSelectionScreen extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: GoogleFonts.inter(
                   fontSize: 16,
-                  color: Colors.black54,
+                  color: Colors.white70,
                   height: 1.5,
                 ),
               ),
@@ -95,8 +95,8 @@ class _LanguageButton extends StatelessWidget {
     return OutlinedButton(
       onPressed: onPressed,
       style: OutlinedButton.styleFrom(
-        foregroundColor: Colors.black87,
-        side: const BorderSide(color: Colors.black87, width: 2), // Thick border for visibility
+        foregroundColor: Colors.white,
+        side: const BorderSide(color: Colors.white, width: 2), // Thick border for visibility
         padding: const EdgeInsets.symmetric(vertical: 20), // Minimum 48dp height (20 padding top/bottom + text = easily > 48dp)
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
