@@ -1,4 +1,4 @@
-import 'package:firebase_auth/package:firebase_auth.dart' hide AuthState;
+import 'package:firebase_auth/firebase_auth.dart' hide AuthState;
 import 'package:firebase_auth/firebase_auth.dart' as firebase;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
