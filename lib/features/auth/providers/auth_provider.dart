@@ -1,3 +1,5 @@
+import 'package:firebase_auth/package:firebase_auth.dart' hide AuthState;
+import 'package:firebase_auth/firebase_auth.dart' as firebase;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 enum AuthStateStatus { initial, loading, otpSent, error, success }
@@ -26,7 +28,7 @@ class AuthState {
   }) {
     return AuthState(
       status: status ?? this.status,
-      errorMessage: errorMessage, // We want to clear error message if not provided
+      errorMessage: errorMessage,
       verificationId: verificationId ?? this.verificationId,
       phoneNumber: phoneNumber ?? this.phoneNumber,
       name: name ?? this.name,
@@ -35,61 +37,99 @@ class AuthState {
 }
 
 class AuthNotifier extends StateNotifier<AuthState> {
+  final firebase.FirebaseAuth _auth = firebase.FirebaseAuth.instance;
+
   AuthNotifier() : super(const AuthState());
 
-  // Placeholder for sending OTP
+  String _formatPhoneNumber(String phone) {
+    String formatted = phone.trim();
+    if (formatted.startsWith('0')) {
+      formatted = formatted.substring(1);
+    }
+    if (!formatted.startsWith('+')) {
+      // Assuming Sri Lanka country code based on requirement
+      formatted = '+94$formatted';
+    }
+    return formatted;
+  }
+
   Future<void> sendOTP(String phoneNumber, {String? name}) async {
-    state = state.copyWith(status: AuthStateStatus.loading, phoneNumber: phoneNumber, name: name);
+    final formattedPhone = _formatPhoneNumber(phoneNumber);
+    state = state.copyWith(
+      status: AuthStateStatus.loading,
+      phoneNumber: formattedPhone,
+      name: name,
+    );
+
     try {
-      // Simulate network delay
-      await Future.delayed(const Duration(seconds: 2));
-
-      // Simulate a "No Internet" error for demonstration if number starts with 000
-      if (phoneNumber.startsWith('000')) {
-        throw Exception('No Internet Connection');
-      }
-
-      // TODO: Implement actual API call to send OTP here
-      // final response = await api.sendOtp(phone: phoneNumber, name: name);
-
-      // Simulate success
-      state = state.copyWith(
-        status: AuthStateStatus.otpSent,
-        verificationId: 'dummy_verification_id_123',
+      await _auth.verifyPhoneNumber(
+        phoneNumber: formattedPhone,
+        verificationCompleted: (firebase.PhoneAuthCredential credential) async {
+          // Auto-resolution (Android only usually)
+          try {
+            await _auth.signInWithCredential(credential);
+            state = state.copyWith(status: AuthStateStatus.success);
+          } catch (e) {
+            state = state.copyWith(
+              status: AuthStateStatus.error,
+              errorMessage: 'Auto verification failed: ${e.toString()}',
+            );
+          }
+        },
+        verificationFailed: (firebase.FirebaseAuthException e) {
+          state = state.copyWith(
+            status: AuthStateStatus.error,
+            errorMessage: e.message ?? 'Verification failed',
+          );
+        },
+        codeSent: (String verificationId, int? resendToken) {
+          state = state.copyWith(
+            status: AuthStateStatus.otpSent,
+            verificationId: verificationId,
+          );
+        },
+        codeAutoRetrievalTimeout: (String verificationId) {
+          state = state.copyWith(
+            verificationId: verificationId,
+          );
+        },
       );
     } catch (e) {
       state = state.copyWith(
         status: AuthStateStatus.error,
-        errorMessage: e.toString().replaceAll('Exception: ', ''),
+        errorMessage: e.toString(),
       );
     }
   }
 
-  // Placeholder for verifying OTP
   Future<void> verifyOTP(String otpCode) async {
     state = state.copyWith(status: AuthStateStatus.loading);
     try {
-      // Simulate network delay
-      await Future.delayed(const Duration(seconds: 2));
-
-      // Simulate invalid OTP
-      if (otpCode != '123456') { // Hardcoded for demo
-        throw Exception('Invalid OTP. Please try again.');
+      if (state.verificationId == null) {
+        throw Exception('Verification ID is missing. Please request OTP again.');
       }
 
-      // TODO: Implement actual API call to verify OTP here
-      // final response = await api.verifyOtp(verificationId: state.verificationId, otp: otpCode);
+      firebase.PhoneAuthCredential credential = firebase.PhoneAuthProvider.credential(
+        verificationId: state.verificationId!,
+        smsCode: otpCode.trim(),
+      );
 
-      // Simulate success
+      await _auth.signInWithCredential(credential);
+
       state = state.copyWith(status: AuthStateStatus.success);
+    } on firebase.FirebaseAuthException catch (e) {
+      state = state.copyWith(
+        status: AuthStateStatus.error,
+        errorMessage: e.message ?? 'Invalid OTP',
+      );
     } catch (e) {
       state = state.copyWith(
         status: AuthStateStatus.error,
-        errorMessage: e.toString().replaceAll('Exception: ', ''),
+        errorMessage: e.toString(),
       );
     }
   }
-  
+
   void resetState() {
     state = const AuthState();
   }
