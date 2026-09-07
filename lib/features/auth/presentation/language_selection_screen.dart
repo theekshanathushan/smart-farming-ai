@@ -8,9 +8,18 @@ class LanguageSelectionScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, // Stark white for high contrast
-      body: SafeArea(
-        child: Padding(
+      backgroundColor: Colors.transparent,
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/splash_bg.png'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: Container(
+          color: Colors.white.withOpacity(0.85), // Overlay for readability
+          child: SafeArea(
+            child: Padding(
           padding: const EdgeInsets.all(24.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -65,6 +74,8 @@ class LanguageSelectionScreen extends StatelessWidget {
             ],
           ),
         ),
+      ),
+      ),
       ),
     );
   }
