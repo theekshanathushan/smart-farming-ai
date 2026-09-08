@@ -42,6 +42,7 @@ class LocationService {
     try {
       return await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.medium,
+        timeLimit: const Duration(seconds: 5),
       );
     } catch (e) {
       print('Error fetching location: $e');

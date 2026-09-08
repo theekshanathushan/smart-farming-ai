@@ -7,7 +7,10 @@ final marketPricesProvider = FutureProvider<List<dynamic>>((ref) async {
   // Use localhost for emulator, or appropriate IP for physical device
   final baseUrl = Platform.isAndroid ? 'http://10.0.2.2:8000' : 'http://127.0.0.1:8000';
   
-  final response = await http.get(Uri.parse('$baseUrl/api/v1/market-prices'));
+  final response = await http.get(Uri.parse('$baseUrl/api/v1/market-prices')).timeout(
+    const Duration(seconds: 5),
+    onTimeout: () => throw Exception('Connection timeout. Ensure backend is reachable.'),
+  );
   
   if (response.statusCode == 200) {
     final data = jsonDecode(response.body);
