@@ -17,12 +17,10 @@ void main() async {
   // Ensure widget binding is initialized
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Firebase සම්බන්ධ කිරීම
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-
-  // Analytics ආරම්භ කිරීම (අලුතින් එකතු කළ කොටස)
+  
   FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 
   // Initialize the local Drift database instance

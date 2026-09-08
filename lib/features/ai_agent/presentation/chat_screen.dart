@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/agent_api_client.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/utils/location_service.dart';
+import 'package:geolocator/geolocator.dart';
 
 final agentApiClientProvider = Provider((ref) => AgentApiClient());
 
@@ -25,6 +27,25 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
   
   final List<ChatMessage> _messages = [];
   bool _isLoading = false;
+  Position? _currentPosition;
+  bool _isFetchingLocation = true;
+  
+  @override
+  void initState() {
+    super.initState();
+    _fetchLocation();
+  }
+
+  Future<void> _fetchLocation() async {
+    final locationService = ref.read(locationServiceProvider);
+    final position = await locationService.getCurrentLocation();
+    if (mounted) {
+      setState(() {
+        _currentPosition = position;
+        _isFetchingLocation = false;
+      });
+    }
+  }
   
   void _sendMessage() async {
     final text = _controller.text.trim();
@@ -46,6 +67,8 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
       final stream = apiClient.streamChatAdvice(
         message: text,
         language: 'en', // Default language
+        latitude: _currentPosition?.latitude,
+        longitude: _currentPosition?.longitude,
       );
       
       await for (final chunk in stream) {
@@ -96,7 +119,23 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
     return Scaffold(
       backgroundColor: AppTheme.sunbakedClay,
       appBar: AppBar(
-        title: const Text('Ask AgriAI'),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('Ask AgriAI'),
+            if (_isFetchingLocation) ...[
+              const SizedBox(width: 8),
+              const SizedBox(
+                width: 12,
+                height: 12,
+                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+              ),
+            ] else if (_currentPosition != null) ...[
+              const SizedBox(width: 8),
+              const Icon(Icons.location_on, size: 16, color: AppTheme.sprout),
+            ],
+          ],
+        ),
       ),
       body: Column(
         children: [

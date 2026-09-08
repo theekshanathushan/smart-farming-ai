@@ -2,12 +2,14 @@ import os
 import json
 from openai import AsyncOpenAI
 from app.schemas.chat import ChatRequest
+from app.services.weather_service import WeatherService
 
 class AgriAgentService:
     def __init__(self):
         # Initialize the AsyncOpenAI client. Expects OPENAI_API_KEY environment variable.
         api_key = os.getenv("OPENAI_API_KEY", "dummy_key_for_local_dev")
         self.client = AsyncOpenAI(api_key=api_key)
+        self.weather_service = WeatherService()
 
     async def stream_advice(self, request: ChatRequest):
         system_prompt = (
@@ -19,10 +21,27 @@ class AgriAgentService:
         context_parts = []
         if request.crop_type:
             context_parts.append(f"Crop Type: {request.crop_type}")
-        if request.gps_zone:
-            context_parts.append(f"GPS Zone/Location: {request.gps_zone}")
-        if request.recent_weather:
-            context_parts.append(f"Recent Weather: {request.recent_weather}")
+        
+        # Check if we have exact coordinates to fetch real-time weather
+        if request.latitude is not None and request.longitude is not None:
+            context_parts.append(f"GPS Coordinates: {request.latitude}, {request.longitude}")
+            weather_data = await self.weather_service.get_current_weather(request.latitude, request.longitude)
+            if weather_data:
+                weather_str = (
+                    f"Temp: {weather_data['temperature']}°C, "
+                    f"Humidity: {weather_data['humidity']}%, "
+                    f"Precipitation: {weather_data['precipitation']}mm, "
+                    f"Wind: {weather_data['wind_speed']}km/h, "
+                    f"Conditions: {weather_data['description']}"
+                )
+                context_parts.append(f"Current Local Weather: {weather_str}")
+            elif request.recent_weather:
+                context_parts.append(f"Recent Weather: {request.recent_weather}")
+        else:
+            if request.gps_zone:
+                context_parts.append(f"GPS Zone/Location: {request.gps_zone}")
+            if request.recent_weather:
+                context_parts.append(f"Recent Weather: {request.recent_weather}")
         
         if context_parts:
             system_prompt += "Here is the localized context for the farmer's field:\n" + "\n".join(context_parts) + "\n"

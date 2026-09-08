@@ -9,6 +9,8 @@ class AgentApiClient {
     required String language,
     String? cropType,
     String? gpsZone,
+    double? latitude,
+    double? longitude,
   }) async* {
     final client = http.Client();
     final request = http.Request(
@@ -23,6 +25,8 @@ class AgentApiClient {
       'language': language,
       'crop_type': cropType,
       'gps_zone': gpsZone,
+      'latitude': latitude,
+      'longitude': longitude,
     });
 
     try {
