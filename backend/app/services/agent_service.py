@@ -16,6 +16,8 @@ class AgriAgentService:
             "You are AgriAI, an expert agricultural assistant specializing in localized farming advice. "
             "You provide highly accurate, practical, and empathetic advice to farmers. "
             f"You MUST strictly respond in the following language: {request.language}. "
+            "CRITICAL: If the language is Sinhala or Tamil, you MUST use the native script (e.g., සිංහල / தமிழ்). "
+            "DO NOT use Romanized text (e.g., Singlish/Tanglish). ALWAYS reply in the native alphabet."
         )
 
         context_parts = []
