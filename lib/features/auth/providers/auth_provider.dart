@@ -43,13 +43,22 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   String _formatPhoneNumber(String phone) {
     String formatted = phone.trim();
+    
+    // Fix common mistake: user types +77... instead of +9477... or 077...
+    // Sri Lankan mobile numbers without country code are 9 digits long (10 chars with '+')
+    if (formatted.startsWith('+') && formatted.length == 10 && !formatted.startsWith('+94')) {
+      formatted = formatted.substring(1);
+    }
+    
     if (formatted.startsWith('0')) {
       formatted = formatted.substring(1);
     }
+    
     if (!formatted.startsWith('+')) {
       // Assuming Sri Lanka country code based on requirement
       formatted = '+94$formatted';
     }
+    
     return formatted;
   }
 
