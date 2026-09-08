@@ -5,7 +5,8 @@ import 'package:http/http.dart' as http;
 import '../../../core/utils/location_service.dart';
 
 final weatherProvider = FutureProvider<Map<String, dynamic>>((ref) async {
-  final position = await LocationService.getCurrentLocation();
+  final locationService = ref.watch(locationServiceProvider);
+  final position = await locationService.getCurrentLocation();
   if (position == null) {
     throw Exception('Location permission denied or unavailable');
   }
