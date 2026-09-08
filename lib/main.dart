@@ -20,7 +20,7 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  
+
   FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 
   // Initialize the local Drift database instance

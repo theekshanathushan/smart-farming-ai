@@ -113,16 +113,17 @@ class _WeatherDashboard extends ConsumerWidget {
       padding: const EdgeInsets.all(20),
       child: weatherAsync.when(
         data: (weather) {
-          final temp = weather['current_weather']['temperature'] ?? '--';
+          final temp = weather['temperature'] ?? '--';
+          final desc = weather['description'] ?? 'Current Weather';
           return Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Current Weather',
-                    style: TextStyle(color: Colors.white70, fontSize: 14),
+                  Text(
+                    desc,
+                    style: const TextStyle(color: Colors.white70, fontSize: 14),
                   ),
                   const SizedBox(height: 4),
                   Text(
