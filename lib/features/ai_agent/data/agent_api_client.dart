@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class AgentApiClient {
-  final String baseUrl = 'http://10.0.2.2:8000'; // Use 10.0.2.2 for Android emulator localhost
+  final String baseUrl = 'http://172.19.167.230:8000'; // Computer's IP for physical device testing
 
   Stream<String> streamChatAdvice({
     required String message,

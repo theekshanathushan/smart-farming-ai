@@ -4,8 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 
 final marketPricesProvider = FutureProvider<List<dynamic>>((ref) async {
-  // Use localhost for emulator, or appropriate IP for physical device
-  final baseUrl = Platform.isAndroid ? 'http://10.0.2.2:8000' : 'http://127.0.0.1:8000';
+  // Use computer's IP address for physical device testing
+  final baseUrl = 'http://172.19.167.230:8000';
   
   final response = await http.get(Uri.parse('$baseUrl/api/v1/market-prices')).timeout(
     const Duration(seconds: 5),
