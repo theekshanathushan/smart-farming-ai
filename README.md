@@ -11,14 +11,14 @@ It solves the two hardest adoption barriers in South Asian agri-tech at once —
 - **ML**: On-device TensorFlow Lite for offline disease detection
 - **Backend**: FastAPI with an SSE-streaming agent (OpenAI), plus weather and market-price integrations
 
-## Team Roles (7-Person Build)
-1. **Mobile UI/navigation lead** — screen consistency, GoRouter flows, polish
-2. **Camera & on-device ML engineer** — wire the TFLite model into the camera scan screen, build the disease-result UI
-3. **Conversational agent engineer** — extend the chat agent, tune Sinhala/Tamil responses, harden the SSE stream
-4. **Backend/API engineer** — move the agent off localhost into a real deployable service with auth
-5. **Data & integrations engineer** — weather API, market price board, supplier/location mapping
-6. **Offline & sync engineer** — harden Drift storage, background sync, conflict handling on reconnect
-7. **QA/DevOps + team lead** — cross-device testing, CI, sprint coordination, demo prep
+## Development Roadmap & Modules
+1. **Mobile UI & Navigation** — screen consistency, GoRouter flows, and overall polish.
+2. **Camera & On-device ML** — wire the TFLite model into the camera scan screen and build the disease-result UI.
+3. **Conversational Agent** — extend the chat agent, tune Sinhala/Tamil native-script responses, and harden the SSE stream.
+4. **Backend & API** — move the agent off localhost into a deployable service with authentication.
+5. **Data & Integrations** — weather API, market price board, and supplier/location mapping.
+6. **Offline & Sync** — harden Drift SQLite storage, background sync, and conflict handling on reconnect.
+7. **QA & Testing** — cross-device testing, continuous integration, and demo prep.
 
 ## Design Patterns (SE205.3)
 - **Repository** for the data-access layer.
