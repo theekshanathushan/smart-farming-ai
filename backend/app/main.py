@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.routes import sync, chat
+from app.api.routes import sync, chat, weather, market
 
 app = FastAPI(
     title="AgriAI API",
@@ -24,6 +24,8 @@ app.add_middleware(
 # Include routers
 app.include_router(sync.router, prefix="/api/v1/sync", tags=["sync"])
 app.include_router(chat.router, prefix="/api/v1/chat", tags=["chat"])
+app.include_router(weather.router, prefix="/api/v1/weather", tags=["weather"])
+app.include_router(market.router, prefix="/api/v1/market-prices", tags=["market"])
 
 @app.get("/")
 async def root():

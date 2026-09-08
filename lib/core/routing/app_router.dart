@@ -10,6 +10,7 @@ import '../../features/home/presentation/home_screen.dart';
 import '../../features/auth/presentation/language_selection_screen.dart';
 import '../../features/auth/presentation/auth_screen.dart';
 import '../../features/auth/presentation/otp_verification_screen.dart';
+import '../../features/market/presentation/market_screen.dart';
 
 final goRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -38,6 +39,10 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/chat',
         builder: (context, state) => const AiChatScreen(),
+      ),
+      GoRoute(
+        path: '/market',
+        builder: (context, state) => const MarketScreen(),
       ),
     ],
   );
