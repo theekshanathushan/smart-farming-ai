@@ -12,7 +12,7 @@ final weatherProvider = FutureProvider<Map<String, dynamic>>((ref) async {
   }
 
   // Use computer's IP address for physical device testing
-  final baseUrl = 'http://172.19.167.230:8000';
+  final baseUrl = 'http://10.16.135.91:8000';
   
   final url = Uri.parse('$baseUrl/api/v1/weather?lat=${position.latitude}&lon=${position.longitude}');
   final response = await http.get(url).timeout(
