@@ -18,51 +18,75 @@ class MarketScreen extends ConsumerWidget {
         elevation: 0,
         centerTitle: true,
       ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [AppTheme.deepCanopy, AppTheme.sprout, AppTheme.sunbakedClay],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            stops: [0.0, 0.4, 1.0],
+      body: Stack(
+        children: [
+          // Dynamic Background Image - faded at the bottom like Home Screen
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            height: MediaQuery.of(context).size.height * 0.45,
+            child: Image.asset(
+              'assets/images/farm_bg.jpg',
+              fit: BoxFit.cover,
+            ),
           ),
-        ),
-        child: SafeArea(
-          child: marketPricesAsync.when(
-            data: (prices) {
-              if (prices.isEmpty) {
-                return const Center(
-                  child: Text('No price data available', style: TextStyle(color: Colors.white, fontSize: 18))
-                );
-              }
-              return ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                itemCount: prices.length,
-                itemBuilder: (context, index) {
-                  final item = prices[index];
-                  return _buildPriceCard(item);
-                },
-              );
-            },
-            loading: () => const Center(child: CircularProgressIndicator(color: Colors.white)),
-            error: (error, stack) => Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.error_outline, color: Colors.white, size: 48),
-                  const SizedBox(height: 16),
-                  Text('Error: ${error.toString()}', style: const TextStyle(color: Colors.white)),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () => ref.refresh(marketPricesProvider),
-                    style: ElevatedButton.styleFrom(backgroundColor: AppTheme.harvestGold),
-                    child: const Text('Retry', style: TextStyle(color: AppTheme.richLoam)),
-                  )
-                ],
+          
+          // Gradient overlay for seamless transition
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.black.withValues(alpha: 0.4),
+                    Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.9),
+                    Theme.of(context).scaffoldBackgroundColor,
+                  ],
+                  stops: const [0.0, 0.4, 0.5],
+                ),
               ),
             ),
           ),
-        ),
+          
+          SafeArea(
+            child: marketPricesAsync.when(
+              data: (prices) {
+                if (prices.isEmpty) {
+                  return const Center(
+                    child: Text('No price data available', style: TextStyle(color: Colors.white, fontSize: 18))
+                  );
+                }
+                return ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  itemCount: prices.length,
+                  itemBuilder: (context, index) {
+                    final item = prices[index];
+                    return _buildPriceCard(item);
+                  },
+                );
+              },
+              loading: () => const Center(child: CircularProgressIndicator(color: Colors.white)),
+              error: (error, stack) => Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.error_outline, color: Colors.white, size: 48),
+                    const SizedBox(height: 16),
+                    Text('Error: ${error.toString()}', style: const TextStyle(color: Colors.white)),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () => ref.refresh(marketPricesProvider),
+                      style: ElevatedButton.styleFrom(backgroundColor: AppTheme.harvestGold),
+                      child: const Text('Retry', style: TextStyle(color: AppTheme.richLoam)),
+                    )
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

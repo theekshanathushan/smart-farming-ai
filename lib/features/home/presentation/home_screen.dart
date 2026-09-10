@@ -117,13 +117,17 @@ class HomeScreen extends ConsumerWidget {
                           icon: Icons.water_drop_outlined,
                           label: 'Irrigation',
                           color: Colors.blue.shade600,
-                          onTap: () {},
+                          onTap: () {
+                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Irrigation module coming soon'), backgroundColor: Colors.black87));
+                          },
                         ),
                         _QuickToolItem(
                           icon: Icons.people_outline_rounded,
                           label: 'Community',
                           color: Colors.purple.shade500,
-                          onTap: () {},
+                          onTap: () {
+                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Community forums coming soon'), backgroundColor: Colors.black87));
+                          },
                         ),
                       ],
                     ),
@@ -142,7 +146,9 @@ class HomeScreen extends ConsumerWidget {
                           style: theme.textTheme.titleLarge,
                         ),
                         TextButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('All alerts shown'), backgroundColor: Colors.black87));
+                          },
                           child: const Text('See All'),
                         ),
                       ],
