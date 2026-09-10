@@ -186,12 +186,14 @@ class CameraScanScreen extends ConsumerWidget {
     }
 
     if (state.imagePath != null && state.result != null) {
+      final isUnrecognized = state.result!.label.contains('Unrecognized');
+
       return Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'Disease Detected',
+            isUnrecognized ? 'Scan Result' : 'Disease Detected',
             style: Theme.of(context).textTheme.titleSmall?.copyWith(color: Colors.grey),
             textAlign: TextAlign.center,
           ),
@@ -200,7 +202,8 @@ class CameraScanScreen extends ConsumerWidget {
             state.result!.label,
             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
               fontWeight: FontWeight.bold,
-              color: AppTheme.deepCanopy,
+              color: isUnrecognized ? Colors.orange : AppTheme.deepCanopy,
+              fontSize: isUnrecognized ? 20 : null,
             ),
             textAlign: TextAlign.center,
           ),
@@ -219,25 +222,35 @@ class CameraScanScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 24),
-          ElevatedButton.icon(
-            onPressed: state.isSaved
-                ? null
-                : () {
-                    ref.read(scanControllerProvider.notifier).saveResult(null);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Saved to offline database'),
-                        backgroundColor: AppTheme.sprout,
-                      ),
-                    );
-                  },
-            icon: Icon(state.isSaved ? Icons.check : Icons.save),
-            label: Text(state.isSaved ? 'Saved' : 'Save Result'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: state.isSaved ? Colors.grey : AppTheme.sprout,
-              minimumSize: const Size(double.infinity, 56),
+          if (isUnrecognized)
+            ElevatedButton(
+              onPressed: () => ref.read(scanControllerProvider.notifier).reset(),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange,
+                minimumSize: const Size(double.infinity, 56),
+              ),
+              child: const Text('Try Again', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            )
+          else
+            ElevatedButton.icon(
+              onPressed: state.isSaved
+                  ? null
+                  : () {
+                      ref.read(scanControllerProvider.notifier).saveResult(null);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Saved to offline database'),
+                          backgroundColor: AppTheme.sprout,
+                        ),
+                      );
+                    },
+              icon: Icon(state.isSaved ? Icons.check : Icons.save),
+              label: Text(state.isSaved ? 'Saved' : 'Save Result'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: state.isSaved ? Colors.grey : AppTheme.sprout,
+                minimumSize: const Size(double.infinity, 56),
+              ),
             ),
-          ),
         ],
       );
     }

@@ -110,6 +110,26 @@ class FarmScreen extends ConsumerWidget {
                     loading: () => const CircularProgressIndicator(color: Colors.white),
                     error: (e, st) => Text('Error: $e', style: const TextStyle(color: Colors.red)),
                   ),
+                  const SizedBox(height: 24),
+                  const Text('Quick Actions', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
+                  const SizedBox(height: 16),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        _ActionBtn(icon: Icons.water_drop, label: 'Water All', color: Colors.blueAccent),
+                        _ActionBtn(icon: Icons.eco, label: 'Fertilize', color: Colors.greenAccent),
+                        _ActionBtn(icon: Icons.agriculture, label: 'Harvest', color: Colors.orangeAccent),
+                        _ActionBtn(icon: Icons.note_add, label: 'Add Note', color: Colors.purpleAccent),
+                        _ActionBtn(
+                          icon: Icons.smart_toy, 
+                          label: 'AI Advice', 
+                          color: Colors.tealAccent,
+                          onTap: () => context.push('/chat'),
+                        ),
+                      ],
+                    ),
+                  ),
                   const SizedBox(height: 32),
                   const Text('Daily Tasks', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
                   const SizedBox(height: 16),
@@ -179,6 +199,41 @@ class _GlassCard extends StatelessWidget {
             border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
           ),
           child: child,
+        ),
+      ),
+    );
+  }
+}
+
+class _ActionBtn extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback? onTap;
+
+  const _ActionBtn({required this.icon, required this.label, required this.color, this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(right: 16),
+      child: InkWell(
+        onTap: onTap ?? () {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$label action triggered'), backgroundColor: Colors.black87));
+        },
+        borderRadius: BorderRadius.circular(24),
+        child: _GlassCard(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(icon, color: color, size: 32),
+                const SizedBox(height: 8),
+                Text(label, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
+              ],
+            ),
+          ),
         ),
       ),
     );
