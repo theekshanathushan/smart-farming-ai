@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/farm_repository.dart';
@@ -21,88 +22,162 @@ class FarmScreen extends ConsumerWidget {
     final tasksAsync = ref.watch(tasksProvider);
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('My Farm'),
-        backgroundColor: const Color(0xFF2E7D32),
+        title: const Text('My Farm', style: TextStyle(fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.black.withValues(alpha: 0.3),
         foregroundColor: Colors.white,
+        elevation: 0,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text('My Crops', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                TextButton(
-                  onPressed: () => context.push('/farm/add-crop'),
-                  child: const Text('+ Add Crop'),
-                ),
-              ],
+      body: Stack(
+        children: [
+          // Dynamic Background Image
+          Positioned.fill(
+            child: Image.asset(
+              'assets/images/farm_bg.jpg',
+              fit: BoxFit.cover,
             ),
-            const SizedBox(height: 8),
-            cropsAsync.when(
-              data: (crops) => crops.isEmpty 
-                  ? const Card(child: Padding(padding: EdgeInsets.all(16), child: Text("No crops added yet.")))
-                  : SizedBox(
-                      height: 120,
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: crops.length,
-                        itemBuilder: (context, index) {
-                          final crop = crops[index];
-                          return Card(
-                            margin: const EdgeInsets.only(right: 12),
-                            child: Container(
-                              width: 140,
-                              padding: const EdgeInsets.all(12),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(crop.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                                  if (crop.variety != null) Text(crop.variety!),
-                                  const Spacer(),
-                                  Text('${crop.area ?? 0} ${crop.areaUnit ?? "acres"}', style: const TextStyle(color: Colors.grey)),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
+          ),
+          
+          Positioned.fill(
+            child: Container(
+              color: Colors.black.withValues(alpha: 0.2),
+            ),
+          ),
+          
+          SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('My Crops', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
+                      TextButton.icon(
+                        onPressed: () => context.push('/farm/add-crop'),
+                        icon: const Icon(Icons.add, color: Colors.white),
+                        label: const Text('Add Crop', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                        style: TextButton.styleFrom(
+                          backgroundColor: Colors.white.withValues(alpha: 0.2),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        ),
                       ),
-                    ),
-              loading: () => const CircularProgressIndicator(),
-              error: (e, st) => Text('Error: $e'),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  cropsAsync.when(
+                    data: (crops) => crops.isEmpty 
+                        ? const _GlassCard(child: Padding(padding: EdgeInsets.all(16), child: Text("No crops added yet.", style: TextStyle(color: Colors.white))))
+                        : SizedBox(
+                            height: 140,
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: crops.length,
+                              itemBuilder: (context, index) {
+                                final crop = crops[index];
+                                return Container(
+                                  width: 150,
+                                  margin: const EdgeInsets.only(right: 12),
+                                  child: _GlassCard(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(16),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Container(
+                                            padding: const EdgeInsets.all(8),
+                                            decoration: BoxDecoration(
+                                              color: Colors.greenAccent.shade400.withValues(alpha: 0.2),
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: const Icon(Icons.eco, color: Colors.greenAccent, size: 24),
+                                          ),
+                                          const Spacer(),
+                                          Text(crop.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white)),
+                                          if (crop.variety != null) Text(crop.variety!, style: const TextStyle(color: Colors.white70)),
+                                          Text('${crop.area ?? 0} ${crop.areaUnit ?? "acres"}', style: const TextStyle(color: Colors.white54, fontSize: 12)),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                    loading: () => const CircularProgressIndicator(color: Colors.white),
+                    error: (e, st) => Text('Error: $e', style: const TextStyle(color: Colors.red)),
+                  ),
+                  const SizedBox(height: 32),
+                  const Text('Daily Tasks', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
+                  const SizedBox(height: 16),
+                  tasksAsync.when(
+                    data: (tasks) => tasks.isEmpty
+                        ? const _GlassCard(child: Padding(padding: EdgeInsets.all(16), child: Text("No tasks for today!", style: TextStyle(color: Colors.white))))
+                        : ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: tasks.length,
+                            itemBuilder: (context, index) {
+                              final task = tasks[index];
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 12.0),
+                                child: _GlassCard(
+                                  child: CheckboxListTile(
+                                    title: Text(task.title, style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      decoration: task.isCompleted ? TextDecoration.lineThrough : null,
+                                      decorationColor: Colors.white70,
+                                    )),
+                                    subtitle: task.description != null ? Text(task.description!, style: const TextStyle(color: Colors.white70)) : null,
+                                    value: task.isCompleted,
+                                    activeColor: Colors.greenAccent.shade400,
+                                    checkColor: Colors.black,
+                                    side: const BorderSide(color: Colors.white54, width: 2),
+                                    onChanged: (val) {
+                                      if (val != null) {
+                                        ref.read(farmRepositoryProvider).updateTaskStatus(task, val);
+                                        ref.invalidate(tasksProvider);
+                                      }
+                                    },
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                    loading: () => const CircularProgressIndicator(color: Colors.white),
+                    error: (e, st) => Text('Error: $e', style: const TextStyle(color: Colors.red)),
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 24),
-            const Text('Daily Tasks', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            tasksAsync.when(
-              data: (tasks) => tasks.isEmpty
-                  ? const Card(child: Padding(padding: EdgeInsets.all(16), child: Text("No tasks for today!")))
-                  : ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: tasks.length,
-                      itemBuilder: (context, index) {
-                        final task = tasks[index];
-                        return CheckboxListTile(
-                          title: Text(task.title, style: TextStyle(decoration: task.isCompleted ? TextDecoration.lineThrough : null)),
-                          subtitle: task.description != null ? Text(task.description!) : null,
-                          value: task.isCompleted,
-                          onChanged: (val) {
-                            if (val != null) {
-                              ref.read(farmRepositoryProvider).updateTaskStatus(task, val);
-                              ref.invalidate(tasksProvider);
-                            }
-                          },
-                        );
-                      },
-                    ),
-              loading: () => const CircularProgressIndicator(),
-              error: (e, st) => Text('Error: $e'),
-            ),
-          ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _GlassCard extends StatelessWidget {
+  final Widget child;
+  const _GlassCard({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(24),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+          ),
+          child: child,
         ),
       ),
     );
