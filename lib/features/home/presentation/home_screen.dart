@@ -10,26 +10,44 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    
     return Scaffold(
       body: Stack(
         children: [
-          // Dynamic Background Image
-          Positioned.fill(
+          // Dynamic Background Image - kept to maintain farm context but faded at the bottom
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            height: MediaQuery.of(context).size.height * 0.45,
             child: Image.asset(
               'assets/images/farm_bg.jpg',
               fit: BoxFit.cover,
             ),
           ),
           
-          // Optional slight dark overlay for better text contrast
+          // Gradient overlay for seamless transition
           Positioned.fill(
             child: Container(
-              color: Colors.black.withValues(alpha: 0.3),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.black.withValues(alpha: 0.4),
+                    theme.scaffoldBackgroundColor.withValues(alpha: 0.9),
+                    theme.scaffoldBackgroundColor,
+                  ],
+                  stops: const [0.0, 0.4, 0.5],
+                ),
+              ),
             ),
           ),
 
           SafeArea(
             child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -37,79 +55,133 @@ class HomeScreen extends ConsumerWidget {
                   const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 24.0),
                     child: Text(
-                      'Welcome to\nAgriAI',
-                      style: TextStyle(
-                        fontSize: 36,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        height: 1.2,
-                      ),
-                    ),
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
-                    child: Text(
-                      'Your local agricultural expert',
+                      'Good Morning,',
                       style: TextStyle(
                         fontSize: 18,
                         color: Colors.white70,
                       ),
                     ),
                   ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 24.0),
+                    child: Text(
+                      'Farmer Kamal',
+                      style: TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        height: 1.2,
+                      ),
+                    ),
+                  ),
                   
-                  // Weather Dashboard Widget (Glassmorphism)
+                  // Weather Dashboard Widget (Refined Glassmorphism)
                   Padding(
                     padding: const EdgeInsets.all(24.0),
                     child: _WeatherDashboard(),
                   ),
-                  
-                  // Navigation Cards (Glassmorphism)
+
+                  // Quick Tools Section
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Wrap(
-                      spacing: 12,
-                      runSpacing: 12,
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width / 2 - 24,
-                          child: _ActionCard(
-                            title: 'My\nFarm',
-                            icon: Icons.grass_rounded,
-                            color: Colors.greenAccent.shade400,
-                            onTap: () => context.push('/farm'),
-                          ),
-                        ),
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width / 2 - 24,
-                          child: _ActionCard(
-                            title: 'Camera\nScan',
-                            icon: Icons.camera_alt_rounded,
-                            color: Colors.lightGreenAccent.shade400,
-                            onTap: () => context.push('/scan'),
-                          ),
-                        ),
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width / 2 - 24,
-                          child: _ActionCard(
-                            title: 'AI\nChat',
-                            icon: Icons.chat_bubble_outline_rounded,
-                            color: Colors.yellowAccent.shade700,
-                            onTap: () => context.push('/chat'),
-                          ),
-                        ),
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width / 2 - 24,
-                          child: _ActionCard(
-                            title: 'Market\nPrices',
-                            icon: Icons.storefront_rounded,
-                            color: Colors.orangeAccent.shade400,
-                            onTap: () => context.push('/market'),
-                          ),
+                        Text(
+                          'Quick Tools',
+                          style: theme.textTheme.titleLarge,
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 16),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                    physics: const BouncingScrollPhysics(),
+                    child: Row(
+                      children: [
+                        _QuickToolItem(
+                          icon: Icons.add_circle_outline_rounded,
+                          label: 'Add Crop',
+                          color: theme.colorScheme.primary,
+                          onTap: () => context.push('/farm/add-crop'),
+                        ),
+                        _QuickToolItem(
+                          icon: Icons.smart_toy_outlined,
+                          label: 'AI Helper',
+                          color: Colors.orange.shade700,
+                          onTap: () => context.push('/chat'),
+                        ),
+                        _QuickToolItem(
+                          icon: Icons.water_drop_outlined,
+                          label: 'Irrigation',
+                          color: Colors.blue.shade600,
+                          onTap: () {},
+                        ),
+                        _QuickToolItem(
+                          icon: Icons.people_outline_rounded,
+                          label: 'Community',
+                          color: Colors.purple.shade500,
+                          onTap: () {},
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 32),
+
+                  // Live Updates / News Section
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Live Alerts',
+                          style: theme.textTheme.titleLarge,
+                        ),
+                        TextButton(
+                          onPressed: () {},
+                          child: const Text('See All'),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  
+                  // Live Updates Cards
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                    child: Column(
+                      children: [
+                        _LiveAlertCard(
+                          title: 'Market Spike Alert',
+                          description: 'Tomato prices have increased by 15% in Dambulla market today.',
+                          icon: Icons.trending_up_rounded,
+                          iconColor: Colors.green.shade600,
+                          time: '1 hour ago',
+                        ),
+                        const SizedBox(height: 12),
+                        _LiveAlertCard(
+                          title: 'Weather Warning',
+                          description: 'Heavy rain expected tomorrow evening. Postpone fertilizer application.',
+                          icon: Icons.warning_amber_rounded,
+                          iconColor: Colors.orange.shade600,
+                          time: '3 hours ago',
+                        ),
+                        const SizedBox(height: 12),
+                        _LiveAlertCard(
+                          title: 'Crop Schedule',
+                          description: 'It is time to water your Paddy field (Block A).',
+                          icon: Icons.calendar_today_rounded,
+                          iconColor: theme.colorScheme.primary,
+                          time: 'Just now',
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 120), // Bottom padding for navigation bar
                 ],
               ),
             ),
@@ -128,12 +200,19 @@ class _WeatherDashboard extends ConsumerWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(24),
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.2),
+            color: Colors.white.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.4)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.1),
+                blurRadius: 10,
+                offset: const Offset(0, 5),
+              ),
+            ],
           ),
           padding: const EdgeInsets.all(24),
           child: weatherAsync.when(
@@ -155,15 +234,15 @@ class _WeatherDashboard extends ConsumerWidget {
                         '$temp°C',
                         style: const TextStyle(
                           color: Colors.white, 
-                          fontSize: 36, 
+                          fontSize: 42, 
                           fontWeight: FontWeight.bold
                         ),
                       ),
                     ],
                   ),
                   SizedBox(
-                    width: 70,
-                    height: 70,
+                    width: 80,
+                    height: 80,
                     child: Lottie.asset('assets/animations/weather_sun.json'),
                   ),
                 ],
@@ -192,62 +271,139 @@ class _WeatherDashboard extends ConsumerWidget {
   }
 }
 
-class _ActionCard extends StatelessWidget {
-  final String title;
+class _QuickToolItem extends StatelessWidget {
   final IconData icon;
+  final String label;
   final Color color;
   final VoidCallback onTap;
 
-  const _ActionCard({
-    required this.title,
+  const _QuickToolItem({
     required this.icon,
+    required this.label,
     required this.color,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(24),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: onTap,
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+    final theme = Theme.of(context);
+    
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 6.0),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          width: 85,
+          padding: const EdgeInsets.symmetric(vertical: 16.0),
+          decoration: BoxDecoration(
+            color: theme.cardTheme.color,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.04),
+                blurRadius: 8,
+                offset: const Offset(0, 4),
               ),
-              padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: color.withValues(alpha: 0.2),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(icon, color: color, size: 32),
-                  ),
-                  const SizedBox(height: 24),
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      height: 1.2,
-                    ),
-                  ),
-                ],
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: color, size: 28),
               ),
-            ),
+              const SizedBox(height: 12),
+              Text(
+                label,
+                style: theme.textTheme.labelMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _LiveAlertCard extends StatelessWidget {
+  final String title;
+  final String description;
+  final IconData icon;
+  final Color iconColor;
+  final String time;
+
+  const _LiveAlertCard({
+    required this.title,
+    required this.description,
+    required this.icon,
+    required this.iconColor,
+    required this.time,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    
+    return Container(
+      decoration: BoxDecoration(
+        color: theme.cardTheme.color,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: iconColor.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Icon(icon, color: iconColor, size: 24),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      title,
+                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      time,
+                      style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  description,
+                  style: theme.textTheme.bodyMedium?.copyWith(color: theme.textTheme.bodyMedium?.color?.withValues(alpha: 0.8)),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

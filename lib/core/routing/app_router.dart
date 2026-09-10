@@ -13,6 +13,7 @@ import '../../features/auth/presentation/otp_verification_screen.dart';
 import '../../features/market/presentation/market_screen.dart';
 import '../../features/farm/presentation/farm_screen.dart';
 import '../../features/farm/presentation/add_crop_screen.dart';
+import 'main_layout.dart';
 
 final goRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -30,29 +31,54 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         path: '/verify-otp',
         builder: (context, state) => const OtpVerificationScreen(),
       ),
-      GoRoute(
-        path: '/home',
-        builder: (context, state) => const HomeScreen(),
-      ),
-      GoRoute(
-        path: '/scan',
-        builder: (context, state) => const CameraScanScreen(),
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) {
+          return MainLayout(navigationShell: navigationShell);
+        },
+        branches: [
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/home',
+                builder: (context, state) => const HomeScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/farm',
+                builder: (context, state) => const FarmScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'add-crop',
+                    builder: (context, state) => const AddCropScreen(),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/scan',
+                builder: (context, state) => const CameraScanScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/market',
+                builder: (context, state) => const MarketScreen(),
+              ),
+            ],
+          ),
+        ],
       ),
       GoRoute(
         path: '/chat',
         builder: (context, state) => const AiChatScreen(),
-      ),
-      GoRoute(
-        path: '/market',
-        builder: (context, state) => const MarketScreen(),
-      ),
-      GoRoute(
-        path: '/farm',
-        builder: (context, state) => const FarmScreen(),
-      ),
-      GoRoute(
-        path: '/farm/add-crop',
-        builder: (context, state) => const AddCropScreen(),
       ),
     ],
   );
