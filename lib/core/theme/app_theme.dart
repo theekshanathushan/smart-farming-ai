@@ -68,12 +68,34 @@ class AppTheme {
       ),
       cardTheme: CardThemeData(
         color: surface,
-        elevation: 2,
-        shadowColor: deepCanopy.withOpacity(0.1),
+        elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24), // Organic roundness
+          borderRadius: BorderRadius.circular(24),
+          side: BorderSide(color: deepCanopy.withValues(alpha: 0.1), width: 1),
         ),
         margin: const EdgeInsets.symmetric(vertical: 8),
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: surface,
+        indicatorColor: sprout.withValues(alpha: 0.2),
+        labelTextStyle: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return baseTextTheme.labelMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: deepCanopy,
+            );
+          }
+          return baseTextTheme.labelMedium?.copyWith(
+            fontWeight: FontWeight.w500,
+            color: richLoam.withValues(alpha: 0.7),
+          );
+        }),
+        iconTheme: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return const IconThemeData(color: deepCanopy, size: 28);
+          }
+          return IconThemeData(color: richLoam.withValues(alpha: 0.7), size: 24);
+        }),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
@@ -87,7 +109,7 @@ class AppTheme {
           borderRadius: BorderRadius.circular(24),
           borderSide: const BorderSide(color: sprout, width: 2),
         ),
-        hintStyle: TextStyle(color: deepCanopy.withOpacity(0.5)),
+        hintStyle: TextStyle(color: deepCanopy.withValues(alpha: 0.5)),
       ),
     );
   }
