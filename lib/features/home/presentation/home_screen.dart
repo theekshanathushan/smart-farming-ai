@@ -76,7 +76,7 @@ class HomeScreen extends ConsumerWidget {
                             title: 'My\nFarm',
                             icon: Icons.grass_rounded,
                             color: Colors.greenAccent.shade400,
-                            onTap: () => context.go('/farm'),
+                            onTap: () => context.push('/farm'),
                           ),
                         ),
                         SizedBox(
@@ -85,7 +85,7 @@ class HomeScreen extends ConsumerWidget {
                             title: 'Camera\nScan',
                             icon: Icons.camera_alt_rounded,
                             color: Colors.lightGreenAccent.shade400,
-                            onTap: () => context.go('/scan'),
+                            onTap: () => context.push('/scan'),
                           ),
                         ),
                         SizedBox(
@@ -94,7 +94,7 @@ class HomeScreen extends ConsumerWidget {
                             title: 'AI\nChat',
                             icon: Icons.chat_bubble_outline_rounded,
                             color: Colors.yellowAccent.shade700,
-                            onTap: () => context.go('/chat'),
+                            onTap: () => context.push('/chat'),
                           ),
                         ),
                         SizedBox(
@@ -103,7 +103,7 @@ class HomeScreen extends ConsumerWidget {
                             title: 'Market\nPrices',
                             icon: Icons.storefront_rounded,
                             color: Colors.orangeAccent.shade400,
-                            onTap: () => context.go('/market'),
+                            onTap: () => context.push('/market'),
                           ),
                         ),
                       ],
