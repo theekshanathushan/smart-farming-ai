@@ -11,6 +11,8 @@ import '../../features/auth/presentation/language_selection_screen.dart';
 import '../../features/auth/presentation/auth_screen.dart';
 import '../../features/auth/presentation/otp_verification_screen.dart';
 import '../../features/market/presentation/market_screen.dart';
+import '../../features/farm/presentation/farm_screen.dart';
+import '../../features/farm/presentation/add_crop_screen.dart';
 
 final goRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -43,6 +45,14 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/market',
         builder: (context, state) => const MarketScreen(),
+      ),
+      GoRoute(
+        path: '/farm',
+        builder: (context, state) => const FarmScreen(),
+      ),
+      GoRoute(
+        path: '/farm/add-crop',
+        builder: (context, state) => const AddCropScreen(),
       ),
     ],
   );

@@ -8,11 +8,6 @@ import 'core/routing/app_router.dart';
 import 'core/local_db/app_database.dart';
 import 'core/theme/app_theme.dart';
 
-// Provide the database globally
-final databaseProvider = Provider<AppDatabase>((ref) {
-  return AppDatabase();
-});
-
 void main() async {
   // Ensure widget binding is initialized
   WidgetsFlutterBinding.ensureInitialized();

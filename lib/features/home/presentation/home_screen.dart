@@ -59,18 +59,30 @@ class HomeScreen extends ConsumerWidget {
               // Navigation Cards
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Row(
+                child: Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
                   children: [
-                    Expanded(
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width / 2 - 24,
+                      child: _ActionCard(
+                        title: 'My\nFarm',
+                        icon: Icons.grass_rounded,
+                        color: Colors.green.shade800,
+                        onTap: () => context.go('/farm'),
+                      ),
+                    ),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width / 2 - 24,
                       child: _ActionCard(
                         title: 'Camera\nScan',
                         icon: Icons.camera_alt_rounded,
-                        color: Colors.green.shade800,
+                        color: Colors.green.shade600,
                         onTap: () => context.go('/scan'),
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width / 2 - 24,
                       child: _ActionCard(
                         title: 'AI\nChat',
                         icon: Icons.chat_bubble_outline_rounded,
@@ -78,8 +90,8 @@ class HomeScreen extends ConsumerWidget {
                         onTap: () => context.go('/chat'),
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width / 2 - 24,
                       child: _ActionCard(
                         title: 'Market\nPrices',
                         icon: Icons.storefront_rounded,

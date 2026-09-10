@@ -6,16 +6,24 @@ import 'package:path/path.dart' as p;
 // ignore: depend_on_referenced_packages
 import 'package:sqlite3/sqlite3.dart';
 import 'package:sqlite3_flutter_libs/sqlite3_flutter_libs.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'tables/scan_results.dart';
+import 'tables/crops.dart';
+import 'tables/tasks.dart';
 
 part 'app_database.g.dart';
 
-@DriftDatabase(tables: [ScanResults])
+// Provide the database globally
+final databaseProvider = Provider<AppDatabase>((ref) {
+  return AppDatabase();
+});
+
+@DriftDatabase(tables: [ScanResults, Crops, Tasks])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -25,6 +33,10 @@ class AppDatabase extends _$AppDatabase {
         onUpgrade: (Migrator m, int from, int to) async {
           if (from < 2) {
             await m.createTable(scanResults);
+          }
+          if (from < 3) {
+            await m.createTable(crops);
+            await m.createTable(tasks);
           }
         },
       );
@@ -37,6 +49,19 @@ class AppDatabase extends _$AppDatabase {
   Future<List<ScanResult>> getAllScanResults() {
     return (select(scanResults)..orderBy([(t) => OrderingTerm.desc(t.timestamp)])).get();
   }
+
+  // DAOs for Crops
+  Future<int> insertCrop(CropsCompanion crop) => into(crops).insert(crop);
+  Future<List<Crop>> getAllCrops() => select(crops).get();
+  Future<bool> updateCrop(Crop crop) => update(crops).replace(crop);
+  Future<int> deleteCrop(Crop crop) => delete(crops).delete(crop);
+
+  // DAOs for Tasks
+  Future<int> insertTask(TasksCompanion task) => into(tasks).insert(task);
+  Future<List<Task>> getAllTasks() => select(tasks).get();
+  Future<List<Task>> getTasksForCrop(String cropId) => (select(tasks)..where((t) => t.cropId.equals(cropId))).get();
+  Future<bool> updateTask(Task task) => update(tasks).replace(task);
+  Future<int> deleteTask(Task task) => delete(tasks).delete(task);
 }
 
 LazyDatabase _openConnection() {
