@@ -30,6 +30,7 @@ class FarmScreen extends ConsumerWidget {
         elevation: 0,
       ),
       body: Stack(
+        fit: StackFit.expand,
         children: [
           // Dynamic Background Image
           Positioned.fill(
