@@ -108,10 +108,40 @@ class FarmScreen extends ConsumerWidget {
                     scrollDirection: Axis.horizontal,
                     child: Row(
                       children: [
-                        _ActionBtn(icon: Icons.water_drop, label: 'Water All', color: Colors.blueAccent),
-                        _ActionBtn(icon: Icons.eco, label: 'Fertilize', color: Colors.greenAccent),
-                        _ActionBtn(icon: Icons.agriculture, label: 'Harvest', color: Colors.orangeAccent),
-                        _ActionBtn(icon: Icons.note_add, label: 'Add Note', color: Colors.purpleAccent),
+                        _ActionBtn(
+                          icon: Icons.water_drop, 
+                          label: 'Water All', 
+                          color: Colors.blueAccent,
+                          onTap: () => context.push('/irrigation'),
+                        ),
+                        _ActionBtn(
+                          icon: Icons.eco, 
+                          label: 'Fertilize', 
+                          color: Colors.greenAccent,
+                          onTap: () => context.push('/fertilizer'),
+                        ),
+                        _ActionBtn(
+                          icon: Icons.agriculture, 
+                          label: 'Harvest', 
+                          color: Colors.orangeAccent,
+                          onTap: () => context.push('/ledger/add'),
+                        ),
+                        _ActionBtn(
+                          icon: Icons.note_add, 
+                          label: 'Add Note', 
+                          color: Colors.purpleAccent,
+                          onTap: () {
+                            cropsAsync.whenData((crops) {
+                              if (crops.isEmpty) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Please add a crop first to add a note.', style: TextStyle(color: Colors.white)), backgroundColor: Colors.redAccent),
+                                );
+                                return;
+                              }
+                              _showAddNoteDialog(context, ref, crops);
+                            });
+                          },
+                        ),
                         _ActionBtn(
                           icon: Icons.smart_toy, 
                           label: 'AI Advice', 
@@ -229,4 +259,92 @@ class _ActionBtn extends StatelessWidget {
       ),
     );
   }
+}
+
+void _showAddNoteDialog(BuildContext context, WidgetRef ref, List<Crop> crops) {
+  final titleController = TextEditingController();
+  final descController = TextEditingController();
+  String selectedCropId = crops.first.id;
+
+  showDialog(
+    context: context,
+    builder: (context) {
+      return StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            backgroundColor: const Color(0xFF1E1E1E),
+            title: const Text('Add Farm Note/Task', style: TextStyle(color: Colors.white)),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  DropdownButtonFormField<String>(
+                    value: selectedCropId,
+                    dropdownColor: const Color(0xFF2C2C2C),
+                    style: const TextStyle(color: Colors.white),
+                    decoration: const InputDecoration(
+                      labelText: 'Select Crop',
+                      labelStyle: TextStyle(color: Colors.white70),
+                      enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white54)),
+                    ),
+                    items: crops.map((c) => DropdownMenuItem(value: c.id, child: Text(c.name))).toList(),
+                    onChanged: (val) {
+                      if (val != null) setState(() => selectedCropId = val);
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: titleController,
+                    style: const TextStyle(color: Colors.white),
+                    decoration: const InputDecoration(
+                      labelText: 'Title',
+                      labelStyle: TextStyle(color: Colors.white70),
+                      enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white54)),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: descController,
+                    style: const TextStyle(color: Colors.white),
+                    decoration: const InputDecoration(
+                      labelText: 'Description (Optional)',
+                      labelStyle: TextStyle(color: Colors.white70),
+                      enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white54)),
+                    ),
+                    maxLines: 3,
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel', style: TextStyle(color: Colors.white54)),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.greenAccent.shade400),
+                onPressed: () {
+                  if (titleController.text.trim().isEmpty) return;
+                  final newTask = Task(
+                    id: DateTime.now().millisecondsSinceEpoch.toString(),
+                    cropId: selectedCropId,
+                    title: titleController.text.trim(),
+                    description: descController.text.trim().isEmpty ? null : descController.text.trim(),
+                    dueDate: DateTime.now(), // default to today
+                    isCompleted: false,
+                    createdAt: DateTime.now(),
+                  );
+                  ref.read(farmRepositoryProvider).addTask(newTask);
+                  ref.invalidate(tasksProvider);
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Note added successfully!')));
+                },
+                child: const Text('Save', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+              ),
+            ],
+          );
+        }
+      );
+    },
+  );
 }
