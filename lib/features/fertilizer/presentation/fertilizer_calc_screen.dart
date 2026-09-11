@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../domain/fertilizer_logic.dart';
 import '../../../core/widgets/animated_farm_background.dart';
+import '../../../core/widgets/glass_container.dart';
 
 class FertilizerCalcScreen extends StatefulWidget {
   const FertilizerCalcScreen({super.key});
@@ -54,12 +55,9 @@ class _FertilizerCalcScreenState extends State<FertilizerCalcScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Container(
+                  GlassContainer(
                     padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.5),
-                      borderRadius: BorderRadius.circular(24),
-                    ),
+                    borderRadius: 24,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
@@ -121,14 +119,10 @@ class _FertilizerCalcScreenState extends State<FertilizerCalcScreen> {
   }
 
   Widget _buildResultCard(String name, double amount) {
-    return Container(
+    return GlassContainer(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
-      ),
+      borderRadius: 20,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

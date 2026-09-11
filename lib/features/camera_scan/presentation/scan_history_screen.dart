@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../../core/local_db/app_database.dart';
 import '../../../core/widgets/animated_farm_background.dart';
+import '../../../core/widgets/glass_container.dart';
 
 final scanHistoryProvider = FutureProvider<List<ScanResult>>((ref) {
   return ref.watch(databaseProvider).getAllScanResults();
@@ -65,12 +66,9 @@ class ScanHistoryScreen extends ConsumerWidget {
         _showImageDialog(context, item.imagePath);
       },
       borderRadius: BorderRadius.circular(16),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.black.withValues(alpha: 0.4),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
-        ),
+      child: GlassContainer(
+        borderRadius: 16,
+        padding: EdgeInsets.zero,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

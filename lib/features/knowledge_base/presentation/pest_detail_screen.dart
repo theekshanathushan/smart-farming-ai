@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../data/pest_database.dart';
 import '../../../core/widgets/animated_farm_background.dart';
+import '../../../core/widgets/glass_container.dart';
 
 class PestDetailScreen extends StatelessWidget {
   final String pestId;
@@ -56,13 +57,9 @@ class PestDetailScreen extends StatelessWidget {
   }
 
   Widget _buildSection(String title, String content, IconData icon) {
-    return Container(
+    return GlassContainer(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
-      ),
+      borderRadius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../data/pest_database.dart';
 import '../../../core/widgets/animated_farm_background.dart';
+import '../../../core/widgets/glass_container.dart';
 
 class KnowledgeBaseScreen extends StatelessWidget {
   const KnowledgeBaseScreen({super.key});
@@ -36,16 +37,17 @@ class KnowledgeBaseScreen extends StatelessWidget {
   }
 
   Widget _buildPestCard(BuildContext context, PestDisease pest) {
-    return Card(
-      color: Colors.black.withValues(alpha: 0.5),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      margin: const EdgeInsets.only(bottom: 16),
-      child: InkWell(
-        onTap: () => context.push('/guide/${pest.id}'),
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: GlassContainer(
+        borderRadius: 16,
+        padding: EdgeInsets.zero,
+        child: InkWell(
+          onTap: () => context.push('/guide/${pest.id}'),
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
@@ -84,6 +86,6 @@ class KnowledgeBaseScreen extends StatelessWidget {
           ),
         ),
       ),
-    );
+    ));
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/widgets/animated_farm_background.dart';
+import '../../../core/widgets/glass_container.dart';
 
 class IrrigationScreen extends StatefulWidget {
   const IrrigationScreen({super.key});
@@ -81,12 +82,9 @@ class _IrrigationScreenState extends State<IrrigationScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Container(
+                  GlassContainer(
                     padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.5),
-                      borderRadius: BorderRadius.circular(24),
-                    ),
+                    borderRadius: 24,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
@@ -150,14 +148,10 @@ class _IrrigationScreenState extends State<IrrigationScreen> {
   }
 
   Widget _buildResultCard(String title, String value, IconData icon) {
-    return Container(
+    return GlassContainer(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
-      ),
+      borderRadius: 20,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../data/ledger_repository.dart';
 import 'ledger_screen.dart'; // to invalidate provider
 import '../../../core/widgets/animated_farm_background.dart';
+import '../../../core/widgets/glass_container.dart';
 
 class AddTransactionScreen extends ConsumerStatefulWidget {
   const AddTransactionScreen({super.key});
@@ -70,12 +71,9 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
               padding: const EdgeInsets.all(24.0),
               child: Form(
                 key: _formKey,
-                child: Container(
+                child: GlassContainer(
                   padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.5),
-                    borderRadius: BorderRadius.circular(24),
-                  ),
+                  borderRadius: 24,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
