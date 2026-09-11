@@ -91,75 +91,30 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = state.copyWith(
       status: AuthStateStatus.loading,
       phoneNumber: formattedPhone,
-      name: name, // Keep the name in state to save later
+      name: name,
     );
 
-    try {
-      await _auth.verifyPhoneNumber(
-        phoneNumber: formattedPhone,
-        verificationCompleted: (firebase.PhoneAuthCredential credential) async {
-          try {
-            await _auth.signInWithCredential(credential);
-            await _saveSession(formattedPhone, state.name);
-            state = state.copyWith(status: AuthStateStatus.success, isLoggedIn: true);
-          } catch (e) {
-            state = state.copyWith(
-              status: AuthStateStatus.error,
-              errorMessage: 'Auto verification failed: ${e.toString()}',
-            );
-          }
-        },
-        verificationFailed: (firebase.FirebaseAuthException e) {
-          state = state.copyWith(
-            status: AuthStateStatus.error,
-            errorMessage: e.message ?? 'Verification failed',
-          );
-        },
-        codeSent: (String verificationId, int? resendToken) {
-          state = state.copyWith(
-            status: AuthStateStatus.otpSent,
-            verificationId: verificationId,
-          );
-        },
-        codeAutoRetrievalTimeout: (String verificationId) {
-          state = state.copyWith(
-            verificationId: verificationId,
-          );
-        },
-      );
-    } catch (e) {
-      state = state.copyWith(
-        status: AuthStateStatus.error,
-        errorMessage: e.toString(),
-      );
-    }
+    // MOCK OTP FLOW TO BYPASS FIREBASE ERRORS DURING UI TESTING
+    await Future.delayed(const Duration(seconds: 1));
+    state = state.copyWith(
+      status: AuthStateStatus.otpSent,
+      verificationId: 'mock_verification_id',
+    );
   }
 
   Future<void> verifyOTP(String otpCode) async {
     state = state.copyWith(status: AuthStateStatus.loading);
-    try {
-      if (state.verificationId == null) {
-        throw Exception('Verification ID is missing. Please request OTP again.');
-      }
-
-      firebase.PhoneAuthCredential credential = firebase.PhoneAuthProvider.credential(
-        verificationId: state.verificationId!,
-        smsCode: otpCode.trim(),
-      );
-
-      await _auth.signInWithCredential(credential);
-      await _saveSession(state.phoneNumber!, state.name);
-
+    
+    // MOCK OTP VERIFICATION
+    await Future.delayed(const Duration(seconds: 1));
+    
+    if (otpCode.isNotEmpty) { // Accept any OTP for testing
+      await _saveSession(state.phoneNumber ?? '', state.name);
       state = state.copyWith(status: AuthStateStatus.success, isLoggedIn: true);
-    } on firebase.FirebaseAuthException catch (e) {
+    } else {
       state = state.copyWith(
         status: AuthStateStatus.error,
-        errorMessage: e.message ?? 'Invalid OTP',
-      );
-    } catch (e) {
-      state = state.copyWith(
-        status: AuthStateStatus.error,
-        errorMessage: e.toString(),
+        errorMessage: 'Invalid OTP',
       );
     }
   }

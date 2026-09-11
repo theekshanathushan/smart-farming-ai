@@ -24,12 +24,12 @@ import '../../features/fertilizer/presentation/fertilizer_calc_screen.dart';
 import 'main_layout.dart';
 
 final goRouterProvider = Provider<GoRouter>((ref) {
-  final authState = ref.watch(authProvider);
+  // Only rebuild the router when login state changes, not on every auth status change.
+  final isLoggedIn = ref.watch(authProvider.select((state) => state.isLoggedIn));
 
   return GoRouter(
     initialLocation: '/',
     redirect: (context, state) {
-      final isLoggedIn = authState.isLoggedIn;
       final isAuthRoute = state.matchedLocation == '/' || 
                           state.matchedLocation == '/auth' || 
                           state.matchedLocation == '/verify-otp';
