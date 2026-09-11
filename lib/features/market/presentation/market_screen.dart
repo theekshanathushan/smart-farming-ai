@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/market_provider.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/animated_farm_background.dart';
 
 class MarketScreen extends ConsumerWidget {
   const MarketScreen({super.key});
@@ -20,34 +21,8 @@ class MarketScreen extends ConsumerWidget {
       ),
       body: Stack(
         children: [
-          // Dynamic Background Image - faded at the bottom like Home Screen
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: MediaQuery.of(context).size.height * 0.45,
-            child: Image.asset(
-              'assets/images/farm_bg.jpg',
-              fit: BoxFit.cover,
-            ),
-          ),
-          
-          // Gradient overlay for seamless transition
-          Positioned.fill(
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.black.withValues(alpha: 0.4),
-                    Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.9),
-                    Theme.of(context).scaffoldBackgroundColor,
-                  ],
-                  stops: const [0.0, 0.4, 0.5],
-                ),
-              ),
-            ),
+          const Positioned.fill(
+            child: AnimatedFarmBackground(),
           ),
           
           SafeArea(

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/farm_repository.dart';
 import '../../../core/local_db/app_database.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/widgets/animated_farm_background.dart';
 
 final tasksProvider = FutureProvider<List<Task>>((ref) {
   return ref.watch(farmRepositoryProvider).getTasks();
@@ -32,34 +33,8 @@ class FarmScreen extends ConsumerWidget {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // Dynamic Background Image - faded at the bottom like Home Screen
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: MediaQuery.of(context).size.height * 0.45,
-            child: Image.asset(
-              'assets/images/farm_bg.jpg',
-              fit: BoxFit.cover,
-            ),
-          ),
-          
-          // Gradient overlay for seamless transition
-          Positioned.fill(
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.black.withValues(alpha: 0.4),
-                    Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.9),
-                    Theme.of(context).scaffoldBackgroundColor,
-                  ],
-                  stops: const [0.0, 0.4, 0.5],
-                ),
-              ),
-            ),
+          const Positioned.fill(
+            child: AnimatedFarmBackground(),
           ),
           
           SafeArea(
