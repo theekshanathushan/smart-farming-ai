@@ -1,8 +1,11 @@
+import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
+import '../../auth/providers/auth_provider.dart';
 import '../data/weather_provider.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -11,6 +14,7 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final authState = ref.watch(authProvider);
     
     return Scaffold(
       body: Stack(
@@ -60,10 +64,10 @@ class HomeScreen extends ConsumerWidget {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Column(
+                          Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
+                              const Text(
                                 'Good Morning,',
                                 style: TextStyle(
                                   fontSize: 18,
@@ -71,8 +75,8 @@ class HomeScreen extends ConsumerWidget {
                                 ),
                               ),
                               Text(
-                                'Farmer Kamal',
-                                style: TextStyle(
+                                authState.name?.isNotEmpty == true ? authState.name! : 'Farmer',
+                                style: const TextStyle(
                                   fontSize: 32,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
@@ -87,10 +91,15 @@ class HomeScreen extends ConsumerWidget {
                               shape: BoxShape.circle,
                               border: Border.all(color: Colors.white.withValues(alpha: 0.5), width: 2),
                             ),
-                            child: const CircleAvatar(
+                            child: CircleAvatar(
                               radius: 24,
                               backgroundColor: Colors.white24,
-                              child: Icon(Icons.person, color: Colors.white),
+                              backgroundImage: authState.profileImagePath != null
+                                  ? FileImage(File(authState.profileImagePath!))
+                                  : null,
+                              child: authState.profileImagePath == null
+                                  ? const Icon(Icons.person, color: Colors.white)
+                                  : null,
                             ),
                           ),
                         ],

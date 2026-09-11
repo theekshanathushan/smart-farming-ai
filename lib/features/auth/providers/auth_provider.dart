@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart' hide AuthState;
 import 'package:firebase_auth/firebase_auth.dart' as firebase;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 enum AuthStateStatus { initial, loading, otpSent, error, success }
 
@@ -10,6 +11,8 @@ class AuthState {
   final String? verificationId;
   final String? phoneNumber;
   final String? name;
+  final bool isLoggedIn;
+  final String? profileImagePath;
 
   const AuthState({
     this.status = AuthStateStatus.initial,
@@ -17,6 +20,8 @@ class AuthState {
     this.verificationId,
     this.phoneNumber,
     this.name,
+    this.isLoggedIn = false,
+    this.profileImagePath,
   });
 
   AuthState copyWith({
@@ -25,6 +30,8 @@ class AuthState {
     String? verificationId,
     String? phoneNumber,
     String? name,
+    bool? isLoggedIn,
+    String? profileImagePath,
   }) {
     return AuthState(
       status: status ?? this.status,
@@ -32,6 +39,8 @@ class AuthState {
       verificationId: verificationId ?? this.verificationId,
       phoneNumber: phoneNumber ?? this.phoneNumber,
       name: name ?? this.name,
+      isLoggedIn: isLoggedIn ?? this.isLoggedIn,
+      profileImagePath: profileImagePath ?? this.profileImagePath,
     );
   }
 }
@@ -39,26 +48,41 @@ class AuthState {
 class AuthNotifier extends StateNotifier<AuthState> {
   final firebase.FirebaseAuth _auth = firebase.FirebaseAuth.instance;
 
-  AuthNotifier() : super(const AuthState());
+  AuthNotifier() : super(const AuthState()) {
+    _loadSession();
+  }
+
+  Future<void> _loadSession() async {
+    final prefs = await SharedPreferences.getInstance();
+    final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+    final name = prefs.getString('userName');
+    final phone = prefs.getString('userPhone');
+    final profileImagePath = prefs.getString('profileImagePath');
+
+    // Also check firebase auth
+    final isFirebaseLoggedIn = _auth.currentUser != null;
+
+    if (isLoggedIn || isFirebaseLoggedIn) {
+      state = state.copyWith(
+        isLoggedIn: true,
+        name: name,
+        phoneNumber: phone ?? _auth.currentUser?.phoneNumber,
+        profileImagePath: profileImagePath,
+      );
+    }
+  }
 
   String _formatPhoneNumber(String phone) {
     String formatted = phone.trim();
-    
-    // Fix common mistake: user types +77... instead of +9477... or 077...
-    // Sri Lankan mobile numbers without country code are 9 digits long (10 chars with '+')
     if (formatted.startsWith('+') && formatted.length == 10 && !formatted.startsWith('+94')) {
       formatted = formatted.substring(1);
     }
-    
     if (formatted.startsWith('0')) {
       formatted = formatted.substring(1);
     }
-    
     if (!formatted.startsWith('+')) {
-      // Assuming Sri Lanka country code based on requirement
       formatted = '+94$formatted';
     }
-    
     return formatted;
   }
 
@@ -67,17 +91,17 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = state.copyWith(
       status: AuthStateStatus.loading,
       phoneNumber: formattedPhone,
-      name: name,
+      name: name, // Keep the name in state to save later
     );
 
     try {
       await _auth.verifyPhoneNumber(
         phoneNumber: formattedPhone,
         verificationCompleted: (firebase.PhoneAuthCredential credential) async {
-          // Auto-resolution (Android only usually)
           try {
             await _auth.signInWithCredential(credential);
-            state = state.copyWith(status: AuthStateStatus.success);
+            await _saveSession(formattedPhone, state.name);
+            state = state.copyWith(status: AuthStateStatus.success, isLoggedIn: true);
           } catch (e) {
             state = state.copyWith(
               status: AuthStateStatus.error,
@@ -124,8 +148,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
       );
 
       await _auth.signInWithCredential(credential);
+      await _saveSession(state.phoneNumber!, state.name);
 
-      state = state.copyWith(status: AuthStateStatus.success);
+      state = state.copyWith(status: AuthStateStatus.success, isLoggedIn: true);
     } on firebase.FirebaseAuthException catch (e) {
       state = state.copyWith(
         status: AuthStateStatus.error,
@@ -139,8 +164,39 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  void resetState() {
+  Future<void> _saveSession(String phone, String? name) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isLoggedIn', true);
+    await prefs.setString('userPhone', phone);
+    if (name != null) {
+      await prefs.setString('userName', name);
+    }
+  }
+
+  Future<void> updateProfileImage(String? path) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (path == null) {
+      await prefs.remove('profileImagePath');
+    } else {
+      await prefs.setString('profileImagePath', path);
+    }
+    state = state.copyWith(profileImagePath: path);
+  }
+
+  Future<void> logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+    await _auth.signOut();
     state = const AuthState();
+  }
+
+  void resetState() {
+    // only reset auth flow status, keep user session info
+    state = state.copyWith(
+      status: AuthStateStatus.initial,
+      errorMessage: null,
+      verificationId: null,
+    );
   }
 }
 

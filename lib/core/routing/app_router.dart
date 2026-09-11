@@ -1,5 +1,6 @@
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../features/auth/providers/auth_provider.dart';
 import '../../features/ai_agent/presentation/chat_screen.dart';
 
 import '../../features/camera_scan/presentation/camera_scan_screen.dart';
@@ -23,8 +24,24 @@ import '../../features/fertilizer/presentation/fertilizer_calc_screen.dart';
 import 'main_layout.dart';
 
 final goRouterProvider = Provider<GoRouter>((ref) {
+  final authState = ref.watch(authProvider);
+
   return GoRouter(
     initialLocation: '/',
+    redirect: (context, state) {
+      final isLoggedIn = authState.isLoggedIn;
+      final isAuthRoute = state.matchedLocation == '/' || 
+                          state.matchedLocation == '/auth' || 
+                          state.matchedLocation == '/verify-otp';
+
+      if (isLoggedIn && isAuthRoute) {
+        return '/home';
+      }
+      if (!isLoggedIn && !isAuthRoute) {
+        return '/';
+      }
+      return null; // no redirect
+    },
     routes: [
       GoRoute(
         path: '/',
