@@ -15,12 +15,21 @@ String _getWeatherDescription(int code) {
 
 final weatherProvider = FutureProvider<Map<String, dynamic>>((ref) async {
   final locationService = ref.watch(locationServiceProvider);
-  final position = await locationService.getCurrentLocation();
-  if (position == null) {
-    throw Exception('Location permission denied or unavailable');
+  
+  double lat = 7.8592; // Dambulla fallback
+  double lon = 80.6517;
+
+  try {
+    final position = await locationService.getCurrentLocation();
+    if (position != null) {
+      lat = position.latitude;
+      lon = position.longitude;
+    }
+  } catch (e) {
+    // Ignore and use fallback
   }
 
-  final url = Uri.parse('https://api.open-meteo.com/v1/forecast?latitude=${position.latitude}&longitude=${position.longitude}&current_weather=true');
+  final url = Uri.parse('https://api.open-meteo.com/v1/forecast?latitude=$lat&longitude=$lon&current_weather=true');
   final response = await http.get(url).timeout(
     const Duration(seconds: 10),
     onTimeout: () => throw Exception('Connection timeout. Unable to fetch weather data.'),

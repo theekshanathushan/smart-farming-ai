@@ -6,6 +6,7 @@ import '../../features/camera_scan/presentation/camera_scan_screen.dart';
 import '../../features/camera_scan/presentation/scan_history_screen.dart';
 import '../../features/knowledge_base/presentation/knowledge_base_screen.dart';
 import '../../features/knowledge_base/presentation/pest_detail_screen.dart';
+import '../../features/irrigation/presentation/irrigation_screen.dart';
 
 import '../../features/home/presentation/home_screen.dart';
 
@@ -117,6 +118,10 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             },
           ),
         ],
+      ),
+      GoRoute(
+        path: '/irrigation',
+        builder: (context, state) => const IrrigationScreen(),
       ),
     ],
   );

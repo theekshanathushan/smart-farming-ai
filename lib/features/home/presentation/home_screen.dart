@@ -129,9 +129,7 @@ class HomeScreen extends ConsumerWidget {
                           icon: Icons.water_drop_outlined,
                           label: 'Irrigation',
                           color: Colors.blue.shade600,
-                          onTap: () {
-                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Irrigation module coming soon'), backgroundColor: Colors.black87));
-                          },
+                          onTap: () => context.push('/irrigation'),
                         ),
                         _QuickToolItem(
                           icon: Icons.account_balance_wallet_outlined,
