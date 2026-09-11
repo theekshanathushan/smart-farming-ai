@@ -107,6 +107,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                         keyboardType: const TextInputType.numberWithOptions(decimal: true),
                         style: const TextStyle(color: Colors.white, fontSize: 24),
                         decoration: InputDecoration(
+                          fillColor: Colors.transparent,
                           labelText: 'Amount (Rs)',
                           labelStyle: const TextStyle(color: Colors.white70),
                           prefixText: 'Rs. ',
@@ -126,6 +127,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                         dropdownColor: Colors.grey.shade900,
                         style: const TextStyle(color: Colors.white, fontSize: 16),
                         decoration: InputDecoration(
+                          fillColor: Colors.transparent,
                           labelText: 'Category',
                           labelStyle: const TextStyle(color: Colors.white70),
                           enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.3))),
@@ -138,6 +140,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                         controller: _descController,
                         style: const TextStyle(color: Colors.white),
                         decoration: InputDecoration(
+                          fillColor: Colors.transparent,
                           labelText: 'Description (Optional)',
                           labelStyle: const TextStyle(color: Colors.white70),
                           enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.3))),

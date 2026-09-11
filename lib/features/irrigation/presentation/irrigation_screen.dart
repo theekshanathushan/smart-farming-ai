@@ -97,6 +97,7 @@ class _IrrigationScreenState extends State<IrrigationScreen> {
                           dropdownColor: Colors.grey.shade900,
                           style: const TextStyle(color: Colors.white, fontSize: 18),
                           decoration: InputDecoration(
+                            fillColor: Colors.transparent,
                             enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.3))),
                           ),
                           items: _crops.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
@@ -110,6 +111,7 @@ class _IrrigationScreenState extends State<IrrigationScreen> {
                           keyboardType: const TextInputType.numberWithOptions(decimal: true),
                           style: const TextStyle(color: Colors.white, fontSize: 24),
                           decoration: InputDecoration(
+                            fillColor: Colors.transparent,
                             suffixText: 'Acres',
                             suffixStyle: const TextStyle(color: Colors.white70, fontSize: 16),
                             enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.3))),
