@@ -114,6 +114,12 @@ class HomeScreen extends ConsumerWidget {
                           onTap: () => context.push('/fertilizer'),
                         ),
                         _QuickToolItem(
+                          icon: Icons.menu_book_rounded,
+                          label: 'Pest Guide',
+                          color: Colors.indigo.shade500,
+                          onTap: () => context.push('/guide'),
+                        ),
+                        _QuickToolItem(
                           icon: Icons.smart_toy_outlined,
                           label: 'AI Helper',
                           color: Colors.orange.shade700,

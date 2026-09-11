@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'scan_controller.dart';
 import '../../../core/theme/app_theme.dart';
+import 'package:go_router/go_router.dart';
 
 class CameraScanScreen extends ConsumerWidget {
   const CameraScanScreen({super.key});
@@ -44,7 +45,11 @@ class CameraScanScreen extends ConsumerWidget {
             IconButton(
               icon: const Icon(Icons.refresh, color: Colors.white),
               onPressed: () => ref.read(scanControllerProvider.notifier).reset(),
-            )
+            ),
+          IconButton(
+            icon: const Icon(Icons.history, color: Colors.white),
+            onPressed: () => context.push('/scan/history'),
+          ),
         ],
       ),
       body: Stack(

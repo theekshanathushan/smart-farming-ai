@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../features/ai_agent/presentation/chat_screen.dart';
 
 import '../../features/camera_scan/presentation/camera_scan_screen.dart';
+import '../../features/camera_scan/presentation/scan_history_screen.dart';
+import '../../features/knowledge_base/presentation/knowledge_base_screen.dart';
+import '../../features/knowledge_base/presentation/pest_detail_screen.dart';
 
 import '../../features/home/presentation/home_screen.dart';
 
@@ -65,6 +68,12 @@ final goRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: '/scan',
                 builder: (context, state) => const CameraScanScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'history',
+                    builder: (context, state) => const ScanHistoryScreen(),
+                  ),
+                ],
               ),
             ],
           ),
@@ -95,6 +104,19 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/fertilizer',
         builder: (context, state) => const FertilizerCalcScreen(),
+      ),
+      GoRoute(
+        path: '/guide',
+        builder: (context, state) => const KnowledgeBaseScreen(),
+        routes: [
+          GoRoute(
+            path: ':id',
+            builder: (context, state) {
+              final id = state.pathParameters['id']!;
+              return PestDetailScreen(pestId: id);
+            },
+          ),
+        ],
       ),
     ],
   );
