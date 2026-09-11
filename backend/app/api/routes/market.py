@@ -14,7 +14,15 @@ async def get_market_prices(
 ):
     """
     Endpoint to fetch daily wholesale market prices for crops.
-    Currently returns mock data.
+    Returns mock data realistic to Sri Lanka.
     """
-    prices = service.get_daily_prices(market=market)
-    return {"status": "success", "data": prices}
+    mock_data = [
+        {"crop": "Tomato", "price": 120, "unit": "1kg", "trend": "up", "market": market},
+        {"crop": "Carrot", "price": 250, "unit": "1kg", "trend": "stable", "market": market},
+        {"crop": "Green Chili", "price": 450, "unit": "1kg", "trend": "up", "market": market},
+        {"crop": "Beans", "price": 180, "unit": "1kg", "trend": "down", "market": market},
+        {"crop": "Potato", "price": 200, "unit": "1kg", "trend": "stable", "market": market},
+        {"crop": "Big Onion", "price": 300, "unit": "1kg", "trend": "up", "market": market},
+        {"crop": "Cabbage", "price": 90, "unit": "1kg", "trend": "down", "market": market},
+    ]
+    return {"status": "success", "data": mock_data}
