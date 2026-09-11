@@ -21,6 +21,8 @@ import '../../features/farm/presentation/add_crop_screen.dart';
 import '../../features/ledger/presentation/ledger_screen.dart';
 import '../../features/ledger/presentation/add_transaction_screen.dart';
 import '../../features/fertilizer/presentation/fertilizer_calc_screen.dart';
+import '../../features/community/presentation/community_screen.dart';
+import '../../features/ecommerce/presentation/marketplace_screen.dart';
 import 'main_layout.dart';
 
 final goRouterProvider = Provider<GoRouter>((ref) {
@@ -144,6 +146,14 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/profile',
         builder: (context, state) => const ProfileScreen(),
+      ),
+      GoRoute(
+        path: '/community',
+        builder: (context, state) => const CommunityScreen(),
+      ),
+      GoRoute(
+        path: '/ecommerce',
+        builder: (context, state) => const MarketplaceScreen(),
       ),
     ],
   );

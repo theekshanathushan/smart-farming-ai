@@ -168,6 +168,17 @@ class HomeScreen extends ConsumerWidget {
                           label: 'Ledger',
                           color: Colors.green.shade500,
                           onTap: () => context.push('/ledger'),
+                        _QuickToolItem(
+                          icon: Icons.forum_outlined,
+                          label: 'Community',
+                          color: Colors.purple.shade500,
+                          onTap: () => context.push('/community'),
+                        ),
+                        _QuickToolItem(
+                          icon: Icons.storefront_outlined,
+                          label: 'Buy & Sell',
+                          color: Colors.redAccent.shade400,
+                          onTap: () => context.push('/ecommerce'),
                         ),
                       ],
                     ),
