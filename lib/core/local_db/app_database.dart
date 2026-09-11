@@ -10,6 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'tables/scan_results.dart';
 import 'tables/crops.dart';
 import 'tables/tasks.dart';
+import 'tables/ledger_entries.dart';
 
 part 'app_database.g.dart';
 
@@ -18,12 +19,12 @@ final databaseProvider = Provider<AppDatabase>((ref) {
   return AppDatabase();
 });
 
-@DriftDatabase(tables: [ScanResults, Crops, Tasks])
+@DriftDatabase(tables: [ScanResults, Crops, Tasks, LedgerEntries])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -37,6 +38,9 @@ class AppDatabase extends _$AppDatabase {
           if (from < 3) {
             await m.createTable(crops);
             await m.createTable(tasks);
+          }
+          if (from < 4) {
+            await m.createTable(ledgerEntries);
           }
         },
       );
@@ -62,6 +66,11 @@ class AppDatabase extends _$AppDatabase {
   Future<List<Task>> getTasksForCrop(String cropId) => (select(tasks)..where((t) => t.cropId.equals(cropId))).get();
   Future<bool> updateTask(Task task) => update(tasks).replace(task);
   Future<int> deleteTask(Task task) => delete(tasks).delete(task);
+
+  // DAOs for LedgerEntries
+  Future<int> insertLedgerEntry(LedgerEntriesCompanion entry) => into(ledgerEntries).insert(entry);
+  Future<List<LedgerEntry>> getAllLedgerEntries() => (select(ledgerEntries)..orderBy([(t) => OrderingTerm.desc(t.date)])).get();
+  Future<int> deleteLedgerEntry(LedgerEntry entry) => delete(ledgerEntries).delete(entry);
 }
 
 LazyDatabase _openConnection() {

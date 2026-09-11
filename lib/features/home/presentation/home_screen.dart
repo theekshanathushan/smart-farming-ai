@@ -108,6 +108,12 @@ class HomeScreen extends ConsumerWidget {
                           onTap: () => context.push('/farm/add-crop'),
                         ),
                         _QuickToolItem(
+                          icon: Icons.science_outlined,
+                          label: 'Fertilizer',
+                          color: Colors.cyan.shade600,
+                          onTap: () => context.push('/fertilizer'),
+                        ),
+                        _QuickToolItem(
                           icon: Icons.smart_toy_outlined,
                           label: 'AI Helper',
                           color: Colors.orange.shade700,
@@ -122,12 +128,10 @@ class HomeScreen extends ConsumerWidget {
                           },
                         ),
                         _QuickToolItem(
-                          icon: Icons.people_outline_rounded,
-                          label: 'Community',
-                          color: Colors.purple.shade500,
-                          onTap: () {
-                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Community forums coming soon'), backgroundColor: Colors.black87));
-                          },
+                          icon: Icons.account_balance_wallet_outlined,
+                          label: 'Ledger',
+                          color: Colors.green.shade500,
+                          onTap: () => context.push('/ledger'),
                         ),
                       ],
                     ),
