@@ -88,7 +88,7 @@ class TFLiteCropDiseaseClassifier implements ICropDiseaseClassifier {
     results.sort((a, b) => b.confidence.compareTo(a.confidence));
     
     // Confidence threshold validation to reject non-plant items
-    if (results.isNotEmpty && results.first.confidence < 0.65) {
+    if (results.isNotEmpty && results.first.confidence < 0.90) {
       return [
         ClassifierResult(
           label: 'Unrecognized / Not a clear plant',
