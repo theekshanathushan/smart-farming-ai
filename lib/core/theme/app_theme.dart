@@ -2,99 +2,106 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  // Brand Colors
-  static const Color deepCanopy = Color(0xFF1B4332);
-  static const Color sprout = Color(0xFF40916C);
-  static const Color harvestGold = Color(0xFFD4A373);
-  static const Color sunbakedClay = Color(0xFFFAEDCD);
-  static const Color surface = Color(0xFFFEFAE0);
-  static const Color richLoam = Color(0xFF283618);
+  // Premium Brand Colors
+  static const Color primary = Color(0xFF047857); // Deep Emerald Green
+  static const Color secondary = Color(0xFF10B981); // Vibrant Emerald
+  static const Color tertiary = Color(0xFFD97706); // Warm Amber/Gold
+  static const Color background = Color(0xFFF9FAFB); // Crisp Off-White
+  static const Color surface = Colors.white; // Pure White
+  static const Color textDark = Color(0xFF111827); // Near Black for crisp text
+  static const Color textLight = Color(0xFF6B7280); // Subtle Gray
 
   static ThemeData get lightTheme {
-    // We use Noto Serif for headings, Noto Sans for body (both support Sinhala/Tamil well)
-    final TextTheme baseTextTheme = GoogleFonts.notoSansTextTheme();
-    final TextTheme serifTextTheme = GoogleFonts.notoSerifTextTheme();
+    // Premium Typography: Poppins for headings, Inter for body
+    final TextTheme bodyTextTheme = GoogleFonts.interTextTheme();
+    final TextTheme headingTextTheme = GoogleFonts.poppinsTextTheme();
 
     return ThemeData(
       useMaterial3: true,
       colorScheme: const ColorScheme.light(
-        primary: deepCanopy,
-        secondary: sprout,
-        tertiary: harvestGold,
+        primary: primary,
+        secondary: secondary,
+        tertiary: tertiary,
         surface: surface,
-        background: sunbakedClay,
+        background: background,
         onPrimary: Colors.white,
         onSecondary: Colors.white,
-        onSurface: richLoam,
-        onBackground: richLoam,
+        onSurface: textDark,
+        onBackground: textDark,
       ),
-      scaffoldBackgroundColor: sunbakedClay,
+      scaffoldBackgroundColor: background,
       appBarTheme: AppBarTheme(
-        backgroundColor: deepCanopy,
+        backgroundColor: primary,
         foregroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
-        titleTextStyle: serifTextTheme.titleLarge?.copyWith(
+        titleTextStyle: headingTextTheme.titleLarge?.copyWith(
           color: Colors.white,
-          fontWeight: FontWeight.bold,
-          fontSize: 22,
+          fontWeight: FontWeight.w600,
+          fontSize: 20,
+          letterSpacing: 0.5,
         ),
       ),
-      textTheme: baseTextTheme.copyWith(
-        displayLarge: serifTextTheme.displayLarge?.copyWith(color: richLoam),
-        displayMedium: serifTextTheme.displayMedium?.copyWith(color: richLoam),
-        displaySmall: serifTextTheme.displaySmall?.copyWith(color: richLoam),
-        headlineLarge: serifTextTheme.headlineLarge?.copyWith(color: richLoam),
-        headlineMedium: serifTextTheme.headlineMedium?.copyWith(color: richLoam),
-        headlineSmall: serifTextTheme.headlineSmall?.copyWith(color: richLoam),
-        titleLarge: serifTextTheme.titleLarge?.copyWith(color: richLoam, fontWeight: FontWeight.bold),
-        bodyLarge: baseTextTheme.bodyLarge?.copyWith(color: richLoam),
-        bodyMedium: baseTextTheme.bodyMedium?.copyWith(color: richLoam),
-        bodySmall: baseTextTheme.bodySmall?.copyWith(color: richLoam),
+      textTheme: bodyTextTheme.copyWith(
+        displayLarge: headingTextTheme.displayLarge?.copyWith(color: textDark, fontWeight: FontWeight.bold),
+        displayMedium: headingTextTheme.displayMedium?.copyWith(color: textDark, fontWeight: FontWeight.bold),
+        displaySmall: headingTextTheme.displaySmall?.copyWith(color: textDark, fontWeight: FontWeight.w600),
+        headlineLarge: headingTextTheme.headlineLarge?.copyWith(color: textDark, fontWeight: FontWeight.w600),
+        headlineMedium: headingTextTheme.headlineMedium?.copyWith(color: textDark, fontWeight: FontWeight.w600),
+        headlineSmall: headingTextTheme.headlineSmall?.copyWith(color: textDark, fontWeight: FontWeight.w600),
+        titleLarge: headingTextTheme.titleLarge?.copyWith(color: textDark, fontWeight: FontWeight.w600),
+        titleMedium: headingTextTheme.titleMedium?.copyWith(color: textDark, fontWeight: FontWeight.w500),
+        titleSmall: headingTextTheme.titleSmall?.copyWith(color: textDark, fontWeight: FontWeight.w500),
+        bodyLarge: bodyTextTheme.bodyLarge?.copyWith(color: textDark, fontSize: 16),
+        bodyMedium: bodyTextTheme.bodyMedium?.copyWith(color: textDark, fontSize: 14),
+        bodySmall: bodyTextTheme.bodySmall?.copyWith(color: textLight, fontSize: 12),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: sprout,
+          backgroundColor: primary,
           foregroundColor: Colors.white,
-          elevation: 0,
+          elevation: 2,
+          shadowColor: primary.withValues(alpha: 0.3),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(16), // Slightly squarer for a premium modern look
           ),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          textStyle: baseTextTheme.titleMedium?.copyWith(
+          textStyle: headingTextTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.w600,
+            letterSpacing: 0.5,
           ),
         ),
       ),
       cardTheme: CardThemeData(
         color: surface,
-        elevation: 0,
+        elevation: 1, // Soft shadow
+        shadowColor: Colors.black.withValues(alpha: 0.05),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24),
-          side: BorderSide(color: deepCanopy.withValues(alpha: 0.1), width: 1),
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(color: Colors.grey.shade200, width: 1),
         ),
         margin: const EdgeInsets.symmetric(vertical: 8),
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: surface,
-        indicatorColor: sprout.withValues(alpha: 0.2),
+        indicatorColor: primary.withValues(alpha: 0.15),
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return baseTextTheme.labelMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: deepCanopy,
+            return bodyTextTheme.labelMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: primary,
             );
           }
-          return baseTextTheme.labelMedium?.copyWith(
+          return bodyTextTheme.labelMedium?.copyWith(
             fontWeight: FontWeight.w500,
-            color: richLoam.withValues(alpha: 0.7),
+            color: textLight,
           );
         }),
         iconTheme: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return const IconThemeData(color: deepCanopy, size: 28);
+            return const IconThemeData(color: primary, size: 28);
           }
-          return IconThemeData(color: richLoam.withValues(alpha: 0.7), size: 24);
+          return const IconThemeData(color: textLight, size: 24);
         }),
       ),
       inputDecorationTheme: InputDecorationTheme(
@@ -102,14 +109,18 @@ class AppTheme {
         fillColor: surface,
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(24),
-          borderSide: BorderSide.none,
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: Colors.grey.shade200),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: Colors.grey.shade200),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(24),
-          borderSide: const BorderSide(color: sprout, width: 2),
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: primary, width: 2),
         ),
-        hintStyle: TextStyle(color: deepCanopy.withValues(alpha: 0.5)),
+        hintStyle: TextStyle(color: textLight),
       ),
     );
   }

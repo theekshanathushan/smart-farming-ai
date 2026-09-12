@@ -149,8 +149,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             onTap: _showImagePickerOptions,
                             child: Container(
                               padding: const EdgeInsets.all(8),
-                              decoration: const BoxDecoration(
-                                color: Colors.green,
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.secondary,
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(Icons.camera_alt, color: Colors.white, size: 20),
@@ -212,7 +212,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     icon: const Icon(Icons.logout, color: Colors.white),
                     label: const Text('Logout', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.redAccent.withValues(alpha: 0.8),
+                      backgroundColor: Theme.of(context).colorScheme.error.withValues(alpha: 0.8),
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                     ),
@@ -241,7 +241,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   Widget _buildInfoRow(IconData icon, String label, String value) {
     return Row(
       children: [
-        Icon(icon, color: Colors.greenAccent, size: 24),
+        Icon(icon, color: Theme.of(context).colorScheme.secondary, size: 24),
         const SizedBox(width: 16),
         Expanded(
           child: Column(
@@ -266,7 +266,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       },
       child: Row(
         children: [
-          Icon(icon, color: Colors.blueAccent, size: 24),
+          Icon(icon, color: Theme.of(context).colorScheme.tertiary, size: 24),
           const SizedBox(width: 16),
           Expanded(
             child: Column(

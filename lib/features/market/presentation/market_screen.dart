@@ -38,7 +38,7 @@ class MarketScreen extends ConsumerWidget {
                   itemCount: prices.length,
                   itemBuilder: (context, index) {
                     final item = prices[index];
-                    return _buildPriceCard(item);
+                    return _buildPriceCard(context, item);
                   },
                 );
               },
@@ -53,8 +53,8 @@ class MarketScreen extends ConsumerWidget {
                     const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: () => ref.refresh(marketPricesProvider),
-                      style: ElevatedButton.styleFrom(backgroundColor: AppTheme.harvestGold),
-                      child: const Text('Retry', style: TextStyle(color: AppTheme.richLoam)),
+                      style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.tertiary),
+                      child: Text('Retry', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
                     )
                   ],
                 ),
@@ -66,28 +66,28 @@ class MarketScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildPriceCard(Map<String, dynamic> item) {
+  Widget _buildPriceCard(BuildContext context, Map<String, dynamic> item) {
     final crop = item['crop'] ?? 'Unknown';
     final price = item['price'] ?? 0;
     final unit = item['unit'] ?? 'kg';
     final trend = item['trend'] ?? 'stable';
     final market = item['market'] ?? '';
 
-    Color trendColor = Colors.grey;
+    Color trendColor = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5);
     IconData trendIcon = Icons.remove;
     
     if (trend == 'up') {
-      trendColor = Colors.redAccent;
+      trendColor = Theme.of(context).colorScheme.error;
       trendIcon = Icons.trending_up;
     } else if (trend == 'down') {
-      trendColor = AppTheme.sprout;
+      trendColor = Theme.of(context).colorScheme.secondary;
       trendIcon = Icons.trending_down;
     }
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: AppTheme.surface.withOpacity(0.95),
+        color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.95),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -106,9 +106,9 @@ class MarketScreen extends ConsumerWidget {
               child: Row(
                 children: [
                   CircleAvatar(
-                    backgroundColor: AppTheme.harvestGold.withOpacity(0.2),
+                    backgroundColor: Theme.of(context).colorScheme.tertiary.withValues(alpha: 0.2),
                     radius: 28,
-                    child: const Icon(Icons.eco, color: AppTheme.harvestGold, size: 28),
+                    child: Icon(Icons.eco, color: Theme.of(context).colorScheme.tertiary, size: 28),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
@@ -117,18 +117,18 @@ class MarketScreen extends ConsumerWidget {
                       children: [
                         Text(
                           crop,
-                          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.deepCanopy),
+                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary),
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 4),
                         Row(
                           children: [
-                            const Icon(Icons.location_on, size: 14, color: Colors.grey),
+                            Icon(Icons.location_on, size: 14, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
                             const SizedBox(width: 4),
                             Expanded(
                               child: Text(
                                 market,
-                                style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+                                style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)),
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
@@ -145,10 +145,10 @@ class MarketScreen extends ConsumerWidget {
               children: [
                 Text(
                   'Rs. $price',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 22, 
                     fontWeight: FontWeight.bold,
-                    color: AppTheme.richLoam
+                    color: Theme.of(context).colorScheme.onSurface
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -156,13 +156,13 @@ class MarketScreen extends ConsumerWidget {
                   children: [
                     Text(
                       'per $unit',
-                      style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+                      style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
                     ),
                     const SizedBox(width: 8),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: trendColor.withOpacity(0.15),
+                        color: trendColor.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(

@@ -26,8 +26,8 @@ class WelcomeScreen extends StatelessWidget {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    Colors.black.withOpacity(0.1),
-                    Colors.black.withOpacity(0.6),
+                    Colors.black.withValues(alpha: 0.1),
+                    Colors.black.withValues(alpha: 0.6),
                   ],
                 ),
               ),
@@ -73,7 +73,7 @@ class WelcomeScreen extends StatelessWidget {
                     decoration: BoxDecoration(
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.green.shade600.withOpacity(0.3),
+                          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
                           blurRadius: 15,
                           offset: const Offset(0, 8),
                         ),
@@ -87,8 +87,8 @@ class WelcomeScreen extends StatelessWidget {
                         context.go('/home');
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green.shade500,
-                        foregroundColor: Colors.white,
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        foregroundColor: Theme.of(context).colorScheme.onPrimary,
                         padding: const EdgeInsets.symmetric(vertical: 20),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),

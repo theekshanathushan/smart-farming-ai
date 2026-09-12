@@ -62,7 +62,7 @@ class LedgerScreen extends ConsumerWidget {
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator(color: Colors.white)),
-              error: (err, stack) => Center(child: Text('Error: $err', style: const TextStyle(color: Colors.redAccent))),
+              error: (err, stack) => Center(child: Text('Error: $err', style: TextStyle(color: Theme.of(context).colorScheme.error))),
             ),
           ),
         ],
@@ -71,8 +71,8 @@ class LedgerScreen extends ConsumerWidget {
         onPressed: () => context.push('/ledger/add'),
         icon: const Icon(Icons.add),
         label: const Text('Add Transaction'),
-        backgroundColor: Colors.green.shade600,
-        foregroundColor: Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: Theme.of(context).colorScheme.onPrimary,
       ),
     );
   }
@@ -100,7 +100,7 @@ class LedgerScreen extends ConsumerWidget {
           Text(
             'Rs. ${profit.toStringAsFixed(2)}',
             style: TextStyle(
-              color: profit >= 0 ? Colors.greenAccent : Colors.redAccent,
+              color: profit >= 0 ? Theme.of(context).colorScheme.secondary : Theme.of(context).colorScheme.error,
               fontSize: 32,
               fontWeight: FontWeight.bold,
             ),
@@ -109,8 +109,8 @@ class LedgerScreen extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildDashboardMetric('Income', income, Colors.greenAccent),
-              _buildDashboardMetric('Expense', expense, Colors.redAccent),
+              _buildDashboardMetric('Income', income, Theme.of(context).colorScheme.secondary),
+              _buildDashboardMetric('Expense', expense, Theme.of(context).colorScheme.error),
             ],
           )
         ],
@@ -140,7 +140,7 @@ class LedgerScreen extends ConsumerWidget {
       background: Container(
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
-          color: Colors.redAccent.withValues(alpha: 0.8),
+          color: Theme.of(context).colorScheme.error.withValues(alpha: 0.8),
           borderRadius: BorderRadius.circular(16),
         ),
         alignment: Alignment.centerRight,
@@ -159,10 +159,10 @@ class LedgerScreen extends ConsumerWidget {
         ),
         child: ListTile(
           leading: CircleAvatar(
-            backgroundColor: isIncome ? Colors.greenAccent.withValues(alpha: 0.2) : Colors.redAccent.withValues(alpha: 0.2),
+            backgroundColor: isIncome ? Theme.of(context).colorScheme.secondary.withValues(alpha: 0.2) : Theme.of(context).colorScheme.error.withValues(alpha: 0.2),
             child: Icon(
               isIncome ? Icons.arrow_downward : Icons.arrow_upward,
-              color: isIncome ? Colors.greenAccent : Colors.redAccent,
+              color: isIncome ? Theme.of(context).colorScheme.secondary : Theme.of(context).colorScheme.error,
             ),
           ),
           title: Text(entry.category, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
@@ -170,7 +170,7 @@ class LedgerScreen extends ConsumerWidget {
           trailing: Text(
             '${isIncome ? '+' : '-'}Rs. ${entry.amount.toStringAsFixed(2)}',
             style: TextStyle(
-              color: isIncome ? Colors.greenAccent : Colors.redAccent,
+              color: isIncome ? Theme.of(context).colorScheme.secondary : Theme.of(context).colorScheme.error,
               fontWeight: FontWeight.bold,
               fontSize: 16,
             ),
