@@ -16,9 +16,9 @@ class CameraScanScreen extends ConsumerWidget {
       if (!status.isGranted) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Camera permission is required.'),
-              backgroundColor: AppTheme.harvestGold,
+            SnackBar(
+              content: const Text('Camera permission is required.'),
+              backgroundColor: Theme.of(context).colorScheme.tertiary,
               behavior: SnackBarBehavior.floating,
             ),
           );
@@ -65,7 +65,7 @@ class CameraScanScreen extends ConsumerWidget {
                     'assets/images/leaf_placeholder.jpg',
                     fit: BoxFit.cover,
                     errorBuilder: (c, e, s) => Container(
-                      color: AppTheme.deepCanopy,
+                      color: Theme.of(context).colorScheme.primary,
                       child: const Center(
                         child: Icon(Icons.eco, size: 120, color: Colors.white24),
                       ),
@@ -128,8 +128,8 @@ class CameraScanScreen extends ConsumerWidget {
             alignment: Alignment.bottomCenter,
             child: Container(
               padding: const EdgeInsets.only(top: 32, left: 24, right: 24, bottom: 48),
-              decoration: const BoxDecoration(
-                color: AppTheme.surface,
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
                 boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 20)],
               ),
@@ -147,17 +147,17 @@ class CameraScanScreen extends ConsumerWidget {
 
   Widget _buildBottomPanel(BuildContext context, WidgetRef ref, ScanState state) {
     if (state.isLoading) {
-      return const Column(
+      return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          CircularProgressIndicator(color: AppTheme.sprout),
-          SizedBox(height: 16),
+          CircularProgressIndicator(color: Theme.of(context).colorScheme.secondary),
+          const SizedBox(height: 16),
           Text(
             'Analyzing crop...',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.richLoam),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
           ),
-          SizedBox(height: 8),
-          Text(
+          const SizedBox(height: 8),
+          const Text(
             'Please keep the device steady.',
             style: TextStyle(color: Colors.grey),
           ),
@@ -179,7 +179,7 @@ class CameraScanScreen extends ConsumerWidget {
           Text(
             state.error!,
             textAlign: TextAlign.center,
-            style: const TextStyle(color: AppTheme.richLoam),
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
           ),
           const SizedBox(height: 24),
           ElevatedButton(
@@ -207,7 +207,7 @@ class CameraScanScreen extends ConsumerWidget {
             state.result!.label,
             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
               fontWeight: FontWeight.bold,
-              color: isUnrecognized ? Colors.orange : AppTheme.deepCanopy,
+              color: isUnrecognized ? Colors.orange : Theme.of(context).colorScheme.primary,
               fontSize: isUnrecognized ? 20 : null,
             ),
             textAlign: TextAlign.center,
@@ -217,12 +217,12 @@ class CameraScanScreen extends ConsumerWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
               decoration: BoxDecoration(
-                color: AppTheme.harvestGold.withOpacity(0.2),
+                color: Theme.of(context).colorScheme.tertiary.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Text(
                 'Confidence: ${(state.result!.confidence * 100).toStringAsFixed(1)}%',
-                style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.richLoam),
+                style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
               ),
             ),
           ),
@@ -243,16 +243,16 @@ class CameraScanScreen extends ConsumerWidget {
                   : () {
                       ref.read(scanControllerProvider.notifier).saveResult(null);
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Saved to offline database'),
-                          backgroundColor: AppTheme.sprout,
+                        SnackBar(
+                          content: const Text('Saved to offline database'),
+                          backgroundColor: Theme.of(context).colorScheme.secondary,
                         ),
                       );
                     },
               icon: Icon(state.isSaved ? Icons.check : Icons.save),
               label: Text(state.isSaved ? 'Saved' : 'Save Result'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: state.isSaved ? Colors.grey : AppTheme.sprout,
+                backgroundColor: state.isSaved ? Colors.grey : Theme.of(context).colorScheme.secondary,
                 minimumSize: const Size(double.infinity, 56),
               ),
             ),
@@ -282,11 +282,11 @@ class CameraScanScreen extends ConsumerWidget {
             Expanded(
               child: OutlinedButton.icon(
                 onPressed: () => _handleCapture(ref, context, ImageSource.gallery),
-                icon: const Icon(Icons.photo_library, color: AppTheme.deepCanopy),
-                label: const Text('Gallery', style: TextStyle(color: AppTheme.deepCanopy)),
+                icon: Icon(Icons.photo_library, color: Theme.of(context).colorScheme.primary),
+                label: Text('Gallery', style: TextStyle(color: Theme.of(context).colorScheme.primary)),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  side: const BorderSide(color: AppTheme.deepCanopy, width: 2),
+                  side: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
                 ),
               ),
@@ -299,7 +299,7 @@ class CameraScanScreen extends ConsumerWidget {
                 label: const Text('Scan Now'),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  backgroundColor: AppTheme.sprout,
+                  backgroundColor: Theme.of(context).colorScheme.secondary,
                 ),
               ),
             ),
@@ -349,10 +349,10 @@ class _ScanningAnimationOverlayState extends State<_ScanningAnimationOverlay> wi
               child: Container(
                 height: 4,
                 decoration: BoxDecoration(
-                  color: AppTheme.sprout,
+                  color: Theme.of(context).colorScheme.secondary,
                   boxShadow: [
-                    BoxShadow(color: AppTheme.sprout.withOpacity(0.8), blurRadius: 10, spreadRadius: 2),
-                    BoxShadow(color: AppTheme.sprout.withOpacity(0.5), blurRadius: 20, spreadRadius: 5),
+                    BoxShadow(color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.8), blurRadius: 10, spreadRadius: 2),
+                    BoxShadow(color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.5), blurRadius: 20, spreadRadius: 5),
                   ],
                 ),
               ),

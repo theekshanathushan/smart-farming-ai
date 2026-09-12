@@ -54,7 +54,7 @@ class LedgerScreen extends ConsumerWidget {
                               itemBuilder: (context, index) {
                                 final entry = entries[index];
                                 final isIncome = entry.type == 'Income';
-                                return _buildTransactionCard(entry, isIncome, ref);
+                                return _buildTransactionCard(context, entry, isIncome, ref);
                               },
                             ),
                     ),
@@ -132,7 +132,7 @@ class LedgerScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildTransactionCard(LedgerEntry entry, bool isIncome, WidgetRef ref) {
+  Widget _buildTransactionCard(BuildContext context, LedgerEntry entry, bool isIncome, WidgetRef ref) {
     final dateFormat = DateFormat('MMM dd, yyyy');
     return Dismissible(
       key: Key(entry.id.toString()),

@@ -117,7 +117,7 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.sunbakedClay,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         title: Row(
           mainAxisSize: MainAxisSize.min,
@@ -132,7 +132,7 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
               ),
             ] else if (_currentPosition != null) ...[
               const SizedBox(width: 8),
-              const Icon(Icons.location_on, size: 16, color: AppTheme.sprout),
+              Icon(Icons.location_on, size: 16, color: Theme.of(context).colorScheme.secondary),
             ],
           ],
         ),
@@ -172,8 +172,8 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
                     ),
                     decoration: BoxDecoration(
                       color: message.isUser 
-                          ? AppTheme.sprout 
-                          : AppTheme.surface,
+                          ? Theme.of(context).colorScheme.secondary 
+                          : Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.only(
                         topLeft: const Radius.circular(24),
                         topRight: const Radius.circular(24),
@@ -183,7 +183,7 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
                       boxShadow: [
                         if (!message.isUser)
                           BoxShadow(
-                            color: AppTheme.deepCanopy.withOpacity(0.05),
+                            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           )
@@ -192,7 +192,7 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
                     child: Text(
                       message.text,
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: message.isUser ? Colors.white : AppTheme.richLoam,
+                        color: message.isUser ? Theme.of(context).colorScheme.onSecondary : Theme.of(context).colorScheme.onSurface,
                         height: 1.5,
                       ),
                     ),
@@ -204,7 +204,7 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
           Container(
             padding: const EdgeInsets.all(16.0),
             decoration: BoxDecoration(
-              color: AppTheme.surface,
+              color: Theme.of(context).colorScheme.surface,
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.05),
@@ -219,12 +219,12 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
                   Expanded(
                     child: TextField(
                       controller: _controller,
-                      style: const TextStyle(color: AppTheme.richLoam),
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                       decoration: InputDecoration(
                         hintText: 'Ask about your crops...',
-                        hintStyle: TextStyle(color: AppTheme.deepCanopy.withOpacity(0.5)),
+                        hintStyle: TextStyle(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5)),
                         filled: true,
-                        fillColor: AppTheme.sunbakedClay,
+                        fillColor: Theme.of(context).colorScheme.surface,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(32.0),
                           borderSide: BorderSide.none,
@@ -237,7 +237,7 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
                   const SizedBox(width: 12.0),
                   CircleAvatar(
                     radius: 24,
-                    backgroundColor: AppTheme.sprout,
+                    backgroundColor: Theme.of(context).colorScheme.secondary,
                     child: IconButton(
                       icon: const Icon(Icons.send_rounded, color: Colors.white),
                       onPressed: _isLoading ? null : _sendMessage,
@@ -293,8 +293,8 @@ class _BreathingSproutIndicatorState extends State<_BreathingSproutIndicator> wi
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 6.0),
       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-      decoration: const BoxDecoration(
-        color: AppTheme.surface,
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(24),
           topRight: Radius.circular(24),
@@ -307,7 +307,7 @@ class _BreathingSproutIndicatorState extends State<_BreathingSproutIndicator> wi
         builder: (context, child) {
           return Transform.scale(
             scale: _scaleAnimation.value,
-            child: const Icon(Icons.eco, color: AppTheme.sprout, size: 24),
+            child: Icon(Icons.eco, color: Theme.of(context).colorScheme.secondary, size: 24),
           );
         },
       ),
