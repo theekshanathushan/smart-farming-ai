@@ -23,14 +23,18 @@ class FarmScreen extends ConsumerWidget {
     final cropsAsync = ref.watch(cropsProvider);
     final tasksAsync = ref.watch(tasksProvider);
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : Colors.black87;
+    final mutedTextColor = isDark ? Colors.white70 : Colors.black54;
 
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text('My Farm', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold, color: Colors.white)),
+        title: Text('My Farm', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold, color: textColor)),
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
+        iconTheme: IconThemeData(color: textColor),
       ),
       body: Stack(
         fit: StackFit.expand,
@@ -45,22 +49,22 @@ class FarmScreen extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildDashboardHeader(context, cropsAsync, tasksAsync),
+                  _buildDashboardHeader(context, cropsAsync, tasksAsync, textColor, mutedTextColor),
                   const SizedBox(height: 32),
                   
-                  _buildSectionHeader(context, 'My Crops', actionLabel: '+ Add Crop', onAction: () => context.push('/farm/add-crop')),
+                  _buildSectionHeader(context, 'My Crops', textColor, actionLabel: '+ Add Crop', onAction: () => context.push('/farm/add-crop')),
                   const SizedBox(height: 16),
-                  _buildCropsSection(context, cropsAsync),
+                  _buildCropsSection(context, cropsAsync, textColor, mutedTextColor),
                   
                   const SizedBox(height: 32),
-                  _buildSectionHeader(context, 'Quick Actions'),
+                  _buildSectionHeader(context, 'Quick Actions', textColor),
                   const SizedBox(height: 16),
-                  _buildQuickActions(context, ref, cropsAsync),
+                  _buildQuickActions(context, ref, cropsAsync, textColor),
                   
                   const SizedBox(height: 32),
-                  _buildSectionHeader(context, 'Daily Tasks'),
+                  _buildSectionHeader(context, 'Daily Tasks', textColor),
                   const SizedBox(height: 16),
-                  _buildTasksSection(context, ref, tasksAsync),
+                  _buildTasksSection(context, ref, tasksAsync, textColor, mutedTextColor),
                   
                   const SizedBox(height: 48),
                 ],
@@ -72,16 +76,16 @@ class FarmScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSectionHeader(BuildContext context, String title, {String? actionLabel, VoidCallback? onAction}) {
+  Widget _buildSectionHeader(BuildContext context, String title, Color textColor, {String? actionLabel, VoidCallback? onAction}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(title, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold, color: Colors.white)),
+        Text(title, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold, color: textColor)),
         if (actionLabel != null && onAction != null)
           TextButton(
             onPressed: onAction,
             style: TextButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
+              backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.9),
               foregroundColor: Theme.of(context).colorScheme.onPrimary,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -92,7 +96,7 @@ class FarmScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildDashboardHeader(BuildContext context, AsyncValue<List<Crop>> cropsAsync, AsyncValue<List<Task>> tasksAsync) {
+  Widget _buildDashboardHeader(BuildContext context, AsyncValue<List<Crop>> cropsAsync, AsyncValue<List<Task>> tasksAsync, Color textColor, Color mutedTextColor) {
     int activeCropsCount = cropsAsync.asData?.value.length ?? 0;
     int pendingTasksCount = tasksAsync.asData?.value.where((t) => !t.isCompleted).length ?? 0;
 
@@ -103,7 +107,9 @@ class FarmScreen extends ConsumerWidget {
             title: 'Active Crops',
             value: activeCropsCount.toString(),
             icon: Icons.eco,
-            color: Theme.of(context).colorScheme.primary,
+            iconColor: Theme.of(context).colorScheme.primary,
+            textColor: textColor,
+            mutedTextColor: mutedTextColor,
           ),
         ),
         const SizedBox(width: 16),
@@ -112,25 +118,28 @@ class FarmScreen extends ConsumerWidget {
             title: 'Pending Tasks',
             value: pendingTasksCount.toString(),
             icon: Icons.assignment_late,
-            color: Theme.of(context).colorScheme.secondary,
+            iconColor: Theme.of(context).colorScheme.secondary,
+            textColor: textColor,
+            mutedTextColor: mutedTextColor,
           ),
         ),
       ],
     );
   }
 
-  Widget _buildCropsSection(BuildContext context, AsyncValue<List<Crop>> cropsAsync) {
+  Widget _buildCropsSection(BuildContext context, AsyncValue<List<Crop>> cropsAsync, Color textColor, Color mutedTextColor) {
+    final theme = Theme.of(context);
     return cropsAsync.when(
       data: (crops) => crops.isEmpty 
           ? _GlassCard(
               child: Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(24),
-                child: const Column(
+                child: Column(
                   children: [
-                    Icon(Icons.nature_people, size: 48, color: Colors.white70),
-                    SizedBox(height: 12),
-                    Text("No crops added yet.", style: TextStyle(color: Colors.white)),
+                    Icon(Icons.nature_people, size: 48, color: mutedTextColor),
+                    const SizedBox(height: 12),
+                    Text("No crops added yet.", style: TextStyle(color: textColor, fontWeight: FontWeight.w500)),
                   ],
                 ),
               ),
@@ -154,22 +163,22 @@ class FarmScreen extends ConsumerWidget {
                             Container(
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+                                color: theme.colorScheme.primary.withValues(alpha: 0.15),
                                 borderRadius: BorderRadius.circular(16),
                               ),
-                              child: Icon(Icons.eco, color: Theme.of(context).colorScheme.primary, size: 28),
+                              child: Icon(Icons.eco, color: theme.colorScheme.primary, size: 28),
                             ),
                             const Spacer(),
                             Text(
                               crop.name, 
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: textColor),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
                             const SizedBox(height: 4),
                             Text(
                               '${crop.area ?? 0} ${crop.areaUnit ?? "acres"}', 
-                              style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 13),
+                              style: TextStyle(color: mutedTextColor, fontSize: 13),
                             ),
                           ],
                         ),
@@ -179,12 +188,13 @@ class FarmScreen extends ConsumerWidget {
                 },
               ),
             ),
-      loading: () => const Center(child: CircularProgressIndicator(color: Colors.white)),
-      error: (e, st) => Text('Error: $e', style: TextStyle(color: Theme.of(context).colorScheme.error)),
+      loading: () => Center(child: CircularProgressIndicator(color: theme.colorScheme.primary)),
+      error: (e, st) => Text('Error: $e', style: TextStyle(color: theme.colorScheme.error)),
     );
   }
 
-  Widget _buildQuickActions(BuildContext context, WidgetRef ref, AsyncValue<List<Crop>> cropsAsync) {
+  Widget _buildQuickActions(BuildContext context, WidgetRef ref, AsyncValue<List<Crop>> cropsAsync, Color textColor) {
+    final theme = Theme.of(context);
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
@@ -192,28 +202,32 @@ class FarmScreen extends ConsumerWidget {
           _ActionBtn(
             icon: Icons.water_drop, 
             label: 'Irrigation', 
+            textColor: textColor,
             onTap: () => context.push('/irrigation'),
           ),
           _ActionBtn(
             icon: Icons.science, 
-            label: 'Fertilizer', 
+            label: 'Fertilizer',
+            textColor: textColor, 
             onTap: () => context.push('/fertilizer'),
           ),
           _ActionBtn(
             icon: Icons.point_of_sale, 
-            label: 'Income', 
+            label: 'Income',
+            textColor: textColor, 
             onTap: () => context.push('/ledger/add'),
           ),
           _ActionBtn(
             icon: Icons.note_add, 
-            label: 'Add Task', 
+            label: 'Add Task',
+            textColor: textColor, 
             onTap: () {
               cropsAsync.whenData((crops) {
                 if (crops.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: const Text('Please add a crop first to add a task.', style: TextStyle(color: Colors.white)), 
-                      backgroundColor: Theme.of(context).colorScheme.error,
+                      backgroundColor: theme.colorScheme.error,
                     ),
                   );
                   return;
@@ -224,7 +238,8 @@ class FarmScreen extends ConsumerWidget {
           ),
           _ActionBtn(
             icon: Icons.smart_toy, 
-            label: 'AI Advice', 
+            label: 'AI Advice',
+            textColor: textColor, 
             onTap: () => context.push('/chat'),
           ),
         ],
@@ -232,18 +247,21 @@ class FarmScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildTasksSection(BuildContext context, WidgetRef ref, AsyncValue<List<Task>> tasksAsync) {
+  Widget _buildTasksSection(BuildContext context, WidgetRef ref, AsyncValue<List<Task>> tasksAsync, Color textColor, Color mutedTextColor) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    
     return tasksAsync.when(
       data: (tasks) => tasks.isEmpty
           ? _GlassCard(
               child: Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(24),
-                child: const Column(
+                child: Column(
                   children: [
-                    Icon(Icons.task_alt, size: 48, color: Colors.white70),
-                    SizedBox(height: 12),
-                    Text("All caught up for today!", style: TextStyle(color: Colors.white)),
+                    Icon(Icons.task_alt, size: 48, color: mutedTextColor),
+                    const SizedBox(height: 12),
+                    Text("All caught up for today!", style: TextStyle(color: textColor, fontWeight: FontWeight.w500)),
                   ],
                 ),
               ),
@@ -271,9 +289,11 @@ class FarmScreen extends ConsumerWidget {
                               width: 28,
                               height: 28,
                               decoration: BoxDecoration(
-                                color: task.isCompleted ? Theme.of(context).colorScheme.primary : Colors.transparent,
+                                color: task.isCompleted ? theme.colorScheme.primary : Colors.transparent,
                                 border: Border.all(
-                                  color: task.isCompleted ? Theme.of(context).colorScheme.primary : Colors.white54,
+                                  color: task.isCompleted 
+                                      ? theme.colorScheme.primary 
+                                      : (isDark ? Colors.white54 : Colors.black38),
                                   width: 2,
                                 ),
                                 borderRadius: BorderRadius.circular(8),
@@ -288,7 +308,7 @@ class FarmScreen extends ConsumerWidget {
                                   Text(
                                     task.title, 
                                     style: TextStyle(
-                                      color: task.isCompleted ? Colors.white54 : Colors.white,
+                                      color: task.isCompleted ? mutedTextColor.withValues(alpha: 0.5) : textColor,
                                       fontSize: 16,
                                       fontWeight: FontWeight.w600,
                                       decoration: task.isCompleted ? TextDecoration.lineThrough : null,
@@ -299,7 +319,7 @@ class FarmScreen extends ConsumerWidget {
                                     Text(
                                       task.description!, 
                                       style: TextStyle(
-                                        color: task.isCompleted ? Colors.white38 : Colors.white70,
+                                        color: task.isCompleted ? mutedTextColor.withValues(alpha: 0.3) : mutedTextColor,
                                         fontSize: 13,
                                       ),
                                     ),
@@ -315,8 +335,8 @@ class FarmScreen extends ConsumerWidget {
                 );
               },
             ),
-      loading: () => const Center(child: CircularProgressIndicator(color: Colors.white)),
-      error: (e, st) => Text('Error: $e', style: TextStyle(color: Theme.of(context).colorScheme.error)),
+      loading: () => Center(child: CircularProgressIndicator(color: theme.colorScheme.primary)),
+      error: (e, st) => Text('Error: $e', style: TextStyle(color: theme.colorScheme.error)),
     );
   }
 }
@@ -325,9 +345,18 @@ class _StatCard extends StatelessWidget {
   final String title;
   final String value;
   final IconData icon;
-  final Color color;
+  final Color iconColor;
+  final Color textColor;
+  final Color mutedTextColor;
 
-  const _StatCard({required this.title, required this.value, required this.icon, required this.color});
+  const _StatCard({
+    required this.title, 
+    required this.value, 
+    required this.icon, 
+    required this.iconColor,
+    required this.textColor,
+    required this.mutedTextColor,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -339,13 +368,13 @@ class _StatCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(icon, color: color, size: 24),
+                Icon(icon, color: iconColor, size: 24),
                 const SizedBox(width: 8),
-                Expanded(child: Text(title, style: const TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w600), overflow: TextOverflow.ellipsis)),
+                Expanded(child: Text(title, style: TextStyle(color: mutedTextColor, fontSize: 13, fontWeight: FontWeight.w600), overflow: TextOverflow.ellipsis)),
               ],
             ),
             const SizedBox(height: 12),
-            Text(value, style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold)),
+            Text(value, style: TextStyle(color: textColor, fontSize: 28, fontWeight: FontWeight.bold)),
           ],
         ),
       ),
@@ -359,18 +388,34 @@ class _GlassCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
+    // In light mode, use a slightly transparent white for high contrast with dark text.
+    // In dark mode, use a transparent black.
+    final cardColor = isDark 
+        ? Colors.black.withValues(alpha: 0.4) 
+        : Colors.white.withValues(alpha: 0.75);
+        
+    final borderColor = isDark 
+        ? Colors.white.withValues(alpha: 0.1) 
+        : Colors.white.withValues(alpha: 0.9);
+        
+    final shadowColor = isDark 
+        ? Colors.black.withValues(alpha: 0.2) 
+        : Colors.black.withValues(alpha: 0.05);
+
     return ClipRRect(
       borderRadius: BorderRadius.circular(20),
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.black.withValues(alpha: 0.4),
+            color: cardColor,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+            border: Border.all(color: borderColor, width: 1.5),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.2),
+                color: shadowColor,
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -386,12 +431,16 @@ class _GlassCard extends StatelessWidget {
 class _ActionBtn extends StatelessWidget {
   final IconData icon;
   final String label;
+  final Color textColor;
   final VoidCallback onTap;
 
-  const _ActionBtn({required this.icon, required this.label, required this.onTap});
+  const _ActionBtn({required this.icon, required this.label, required this.textColor, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    
     return Container(
       margin: const EdgeInsets.only(right: 12),
       child: InkWell(
@@ -407,13 +456,19 @@ class _ActionBtn extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.2),
+                    color: isDark 
+                        ? theme.colorScheme.surface.withValues(alpha: 0.3)
+                        : theme.colorScheme.primary.withValues(alpha: 0.15),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(icon, color: Colors.white, size: 28),
+                  child: Icon(icon, color: isDark ? Colors.white : theme.colorScheme.primary, size: 28),
                 ),
                 const SizedBox(height: 12),
-                Text(label, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 13), textAlign: TextAlign.center),
+                Text(
+                  label, 
+                  style: TextStyle(color: textColor, fontWeight: FontWeight.w600, fontSize: 13), 
+                  textAlign: TextAlign.center
+                ),
               ],
             ),
           ),
