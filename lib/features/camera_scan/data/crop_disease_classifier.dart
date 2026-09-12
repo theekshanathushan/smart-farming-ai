@@ -62,9 +62,9 @@ class TFLiteCropDiseaseClassifier implements ICropDiseaseClassifier {
           (x) {
             final pixel = resizedImage.getPixel(x, y);
             return [
-              pixel.r / 255.0,
-              pixel.g / 255.0,
-              pixel.b / 255.0,
+              (pixel.r - 127.5) / 127.5,
+              (pixel.g - 127.5) / 127.5,
+              (pixel.b - 127.5) / 127.5,
             ];
           },
         ),
@@ -81,7 +81,9 @@ class TFLiteCropDiseaseClassifier implements ICropDiseaseClassifier {
     final resultScores = output[0];
     final results = <ClassifierResult>[];
     for (int i = 0; i < resultScores.length; i++) {
-      results.add(ClassifierResult(label: _labels![i], confidence: resultScores[i]));
+      // Clean up label by removing leading numbers and extra spaces
+      final cleanLabel = _labels![i].replaceAll(RegExp(r'^\d+\s*'), '').trim();
+      results.add(ClassifierResult(label: cleanLabel, confidence: resultScores[i]));
     }
 
     // Sort by confidence (descending)

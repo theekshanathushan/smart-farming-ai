@@ -192,13 +192,14 @@ class CameraScanScreen extends ConsumerWidget {
 
     if (state.imagePath != null && state.result != null) {
       final isUnrecognized = state.result!.label.contains('Unrecognized');
+      final isDiseased = state.result!.label.toLowerCase().contains('disease');
 
       return Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            isUnrecognized ? 'Scan Result' : 'Disease Detected',
+            isUnrecognized ? 'Scan Result' : (isDiseased ? 'Attention Needed' : 'Great News!'),
             style: Theme.of(context).textTheme.titleSmall?.copyWith(color: Colors.grey),
             textAlign: TextAlign.center,
           ),
@@ -207,7 +208,7 @@ class CameraScanScreen extends ConsumerWidget {
             state.result!.label,
             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
               fontWeight: FontWeight.bold,
-              color: isUnrecognized ? Colors.orange : Theme.of(context).colorScheme.primary,
+              color: isUnrecognized ? Colors.orange : (isDiseased ? Colors.redAccent : Theme.of(context).colorScheme.primary),
               fontSize: isUnrecognized ? 20 : null,
             ),
             textAlign: TextAlign.center,
@@ -226,6 +227,69 @@ class CameraScanScreen extends ConsumerWidget {
               ),
             ),
           ),
+          if (isDiseased) ...[
+            const SizedBox(height: 24),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.redAccent.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.redAccent.withValues(alpha: 0.3)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.warning_amber_rounded, color: Colors.redAccent),
+                      const SizedBox(width: 8),
+                      Text('Treatment Plan', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: Colors.redAccent)),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Text('1. Isolate the affected plant to prevent spread.', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+                  const SizedBox(height: 4),
+                  Text('2. Remove and safely dispose of diseased leaves.', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+                  const SizedBox(height: 4),
+                  Text('3. Apply organic Neem Oil or copper-based fungicide.', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+                  const SizedBox(height: 12),
+                  OutlinedButton.icon(
+                    onPressed: () => context.push('/chat'),
+                    icon: const Icon(Icons.smart_toy, size: 18),
+                    label: const Text('Ask AI Agent for Details'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Theme.of(context).colorScheme.primary,
+                      side: BorderSide(color: Theme.of(context).colorScheme.primary),
+                      minimumSize: const Size(double.infinity, 40),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+          if (!isDiseased && !isUnrecognized) ...[
+             const SizedBox(height: 24),
+             Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3)),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.verified, color: Theme.of(context).colorScheme.primary),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Your crop looks perfectly healthy! Keep up the good irrigation and fertilizer routine.', 
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface)
+                    )
+                  ),
+                ],
+              ),
+            ),
+          ],
           const SizedBox(height: 24),
           if (isUnrecognized)
             ElevatedButton(
