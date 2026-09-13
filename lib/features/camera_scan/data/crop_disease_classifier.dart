@@ -25,12 +25,22 @@ class HybridCropDiseaseClassifier implements ICropDiseaseClassifier {
   Future<List<ClassifierResult>> classifyImage(String imagePath) async {
     // 1. Try Online Advanced AI (Gemini)
     try {
-      final geminiResult = await _geminiClassifier.analyzeImage(imagePath);
+      final geminiResult = await _geminiClassifier.analyzeImage(imagePath).timeout(const Duration(seconds: 15));
       if (geminiResult != null) {
         return [geminiResult];
       }
     } catch (e) {
-      print('Failed to use Gemini, falling back to local TFLite: $e');
+      print('Failed to use Gemini: $e');
+      return [
+        ClassifierResult(
+          label: 'System Error',
+          confidence: 0.0,
+          isHealthy: false,
+          diseaseName: 'Timeout or Network Failure',
+          treatmentPlan: 'Details: $e',
+          severity: 'High'
+        )
+      ];
     }
 
     // 2. Offline Fallback (TFLite)

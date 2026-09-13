@@ -47,7 +47,12 @@ class ScanController extends StateNotifier<ScanState> {
 
   Future<void> captureAndClassify(ImageSource source) async {
     try {
-      final XFile? image = await _picker.pickImage(source: source);
+      final XFile? image = await _picker.pickImage(
+        source: source,
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 80,
+      );
       if (image == null) return;
 
       state = state.copyWith(isLoading: true, imagePath: image.path, error: null, isSaved: false);

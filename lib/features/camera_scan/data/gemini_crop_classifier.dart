@@ -27,14 +27,17 @@ class GeminiCropClassifier {
       
       final prompt = '''
 You are an expert agricultural botanist and plant pathologist. 
-Analyze the provided image of a plant/leaf. 
-Return a JSON object with the exact following structure:
+Analyze the provided image. 
+1. If the image is NOT a plant or leaf (e.g. it's a bottle, person, car, etc.), you MUST set "isPlant" to false, "label" to "Unrecognized / Not a plant", and keep the rest empty.
+2. If it IS a plant, determine if it is perfectly healthy or diseased.
+Return a JSON object with the exact following structure without markdown blocks:
 {
-  "isHealthy": boolean (true if the plant looks perfectly healthy, false otherwise),
-  "diseaseName": string (if not healthy, the precise name of the disease. If healthy, leave empty),
-  "treatmentPlan": string (a step-by-step treatment plan to cure or prevent issues),
+  "isPlant": boolean (true if it's a plant/leaf, false otherwise),
+  "isHealthy": boolean (true if the plant looks perfectly healthy, false if diseased. Ignored if not a plant),
+  "diseaseName": string (if diseased, the precise name of the disease. If healthy or not a plant, leave empty),
+  "treatmentPlan": string (a step-by-step treatment plan if diseased. If healthy, provide general care tips. If not a plant, leave empty),
   "severity": string (e.g. "None", "Low", "Medium", "High"),
-  "label": string (a short display title like "Healthy Tomato Leaf" or "Tomato Early Blight")
+  "label": string (a short display title like "Healthy Tomato Leaf", "Tomato Early Blight", or "Unrecognized / Not a plant")
 }
 ''';
 
@@ -48,8 +51,24 @@ Return a JSON object with the exact following structure:
       final response = await model.generateContent(content);
       
       if (response.text != null) {
-        final jsonResult = jsonDecode(response.text!);
+        String jsonString = response.text!;
+        // Clean markdown backticks if Gemini includes them
+        jsonString = jsonString.replaceAll('```json', '').replaceAll('```', '').trim();
         
+        final jsonResult = jsonDecode(jsonString);
+        
+        final isPlant = jsonResult['isPlant'] ?? true;
+        if (!isPlant) {
+           return ClassifierResult(
+             label: 'Unrecognized / Not a clear plant',
+             confidence: 0.98,
+             isHealthy: false,
+             diseaseName: '',
+             treatmentPlan: '',
+             severity: 'None'
+           );
+        }
+
         return ClassifierResult(
           label: jsonResult['label'] ?? 'Unknown',
           confidence: 0.98, // High confidence for Generative AI result
@@ -58,11 +77,26 @@ Return a JSON object with the exact following structure:
           treatmentPlan: jsonResult['treatmentPlan'] ?? '',
           severity: jsonResult['severity'] ?? 'Unknown',
         );
+      } else {
+        return ClassifierResult(
+          label: 'API Blocked Response',
+          confidence: 0.0,
+          isHealthy: false,
+          diseaseName: 'No Text Returned',
+          treatmentPlan: 'Gemini returned an empty response. Finish Reason: \${response.candidates.isNotEmpty ? response.candidates.first.finishReason : "Unknown"}',
+          severity: 'High'
+        );
       }
-      return null;
     } catch (e) {
       print('Gemini API Error: $e');
-      return null;
+      return ClassifierResult(
+        label: 'API/Network Error',
+        confidence: 0.0,
+        isHealthy: false,
+        diseaseName: 'Connection Failed',
+        treatmentPlan: 'Error Details:\n$e',
+        severity: 'High'
+      );
     }
   }
 }
