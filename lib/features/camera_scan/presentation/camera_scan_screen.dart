@@ -192,7 +192,8 @@ class CameraScanScreen extends ConsumerWidget {
 
     if (state.imagePath != null && state.result != null) {
       final isUnrecognized = state.result!.label.contains('Unrecognized');
-      final isDiseased = state.result!.label.toLowerCase().contains('disease');
+      final isDiseased = !state.result!.isHealthy && !isUnrecognized;
+      final isHealthy = state.result!.isHealthy && !isUnrecognized;
 
       return Column(
         mainAxisSize: MainAxisSize.min,
@@ -205,7 +206,7 @@ class CameraScanScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            state.result!.label,
+            isDiseased ? (state.result!.diseaseName.isNotEmpty ? state.result!.diseaseName : state.result!.label) : state.result!.label,
             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
               fontWeight: FontWeight.bold,
               color: isUnrecognized ? Colors.orange : (isDiseased ? Colors.redAccent : Theme.of(context).colorScheme.primary),
@@ -215,16 +216,35 @@ class CameraScanScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 16),
           Center(
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.tertiary.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Text(
-                'Confidence: ${(state.result!.confidence * 100).toStringAsFixed(1)}%',
-                style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
-              ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.tertiary.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Text(
+                    'Confidence: ${(state.result!.confidence * 100).toStringAsFixed(1)}%',
+                    style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
+                  ),
+                ),
+                if (isDiseased && state.result!.severity.isNotEmpty) ...[
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.orange.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Text(
+                      'Severity: ${state.result!.severity}',
+                      style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.orange),
+                    ),
+                  ),
+                ]
+              ],
             ),
           ),
           if (isDiseased) ...[
@@ -247,11 +267,12 @@ class CameraScanScreen extends ConsumerWidget {
                     ],
                   ),
                   const SizedBox(height: 12),
-                  Text('1. Isolate the affected plant to prevent spread.', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-                  const SizedBox(height: 4),
-                  Text('2. Remove and safely dispose of diseased leaves.', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-                  const SizedBox(height: 4),
-                  Text('3. Apply organic Neem Oil or copper-based fungicide.', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+                  Text(
+                    state.result!.treatmentPlan.isNotEmpty 
+                      ? state.result!.treatmentPlan 
+                      : 'Please consult with a local agricultural expert for specific treatments.', 
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface)
+                  ),
                   const SizedBox(height: 12),
                   OutlinedButton.icon(
                     onPressed: () => context.push('/chat'),
@@ -267,7 +288,7 @@ class CameraScanScreen extends ConsumerWidget {
               ),
             ),
           ],
-          if (!isDiseased && !isUnrecognized) ...[
+          if (isHealthy) ...[
              const SizedBox(height: 24),
              Container(
               padding: const EdgeInsets.all(16),
@@ -282,7 +303,9 @@ class CameraScanScreen extends ConsumerWidget {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      'Your crop looks perfectly healthy! Keep up the good irrigation and fertilizer routine.', 
+                      state.result!.treatmentPlan.isNotEmpty 
+                      ? state.result!.treatmentPlan 
+                      : 'Your crop looks perfectly healthy! Keep up the good irrigation and fertilizer routine.', 
                       style: TextStyle(color: Theme.of(context).colorScheme.onSurface)
                     )
                   ),
@@ -290,6 +313,7 @@ class CameraScanScreen extends ConsumerWidget {
               ),
             ),
           ],
+
           const SizedBox(height: 24),
           if (isUnrecognized)
             ElevatedButton(
