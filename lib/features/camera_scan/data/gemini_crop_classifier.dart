@@ -3,9 +3,10 @@ import 'dart:convert';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import '../domain/classifier_result.dart';
 
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 class GeminiCropClassifier {
-  // TODO: Replace with your actual Gemini API Key from Google AI Studio
-  static const _apiKey = 'YOUR_GEMINI_API_KEY';
+  static String get _apiKey => dotenv.env['GEMINI_API_KEY'] ?? 'YOUR_GEMINI_API_KEY';
   
   Future<ClassifierResult?> analyzeImage(String imagePath) async {
     if (_apiKey == 'YOUR_GEMINI_API_KEY') {
@@ -15,7 +16,7 @@ class GeminiCropClassifier {
 
     try {
       final model = GenerativeModel(
-        model: 'gemini-1.5-flash',
+        model: 'gemini-3.8-flash',
         apiKey: _apiKey,
         generationConfig: GenerationConfig(
           responseMimeType: 'application/json',

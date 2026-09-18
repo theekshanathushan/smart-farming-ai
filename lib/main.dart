@@ -8,9 +8,13 @@ import 'core/routing/app_router.dart';
 import 'core/local_db/app_database.dart';
 import 'core/theme/app_theme.dart';
 
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 void main() async {
   // Ensure widget binding is initialized
   WidgetsFlutterBinding.ensureInitialized();
+  
+  await dotenv.load(fileName: ".env");
 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
