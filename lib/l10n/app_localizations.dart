@@ -213,6 +213,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tamil (தமிழ்)'**
   String get tamil;
+
+  /// No description provided for @navHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get navHome;
+
+  /// No description provided for @navFarm.
+  ///
+  /// In en, this message translates to:
+  /// **'Farm'**
+  String get navFarm;
+
+  /// No description provided for @navScan.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan'**
+  String get navScan;
+
+  /// No description provided for @navMarket.
+  ///
+  /// In en, this message translates to:
+  /// **'Market'**
+  String get navMarket;
+
+  /// No description provided for @goodMorning.
+  ///
+  /// In en, this message translates to:
+  /// **'Good Morning,'**
+  String get goodMorning;
+
+  /// No description provided for @farmer.
+  ///
+  /// In en, this message translates to:
+  /// **'Farmer'**
+  String get farmer;
+
+  /// No description provided for @quickTools.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick Tools'**
+  String get quickTools;
+
+  /// No description provided for @addCrop.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Crop'**
+  String get addCrop;
+
+  /// No description provided for @fertilizer.
+  ///
+  /// In en, this message translates to:
+  /// **'Fertilizer'**
+  String get fertilizer;
+
+  /// No description provided for @pestGuide.
+  ///
+  /// In en, this message translates to:
+  /// **'Pest Guide'**
+  String get pestGuide;
+
+  /// No description provided for @aiHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Helper'**
+  String get aiHelper;
+
+  /// No description provided for @irrigation.
+  ///
+  /// In en, this message translates to:
+  /// **'Irrigation'**
+  String get irrigation;
+
+  /// No description provided for @ledger.
+  ///
+  /// In en, this message translates to:
+  /// **'Ledger'**
+  String get ledger;
+
+  /// No description provided for @community.
+  ///
+  /// In en, this message translates to:
+  /// **'Community'**
+  String get community;
+
+  /// No description provided for @buySell.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy & Sell'**
+  String get buySell;
+
+  /// No description provided for @liveAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'Live Alerts'**
+  String get liveAlerts;
+
+  /// No description provided for @seeAll.
+  ///
+  /// In en, this message translates to:
+  /// **'See All'**
+  String get seeAll;
+
+  /// No description provided for @currentWeather.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Weather'**
+  String get currentWeather;
+
+  /// No description provided for @weatherUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Weather unavailable'**
+  String get weatherUnavailable;
+
+  /// No description provided for @empoweringFarmers.
+  ///
+  /// In en, this message translates to:
+  /// **'Empowering Farmers with AI'**
+  String get empoweringFarmers;
+
+  /// No description provided for @getStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Get Started'**
+  String get getStarted;
 }
 
 class _AppLocalizationsDelegate

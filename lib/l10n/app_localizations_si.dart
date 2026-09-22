@@ -64,4 +64,67 @@ class AppLocalizationsSi extends AppLocalizations {
 
   @override
   String get tamil => 'தமிழ்';
+
+  @override
+  String get navHome => 'මුල් පිටුව';
+
+  @override
+  String get navFarm => 'ගොවිපල';
+
+  @override
+  String get navScan => 'ස්කෑන්';
+
+  @override
+  String get navMarket => 'වෙළඳපොළ';
+
+  @override
+  String get goodMorning => 'සුභ උදෑසනක්,';
+
+  @override
+  String get farmer => 'ගොවියා';
+
+  @override
+  String get quickTools => 'ඉක්මන් මෙවලම්';
+
+  @override
+  String get addCrop => 'බෝගය එකතු කරන්න';
+
+  @override
+  String get fertilizer => 'පොහොර';
+
+  @override
+  String get pestGuide => 'පළිබෝධ මාර්ගෝපදේශය';
+
+  @override
+  String get aiHelper => 'AI සහායක';
+
+  @override
+  String get irrigation => 'වාරිමාර්ග';
+
+  @override
+  String get ledger => 'ලෙජරය';
+
+  @override
+  String get community => 'ප්‍රජාව';
+
+  @override
+  String get buySell => 'මිලදී ගන්න සහ විකුණන්න';
+
+  @override
+  String get liveAlerts => 'සජීවී ඇඟවීම්';
+
+  @override
+  String get seeAll => 'සියල්ල බලන්න';
+
+  @override
+  String get currentWeather => 'වත්මන් කාලගුණය';
+
+  @override
+  String get weatherUnavailable => 'කාලගුණය නොලැබේ';
+
+  @override
+  String get empoweringFarmers => 'AI සමඟින් ගොවීන් සවිබල ගැන්වීම';
+
+  @override
+  String get getStarted => 'ආරම්භ කරන්න';
 }

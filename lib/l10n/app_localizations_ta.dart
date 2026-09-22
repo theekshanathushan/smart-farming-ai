@@ -64,4 +64,67 @@ class AppLocalizationsTa extends AppLocalizations {
 
   @override
   String get tamil => 'தமிழ்';
+
+  @override
+  String get navHome => 'முகப்பு';
+
+  @override
+  String get navFarm => 'பண்ணை';
+
+  @override
+  String get navScan => 'ஸ்கேன்';
+
+  @override
+  String get navMarket => 'சந்தை';
+
+  @override
+  String get goodMorning => 'காலை வணக்கம்,';
+
+  @override
+  String get farmer => 'விவசாயி';
+
+  @override
+  String get quickTools => 'விரைவான கருவிகள்';
+
+  @override
+  String get addCrop => 'பயிரைச் சேர்';
+
+  @override
+  String get fertilizer => 'உரம்';
+
+  @override
+  String get pestGuide => 'பூச்சி வழிகாட்டி';
+
+  @override
+  String get aiHelper => 'AI உதவியாளர்';
+
+  @override
+  String get irrigation => 'நீர்ப்பாசனம்';
+
+  @override
+  String get ledger => 'பேரேடு';
+
+  @override
+  String get community => 'சமூகம்';
+
+  @override
+  String get buySell => 'வாங்கு & விற்க';
+
+  @override
+  String get liveAlerts => 'நேரடி விழிப்பூட்டல்கள்';
+
+  @override
+  String get seeAll => 'அனைத்தையும் பார்க்கவும்';
+
+  @override
+  String get currentWeather => 'தற்போதைய வானிலை';
+
+  @override
+  String get weatherUnavailable => 'வானிலை கிடைக்கவில்லை';
+
+  @override
+  String get empoweringFarmers => 'AI மூலம் விவசாயிகளை மேம்படுத்துதல்';
+
+  @override
+  String get getStarted => 'தொடங்குங்கள்';
 }
