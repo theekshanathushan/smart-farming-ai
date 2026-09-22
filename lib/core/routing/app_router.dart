@@ -12,6 +12,7 @@ import '../../features/profile/presentation/profile_screen.dart';
 
 import '../../features/home/presentation/home_screen.dart';
 
+import '../../features/welcome/presentation/welcome_screen.dart';
 import '../../features/auth/presentation/language_selection_screen.dart';
 import '../../features/auth/presentation/auth_screen.dart';
 import '../../features/auth/presentation/otp_verification_screen.dart';
@@ -33,6 +34,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
     initialLocation: '/',
     redirect: (context, state) {
       final isAuthRoute = state.matchedLocation == '/' || 
+                          state.matchedLocation == '/welcome' ||
                           state.matchedLocation == '/auth' || 
                           state.matchedLocation == '/verify-otp';
 
@@ -48,6 +50,10 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/',
         builder: (context, state) => const LanguageSelectionScreen(),
+      ),
+      GoRoute(
+        path: '/welcome',
+        builder: (context, state) => const WelcomeScreen(),
       ),
       GoRoute(
         path: '/auth',

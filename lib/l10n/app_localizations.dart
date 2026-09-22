@@ -339,6 +339,144 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Get Started'**
   String get getStarted;
+
+  /// No description provided for @welcomeToAgriAi.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to Agri AI'**
+  String get welcomeToAgriAi;
+
+  /// No description provided for @pleaseSelectLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select your language'**
+  String get pleaseSelectLanguage;
+
+  /// No description provided for @welcomeBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome Back'**
+  String get welcomeBack;
+
+  /// No description provided for @createAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Account'**
+  String get createAccount;
+
+  /// No description provided for @enterPhoneToContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your phone number to continue'**
+  String get enterPhoneToContinue;
+
+  /// No description provided for @registerToAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Register to access agricultural insights'**
+  String get registerToAccess;
+
+  /// No description provided for @login.
+  ///
+  /// In en, this message translates to:
+  /// **'Login'**
+  String get login;
+
+  /// No description provided for @register.
+  ///
+  /// In en, this message translates to:
+  /// **'Register'**
+  String get register;
+
+  /// No description provided for @fullNameOrFarmName.
+  ///
+  /// In en, this message translates to:
+  /// **'Full Name or Farm Name'**
+  String get fullNameOrFarmName;
+
+  /// No description provided for @enterNameValidation.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your name or farm name'**
+  String get enterNameValidation;
+
+  /// No description provided for @enterPhoneValidation.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your phone number'**
+  String get enterPhoneValidation;
+
+  /// No description provided for @enterValidPhoneValidation.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid phone number'**
+  String get enterValidPhoneValidation;
+
+  /// No description provided for @sendOtp.
+  ///
+  /// In en, this message translates to:
+  /// **'Send OTP'**
+  String get sendOtp;
+
+  /// No description provided for @registerAndSendOtp.
+  ///
+  /// In en, this message translates to:
+  /// **'Register & Send OTP'**
+  String get registerAndSendOtp;
+
+  /// No description provided for @sendingOtp.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending OTP...'**
+  String get sendingOtp;
+
+  /// No description provided for @verifyNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify Number'**
+  String get verifyNumber;
+
+  /// No description provided for @enterOtp.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter OTP'**
+  String get enterOtp;
+
+  /// No description provided for @sentCodeTo.
+  ///
+  /// In en, this message translates to:
+  /// **'We sent a 6-digit code to'**
+  String get sentCodeTo;
+
+  /// No description provided for @yourNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'your number'**
+  String get yourNumber;
+
+  /// No description provided for @digitOtpHint.
+  ///
+  /// In en, this message translates to:
+  /// **'6-digit OTP'**
+  String get digitOtpHint;
+
+  /// No description provided for @enterOtpValidation.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter the 6-digit OTP'**
+  String get enterOtpValidation;
+
+  /// No description provided for @verifyOtp.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify OTP'**
+  String get verifyOtp;
+
+  /// No description provided for @didntReceiveCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Didn\'t receive code? Resend'**
+  String get didntReceiveCode;
 }
 
 class _AppLocalizationsDelegate

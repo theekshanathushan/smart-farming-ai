@@ -127,4 +127,75 @@ class AppLocalizationsTa extends AppLocalizations {
 
   @override
   String get getStarted => 'தொடங்குங்கள்';
+
+  @override
+  String get welcomeToAgriAi => 'Agri AI இற்கு நல்வரவு';
+
+  @override
+  String get pleaseSelectLanguage => 'உங்கள் மொழியைத் தேர்ந்தெடுக்கவும்';
+
+  @override
+  String get welcomeBack => 'மீண்டும் வருக';
+
+  @override
+  String get createAccount => 'கணக்கை உருவாக்கவும்';
+
+  @override
+  String get enterPhoneToContinue => 'தொடர உங்கள் தொலைபேசி எண்ணை உள்ளிடவும்';
+
+  @override
+  String get registerToAccess => 'விவசாய தகவல்களை அணுக பதிவு செய்யவும்';
+
+  @override
+  String get login => 'உள்நுழைக';
+
+  @override
+  String get register => 'பதிவு செய்க';
+
+  @override
+  String get fullNameOrFarmName => 'முழு பெயர் அல்லது பண்ணை பெயர்';
+
+  @override
+  String get enterNameValidation =>
+      'உங்கள் பெயர் அல்லது பண்ணை பெயரை உள்ளிடவும்';
+
+  @override
+  String get enterPhoneValidation => 'உங்கள் தொலைபேசி எண்ணை உள்ளிடவும்';
+
+  @override
+  String get enterValidPhoneValidation => 'சரியான தொலைபேசி எண்ணை உள்ளிடவும்';
+
+  @override
+  String get sendOtp => 'OTP அனுப்பவும்';
+
+  @override
+  String get registerAndSendOtp => 'பதிவு செய்து OTP அனுப்பவும்';
+
+  @override
+  String get sendingOtp => 'OTP அனுப்பப்படுகிறது...';
+
+  @override
+  String get verifyNumber => 'எண்ணை சரிபார்க்கவும்';
+
+  @override
+  String get enterOtp => 'OTP ஐ உள்ளிடவும்';
+
+  @override
+  String get sentCodeTo => 'நாங்கள் 6 இலக்க குறியீட்டை அனுப்பியுள்ளோம்:';
+
+  @override
+  String get yourNumber => 'உங்கள் எண்';
+
+  @override
+  String get digitOtpHint => '6-இலக்க OTP';
+
+  @override
+  String get enterOtpValidation => 'தயவுசெய்து 6 இலக்க OTP ஐ உள்ளிடவும்';
+
+  @override
+  String get verifyOtp => 'OTP ஐ சரிபார்க்கவும்';
+
+  @override
+  String get didntReceiveCode =>
+      'குறியீடு கிடைக்கவில்லையா? மீண்டும் அனுப்பவும்';
 }

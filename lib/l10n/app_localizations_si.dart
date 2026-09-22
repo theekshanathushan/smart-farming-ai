@@ -127,4 +127,76 @@ class AppLocalizationsSi extends AppLocalizations {
 
   @override
   String get getStarted => 'ආරම්භ කරන්න';
+
+  @override
+  String get welcomeToAgriAi => 'Agri AI වෙත සාදරයෙන් පිළිගනිමු';
+
+  @override
+  String get pleaseSelectLanguage => 'කරුණාකර ඔබගේ භාෂාව තෝරන්න';
+
+  @override
+  String get welcomeBack => 'නැවත සාදරයෙන් පිළිගනිමු';
+
+  @override
+  String get createAccount => 'ගිණුමක් සාදන්න';
+
+  @override
+  String get enterPhoneToContinue =>
+      'ඉදිරියට යාමට ඔබගේ දුරකථන අංකය ඇතුළත් කරන්න';
+
+  @override
+  String get registerToAccess =>
+      'කෘෂිකාර්මික තොරතුරු ලබා ගැනීමට ලියාපදිංචි වන්න';
+
+  @override
+  String get login => 'ඇතුල් වන්න';
+
+  @override
+  String get register => 'ලියාපදිංචි වන්න';
+
+  @override
+  String get fullNameOrFarmName => 'සම්පූර්ණ නම හෝ ගොවිපල නම';
+
+  @override
+  String get enterNameValidation => 'කරුණාකර ඔබගේ නම හෝ ගොවිපල නම ඇතුළත් කරන්න';
+
+  @override
+  String get enterPhoneValidation => 'කරුණාකර ඔබගේ දුරකථන අංකය ඇතුළත් කරන්න';
+
+  @override
+  String get enterValidPhoneValidation =>
+      'කරුණාකර වලංගු දුරකථන අංකයක් ඇතුළත් කරන්න';
+
+  @override
+  String get sendOtp => 'OTP එවන්න';
+
+  @override
+  String get registerAndSendOtp => 'ලියාපදිංචි වී OTP එවන්න';
+
+  @override
+  String get sendingOtp => 'OTP යවමින් පවතී...';
+
+  @override
+  String get verifyNumber => 'අංකය තහවුරු කරන්න';
+
+  @override
+  String get enterOtp => 'OTP ඇතුළත් කරන්න';
+
+  @override
+  String get sentCodeTo => 'අපි ඉලක්කම් 6 ක කේතයක් එවා ඇත:';
+
+  @override
+  String get yourNumber => 'ඔබගේ අංකය';
+
+  @override
+  String get digitOtpHint => 'ඉලක්කම් 6 ක OTP';
+
+  @override
+  String get enterOtpValidation => 'කරුණාකර ඉලක්කම් 6 ක OTP ඇතුළත් කරන්න';
+
+  @override
+  String get verifyOtp => 'OTP තහවුරු කරන්න';
+
+  @override
+  String get didntReceiveCode => 'කේතය නොලැබුණිද? නැවත එවන්න';
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:agri_ai/l10n/app_localizations.dart';
 import '../providers/auth_provider.dart';
 
 class AuthScreen extends ConsumerStatefulWidget {
@@ -38,6 +38,8 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     // Listen for state changes to navigate or show errors
     ref.listen<AuthState>(authProvider, (previous, next) {
       if (next.status == AuthStateStatus.error && next.errorMessage != null) {
@@ -60,7 +62,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     final isLoading = authState.status == AuthStateStatus.loading;
 
     return Scaffold(
-      backgroundColor: Colors.white, // High contrast
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -75,8 +77,8 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  _isLogin ? 'Welcome Back' : 'Create Account',
-                  style: GoogleFonts.inter(
+                  _isLogin ? l10n.welcomeBack : l10n.createAccount,
+                  style: const TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.w900,
                     color: Colors.black87,
@@ -85,11 +87,12 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                 const SizedBox(height: 8),
                 Text(
                   _isLogin
-                      ? 'Enter your phone number to continue'
-                      : 'Register to access agricultural insights',
-                  style: GoogleFonts.inter(
+                      ? l10n.enterPhoneToContinue
+                      : l10n.registerToAccess,
+                  style: const TextStyle(
                     fontSize: 16,
                     color: Colors.black54,
+                    height: 1.4,
                   ),
                 ),
                 const SizedBox(height: 40),
@@ -113,8 +116,8 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                             ),
                             alignment: Alignment.center,
                             child: Text(
-                              'Login',
-                              style: GoogleFonts.inter(
+                              l10n.login,
+                              style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                                 color: _isLogin ? Colors.white : Colors.black54,
@@ -134,8 +137,8 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                             ),
                             alignment: Alignment.center,
                             child: Text(
-                              'Register',
-                              style: GoogleFonts.inter(
+                              l10n.register,
+                              style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                                 color: !_isLogin ? Colors.white : Colors.black54,
@@ -153,12 +156,12 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                 if (!_isLogin) ...[
                   TextFormField(
                     controller: _nameController,
-                    decoration: _inputDecoration('Full Name or Farm Name', Icons.person),
+                    decoration: _inputDecoration(l10n.fullNameOrFarmName, Icons.person),
                     style: const TextStyle(fontSize: 18, color: Colors.black87),
                     textInputAction: TextInputAction.next,
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return 'Please enter your name or farm name';
+                        return l10n.enterNameValidation;
                       }
                       return null;
                     },
@@ -169,17 +172,16 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                 // Phone number field
                 TextFormField(
                   controller: _phoneController,
-                  decoration: _inputDecoration('Phone Number', Icons.phone),
+                  decoration: _inputDecoration(l10n.phoneNumber, Icons.phone),
                   style: const TextStyle(fontSize: 18, color: Colors.black87),
                   keyboardType: TextInputType.phone,
                   textInputAction: TextInputAction.done,
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return 'Please enter your phone number';
+                      return l10n.enterPhoneValidation;
                     }
-                    // Basic validation for phone length
                     if (value.trim().length < 9) {
-                      return 'Please enter a valid phone number';
+                      return l10n.enterValidPhoneValidation;
                     }
                     return null;
                   },
@@ -193,7 +195,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                     backgroundColor: Colors.green[700],
                     foregroundColor: Colors.white,
                     disabledBackgroundColor: Colors.grey[400],
-                    padding: const EdgeInsets.symmetric(vertical: 20), // Height > 48dp
+                    padding: const EdgeInsets.symmetric(vertical: 20),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -208,8 +210,8 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                           ),
                         )
                       : Text(
-                          _isLogin ? 'Send OTP' : 'Register & Send OTP',
-                          style: GoogleFonts.inter(
+                          _isLogin ? l10n.sendOtp : l10n.registerAndSendOtp,
+                          style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
@@ -220,9 +222,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                   Padding(
                     padding: const EdgeInsets.only(top: 16.0),
                     child: Text(
-                      'Sending OTP...',
+                      l10n.sendingOtp,
                       textAlign: TextAlign.center,
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
                         color: Colors.green[800],
@@ -245,14 +247,14 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
       prefixIcon: Icon(icon, color: Colors.black87),
       filled: true,
       fillColor: Colors.white,
-      contentPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16), // Large touch target
+      contentPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Colors.black87, width: 2), // Thick border
+        borderSide: const BorderSide(color: Colors.black87, width: 2),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: Colors.green[700]!, width: 3), // Thicker when focused
+        borderSide: BorderSide(color: Colors.green[700]!, width: 3),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),

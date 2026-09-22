@@ -127,4 +127,73 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get getStarted => 'Get Started';
+
+  @override
+  String get welcomeToAgriAi => 'Welcome to Agri AI';
+
+  @override
+  String get pleaseSelectLanguage => 'Please select your language';
+
+  @override
+  String get welcomeBack => 'Welcome Back';
+
+  @override
+  String get createAccount => 'Create Account';
+
+  @override
+  String get enterPhoneToContinue => 'Enter your phone number to continue';
+
+  @override
+  String get registerToAccess => 'Register to access agricultural insights';
+
+  @override
+  String get login => 'Login';
+
+  @override
+  String get register => 'Register';
+
+  @override
+  String get fullNameOrFarmName => 'Full Name or Farm Name';
+
+  @override
+  String get enterNameValidation => 'Please enter your name or farm name';
+
+  @override
+  String get enterPhoneValidation => 'Please enter your phone number';
+
+  @override
+  String get enterValidPhoneValidation => 'Please enter a valid phone number';
+
+  @override
+  String get sendOtp => 'Send OTP';
+
+  @override
+  String get registerAndSendOtp => 'Register & Send OTP';
+
+  @override
+  String get sendingOtp => 'Sending OTP...';
+
+  @override
+  String get verifyNumber => 'Verify Number';
+
+  @override
+  String get enterOtp => 'Enter OTP';
+
+  @override
+  String get sentCodeTo => 'We sent a 6-digit code to';
+
+  @override
+  String get yourNumber => 'your number';
+
+  @override
+  String get digitOtpHint => '6-digit OTP';
+
+  @override
+  String get enterOtpValidation => 'Please enter the 6-digit OTP';
+
+  @override
+  String get verifyOtp => 'Verify OTP';
+
+  @override
+  String get didntReceiveCode => 'Didn\'t receive code? Resend';
 }

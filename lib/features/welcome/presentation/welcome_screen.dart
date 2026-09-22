@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../home/presentation/home_screen.dart';
 import 'package:agri_ai/l10n/app_localizations.dart';
 
 class WelcomeScreen extends StatelessWidget {
@@ -30,7 +29,7 @@ class WelcomeScreen extends StatelessWidget {
                   end: Alignment.bottomCenter,
                   colors: [
                     Colors.black.withValues(alpha: 0.1),
-                    Colors.black.withValues(alpha: 0.6),
+                    Colors.black.withValues(alpha: 0.65),
                   ],
                 ),
               ),
@@ -42,13 +41,14 @@ class WelcomeScreen extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const SizedBox(height: 40),
+                const SizedBox(height: 60),
                 
                 // Typography
                 Column(
                   children: [
                     Text(
                       l10n.appTitle,
+                      textAlign: TextAlign.center,
                       style: const TextStyle(
                         fontSize: 48,
                         fontWeight: FontWeight.bold,
@@ -56,13 +56,18 @@ class WelcomeScreen extends StatelessWidget {
                         letterSpacing: 1.5,
                       ),
                     ),
-                    const SizedBox(height: 12),
-                    Text(
-                      l10n.empoweringFarmers,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        color: Colors.white70,
-                        fontWeight: FontWeight.w500,
+                    const SizedBox(height: 16),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 28.0),
+                      child: Text(
+                        l10n.empoweringFarmers,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          color: Colors.white70,
+                          fontWeight: FontWeight.w500,
+                          height: 1.4,
+                        ),
                       ),
                     ),
                   ],
@@ -84,10 +89,7 @@ class WelcomeScreen extends StatelessWidget {
                     ),
                     child: ElevatedButton(
                       onPressed: () {
-                        // The user requested Navigator.pushReplacement but the app uses go_router.
-                        // I will use context.go to match the project's routing architecture, 
-                        // which achieves the same push replacement behavior in a router setup.
-                        context.go('/home');
+                        context.push('/auth');
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Theme.of(context).colorScheme.primary,
