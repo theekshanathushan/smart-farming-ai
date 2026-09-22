@@ -6,7 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../../core/widgets/animated_farm_background.dart';
 import '../../../core/widgets/glass_container.dart';
 import '../../auth/providers/auth_provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:agri_ai/l10n/app_localizations.dart';
 import '../../../core/providers/locale_provider.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {

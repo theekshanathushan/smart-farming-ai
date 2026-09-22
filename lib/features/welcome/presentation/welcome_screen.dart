@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../home/presentation/home_screen.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:agri_ai/l10n/app_localizations.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
