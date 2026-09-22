@@ -1516,6 +1516,729 @@ class LedgerEntriesCompanion extends UpdateCompanion<LedgerEntry> {
   }
 }
 
+class $HarvestListingsTable extends HarvestListings
+    with TableInfo<$HarvestListingsTable, HarvestListing> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $HarvestListingsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _cropNameMeta =
+      const VerificationMeta('cropName');
+  @override
+  late final GeneratedColumn<String> cropName = GeneratedColumn<String>(
+      'crop_name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _categoryMeta =
+      const VerificationMeta('category');
+  @override
+  late final GeneratedColumn<String> category = GeneratedColumn<String>(
+      'category', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _quantityMeta =
+      const VerificationMeta('quantity');
+  @override
+  late final GeneratedColumn<double> quantity = GeneratedColumn<double>(
+      'quantity', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _unitMeta = const VerificationMeta('unit');
+  @override
+  late final GeneratedColumn<String> unit = GeneratedColumn<String>(
+      'unit', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('kg'));
+  static const VerificationMeta _pricePerUnitMeta =
+      const VerificationMeta('pricePerUnit');
+  @override
+  late final GeneratedColumn<double> pricePerUnit = GeneratedColumn<double>(
+      'price_per_unit', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _gradeMeta = const VerificationMeta('grade');
+  @override
+  late final GeneratedColumn<String> grade = GeneratedColumn<String>(
+      'grade', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('Grade A'));
+  static const VerificationMeta _harvestDateMeta =
+      const VerificationMeta('harvestDate');
+  @override
+  late final GeneratedColumn<DateTime> harvestDate = GeneratedColumn<DateTime>(
+      'harvest_date', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _districtMeta =
+      const VerificationMeta('district');
+  @override
+  late final GeneratedColumn<String> district = GeneratedColumn<String>(
+      'district', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _farmerNameMeta =
+      const VerificationMeta('farmerName');
+  @override
+  late final GeneratedColumn<String> farmerName = GeneratedColumn<String>(
+      'farmer_name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _farmerPhoneMeta =
+      const VerificationMeta('farmerPhone');
+  @override
+  late final GeneratedColumn<String> farmerPhone = GeneratedColumn<String>(
+      'farmer_phone', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _descriptionMeta =
+      const VerificationMeta('description');
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+      'description', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _imagePathMeta =
+      const VerificationMeta('imagePath');
+  @override
+  late final GeneratedColumn<String> imagePath = GeneratedColumn<String>(
+      'image_path', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _isSoldMeta = const VerificationMeta('isSold');
+  @override
+  late final GeneratedColumn<bool> isSold = GeneratedColumn<bool>(
+      'is_sold', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_sold" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        cropName,
+        category,
+        quantity,
+        unit,
+        pricePerUnit,
+        grade,
+        harvestDate,
+        district,
+        farmerName,
+        farmerPhone,
+        description,
+        imagePath,
+        isSold,
+        createdAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'harvest_listings';
+  @override
+  VerificationContext validateIntegrity(Insertable<HarvestListing> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('crop_name')) {
+      context.handle(_cropNameMeta,
+          cropName.isAcceptableOrUnknown(data['crop_name']!, _cropNameMeta));
+    } else if (isInserting) {
+      context.missing(_cropNameMeta);
+    }
+    if (data.containsKey('category')) {
+      context.handle(_categoryMeta,
+          category.isAcceptableOrUnknown(data['category']!, _categoryMeta));
+    } else if (isInserting) {
+      context.missing(_categoryMeta);
+    }
+    if (data.containsKey('quantity')) {
+      context.handle(_quantityMeta,
+          quantity.isAcceptableOrUnknown(data['quantity']!, _quantityMeta));
+    } else if (isInserting) {
+      context.missing(_quantityMeta);
+    }
+    if (data.containsKey('unit')) {
+      context.handle(
+          _unitMeta, unit.isAcceptableOrUnknown(data['unit']!, _unitMeta));
+    }
+    if (data.containsKey('price_per_unit')) {
+      context.handle(
+          _pricePerUnitMeta,
+          pricePerUnit.isAcceptableOrUnknown(
+              data['price_per_unit']!, _pricePerUnitMeta));
+    } else if (isInserting) {
+      context.missing(_pricePerUnitMeta);
+    }
+    if (data.containsKey('grade')) {
+      context.handle(
+          _gradeMeta, grade.isAcceptableOrUnknown(data['grade']!, _gradeMeta));
+    }
+    if (data.containsKey('harvest_date')) {
+      context.handle(
+          _harvestDateMeta,
+          harvestDate.isAcceptableOrUnknown(
+              data['harvest_date']!, _harvestDateMeta));
+    } else if (isInserting) {
+      context.missing(_harvestDateMeta);
+    }
+    if (data.containsKey('district')) {
+      context.handle(_districtMeta,
+          district.isAcceptableOrUnknown(data['district']!, _districtMeta));
+    } else if (isInserting) {
+      context.missing(_districtMeta);
+    }
+    if (data.containsKey('farmer_name')) {
+      context.handle(
+          _farmerNameMeta,
+          farmerName.isAcceptableOrUnknown(
+              data['farmer_name']!, _farmerNameMeta));
+    } else if (isInserting) {
+      context.missing(_farmerNameMeta);
+    }
+    if (data.containsKey('farmer_phone')) {
+      context.handle(
+          _farmerPhoneMeta,
+          farmerPhone.isAcceptableOrUnknown(
+              data['farmer_phone']!, _farmerPhoneMeta));
+    } else if (isInserting) {
+      context.missing(_farmerPhoneMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+          _descriptionMeta,
+          description.isAcceptableOrUnknown(
+              data['description']!, _descriptionMeta));
+    }
+    if (data.containsKey('image_path')) {
+      context.handle(_imagePathMeta,
+          imagePath.isAcceptableOrUnknown(data['image_path']!, _imagePathMeta));
+    }
+    if (data.containsKey('is_sold')) {
+      context.handle(_isSoldMeta,
+          isSold.isAcceptableOrUnknown(data['is_sold']!, _isSoldMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  HarvestListing map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return HarvestListing(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      cropName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}crop_name'])!,
+      category: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}category'])!,
+      quantity: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}quantity'])!,
+      unit: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}unit'])!,
+      pricePerUnit: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}price_per_unit'])!,
+      grade: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}grade'])!,
+      harvestDate: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}harvest_date'])!,
+      district: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}district'])!,
+      farmerName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}farmer_name'])!,
+      farmerPhone: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}farmer_phone'])!,
+      description: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}description']),
+      imagePath: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}image_path']),
+      isSold: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_sold'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+    );
+  }
+
+  @override
+  $HarvestListingsTable createAlias(String alias) {
+    return $HarvestListingsTable(attachedDatabase, alias);
+  }
+}
+
+class HarvestListing extends DataClass implements Insertable<HarvestListing> {
+  final String id;
+  final String cropName;
+  final String category;
+  final double quantity;
+  final String unit;
+  final double pricePerUnit;
+  final String grade;
+  final DateTime harvestDate;
+  final String district;
+  final String farmerName;
+  final String farmerPhone;
+  final String? description;
+  final String? imagePath;
+  final bool isSold;
+  final DateTime createdAt;
+  const HarvestListing(
+      {required this.id,
+      required this.cropName,
+      required this.category,
+      required this.quantity,
+      required this.unit,
+      required this.pricePerUnit,
+      required this.grade,
+      required this.harvestDate,
+      required this.district,
+      required this.farmerName,
+      required this.farmerPhone,
+      this.description,
+      this.imagePath,
+      required this.isSold,
+      required this.createdAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['crop_name'] = Variable<String>(cropName);
+    map['category'] = Variable<String>(category);
+    map['quantity'] = Variable<double>(quantity);
+    map['unit'] = Variable<String>(unit);
+    map['price_per_unit'] = Variable<double>(pricePerUnit);
+    map['grade'] = Variable<String>(grade);
+    map['harvest_date'] = Variable<DateTime>(harvestDate);
+    map['district'] = Variable<String>(district);
+    map['farmer_name'] = Variable<String>(farmerName);
+    map['farmer_phone'] = Variable<String>(farmerPhone);
+    if (!nullToAbsent || description != null) {
+      map['description'] = Variable<String>(description);
+    }
+    if (!nullToAbsent || imagePath != null) {
+      map['image_path'] = Variable<String>(imagePath);
+    }
+    map['is_sold'] = Variable<bool>(isSold);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  HarvestListingsCompanion toCompanion(bool nullToAbsent) {
+    return HarvestListingsCompanion(
+      id: Value(id),
+      cropName: Value(cropName),
+      category: Value(category),
+      quantity: Value(quantity),
+      unit: Value(unit),
+      pricePerUnit: Value(pricePerUnit),
+      grade: Value(grade),
+      harvestDate: Value(harvestDate),
+      district: Value(district),
+      farmerName: Value(farmerName),
+      farmerPhone: Value(farmerPhone),
+      description: description == null && nullToAbsent
+          ? const Value.absent()
+          : Value(description),
+      imagePath: imagePath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(imagePath),
+      isSold: Value(isSold),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory HarvestListing.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return HarvestListing(
+      id: serializer.fromJson<String>(json['id']),
+      cropName: serializer.fromJson<String>(json['cropName']),
+      category: serializer.fromJson<String>(json['category']),
+      quantity: serializer.fromJson<double>(json['quantity']),
+      unit: serializer.fromJson<String>(json['unit']),
+      pricePerUnit: serializer.fromJson<double>(json['pricePerUnit']),
+      grade: serializer.fromJson<String>(json['grade']),
+      harvestDate: serializer.fromJson<DateTime>(json['harvestDate']),
+      district: serializer.fromJson<String>(json['district']),
+      farmerName: serializer.fromJson<String>(json['farmerName']),
+      farmerPhone: serializer.fromJson<String>(json['farmerPhone']),
+      description: serializer.fromJson<String?>(json['description']),
+      imagePath: serializer.fromJson<String?>(json['imagePath']),
+      isSold: serializer.fromJson<bool>(json['isSold']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'cropName': serializer.toJson<String>(cropName),
+      'category': serializer.toJson<String>(category),
+      'quantity': serializer.toJson<double>(quantity),
+      'unit': serializer.toJson<String>(unit),
+      'pricePerUnit': serializer.toJson<double>(pricePerUnit),
+      'grade': serializer.toJson<String>(grade),
+      'harvestDate': serializer.toJson<DateTime>(harvestDate),
+      'district': serializer.toJson<String>(district),
+      'farmerName': serializer.toJson<String>(farmerName),
+      'farmerPhone': serializer.toJson<String>(farmerPhone),
+      'description': serializer.toJson<String?>(description),
+      'imagePath': serializer.toJson<String?>(imagePath),
+      'isSold': serializer.toJson<bool>(isSold),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  HarvestListing copyWith(
+          {String? id,
+          String? cropName,
+          String? category,
+          double? quantity,
+          String? unit,
+          double? pricePerUnit,
+          String? grade,
+          DateTime? harvestDate,
+          String? district,
+          String? farmerName,
+          String? farmerPhone,
+          Value<String?> description = const Value.absent(),
+          Value<String?> imagePath = const Value.absent(),
+          bool? isSold,
+          DateTime? createdAt}) =>
+      HarvestListing(
+        id: id ?? this.id,
+        cropName: cropName ?? this.cropName,
+        category: category ?? this.category,
+        quantity: quantity ?? this.quantity,
+        unit: unit ?? this.unit,
+        pricePerUnit: pricePerUnit ?? this.pricePerUnit,
+        grade: grade ?? this.grade,
+        harvestDate: harvestDate ?? this.harvestDate,
+        district: district ?? this.district,
+        farmerName: farmerName ?? this.farmerName,
+        farmerPhone: farmerPhone ?? this.farmerPhone,
+        description: description.present ? description.value : this.description,
+        imagePath: imagePath.present ? imagePath.value : this.imagePath,
+        isSold: isSold ?? this.isSold,
+        createdAt: createdAt ?? this.createdAt,
+      );
+  HarvestListing copyWithCompanion(HarvestListingsCompanion data) {
+    return HarvestListing(
+      id: data.id.present ? data.id.value : this.id,
+      cropName: data.cropName.present ? data.cropName.value : this.cropName,
+      category: data.category.present ? data.category.value : this.category,
+      quantity: data.quantity.present ? data.quantity.value : this.quantity,
+      unit: data.unit.present ? data.unit.value : this.unit,
+      pricePerUnit: data.pricePerUnit.present
+          ? data.pricePerUnit.value
+          : this.pricePerUnit,
+      grade: data.grade.present ? data.grade.value : this.grade,
+      harvestDate:
+          data.harvestDate.present ? data.harvestDate.value : this.harvestDate,
+      district: data.district.present ? data.district.value : this.district,
+      farmerName:
+          data.farmerName.present ? data.farmerName.value : this.farmerName,
+      farmerPhone:
+          data.farmerPhone.present ? data.farmerPhone.value : this.farmerPhone,
+      description:
+          data.description.present ? data.description.value : this.description,
+      imagePath: data.imagePath.present ? data.imagePath.value : this.imagePath,
+      isSold: data.isSold.present ? data.isSold.value : this.isSold,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('HarvestListing(')
+          ..write('id: $id, ')
+          ..write('cropName: $cropName, ')
+          ..write('category: $category, ')
+          ..write('quantity: $quantity, ')
+          ..write('unit: $unit, ')
+          ..write('pricePerUnit: $pricePerUnit, ')
+          ..write('grade: $grade, ')
+          ..write('harvestDate: $harvestDate, ')
+          ..write('district: $district, ')
+          ..write('farmerName: $farmerName, ')
+          ..write('farmerPhone: $farmerPhone, ')
+          ..write('description: $description, ')
+          ..write('imagePath: $imagePath, ')
+          ..write('isSold: $isSold, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id,
+      cropName,
+      category,
+      quantity,
+      unit,
+      pricePerUnit,
+      grade,
+      harvestDate,
+      district,
+      farmerName,
+      farmerPhone,
+      description,
+      imagePath,
+      isSold,
+      createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is HarvestListing &&
+          other.id == this.id &&
+          other.cropName == this.cropName &&
+          other.category == this.category &&
+          other.quantity == this.quantity &&
+          other.unit == this.unit &&
+          other.pricePerUnit == this.pricePerUnit &&
+          other.grade == this.grade &&
+          other.harvestDate == this.harvestDate &&
+          other.district == this.district &&
+          other.farmerName == this.farmerName &&
+          other.farmerPhone == this.farmerPhone &&
+          other.description == this.description &&
+          other.imagePath == this.imagePath &&
+          other.isSold == this.isSold &&
+          other.createdAt == this.createdAt);
+}
+
+class HarvestListingsCompanion extends UpdateCompanion<HarvestListing> {
+  final Value<String> id;
+  final Value<String> cropName;
+  final Value<String> category;
+  final Value<double> quantity;
+  final Value<String> unit;
+  final Value<double> pricePerUnit;
+  final Value<String> grade;
+  final Value<DateTime> harvestDate;
+  final Value<String> district;
+  final Value<String> farmerName;
+  final Value<String> farmerPhone;
+  final Value<String?> description;
+  final Value<String?> imagePath;
+  final Value<bool> isSold;
+  final Value<DateTime> createdAt;
+  final Value<int> rowid;
+  const HarvestListingsCompanion({
+    this.id = const Value.absent(),
+    this.cropName = const Value.absent(),
+    this.category = const Value.absent(),
+    this.quantity = const Value.absent(),
+    this.unit = const Value.absent(),
+    this.pricePerUnit = const Value.absent(),
+    this.grade = const Value.absent(),
+    this.harvestDate = const Value.absent(),
+    this.district = const Value.absent(),
+    this.farmerName = const Value.absent(),
+    this.farmerPhone = const Value.absent(),
+    this.description = const Value.absent(),
+    this.imagePath = const Value.absent(),
+    this.isSold = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  HarvestListingsCompanion.insert({
+    required String id,
+    required String cropName,
+    required String category,
+    required double quantity,
+    this.unit = const Value.absent(),
+    required double pricePerUnit,
+    this.grade = const Value.absent(),
+    required DateTime harvestDate,
+    required String district,
+    required String farmerName,
+    required String farmerPhone,
+    this.description = const Value.absent(),
+    this.imagePath = const Value.absent(),
+    this.isSold = const Value.absent(),
+    required DateTime createdAt,
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        cropName = Value(cropName),
+        category = Value(category),
+        quantity = Value(quantity),
+        pricePerUnit = Value(pricePerUnit),
+        harvestDate = Value(harvestDate),
+        district = Value(district),
+        farmerName = Value(farmerName),
+        farmerPhone = Value(farmerPhone),
+        createdAt = Value(createdAt);
+  static Insertable<HarvestListing> custom({
+    Expression<String>? id,
+    Expression<String>? cropName,
+    Expression<String>? category,
+    Expression<double>? quantity,
+    Expression<String>? unit,
+    Expression<double>? pricePerUnit,
+    Expression<String>? grade,
+    Expression<DateTime>? harvestDate,
+    Expression<String>? district,
+    Expression<String>? farmerName,
+    Expression<String>? farmerPhone,
+    Expression<String>? description,
+    Expression<String>? imagePath,
+    Expression<bool>? isSold,
+    Expression<DateTime>? createdAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (cropName != null) 'crop_name': cropName,
+      if (category != null) 'category': category,
+      if (quantity != null) 'quantity': quantity,
+      if (unit != null) 'unit': unit,
+      if (pricePerUnit != null) 'price_per_unit': pricePerUnit,
+      if (grade != null) 'grade': grade,
+      if (harvestDate != null) 'harvest_date': harvestDate,
+      if (district != null) 'district': district,
+      if (farmerName != null) 'farmer_name': farmerName,
+      if (farmerPhone != null) 'farmer_phone': farmerPhone,
+      if (description != null) 'description': description,
+      if (imagePath != null) 'image_path': imagePath,
+      if (isSold != null) 'is_sold': isSold,
+      if (createdAt != null) 'created_at': createdAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  HarvestListingsCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? cropName,
+      Value<String>? category,
+      Value<double>? quantity,
+      Value<String>? unit,
+      Value<double>? pricePerUnit,
+      Value<String>? grade,
+      Value<DateTime>? harvestDate,
+      Value<String>? district,
+      Value<String>? farmerName,
+      Value<String>? farmerPhone,
+      Value<String?>? description,
+      Value<String?>? imagePath,
+      Value<bool>? isSold,
+      Value<DateTime>? createdAt,
+      Value<int>? rowid}) {
+    return HarvestListingsCompanion(
+      id: id ?? this.id,
+      cropName: cropName ?? this.cropName,
+      category: category ?? this.category,
+      quantity: quantity ?? this.quantity,
+      unit: unit ?? this.unit,
+      pricePerUnit: pricePerUnit ?? this.pricePerUnit,
+      grade: grade ?? this.grade,
+      harvestDate: harvestDate ?? this.harvestDate,
+      district: district ?? this.district,
+      farmerName: farmerName ?? this.farmerName,
+      farmerPhone: farmerPhone ?? this.farmerPhone,
+      description: description ?? this.description,
+      imagePath: imagePath ?? this.imagePath,
+      isSold: isSold ?? this.isSold,
+      createdAt: createdAt ?? this.createdAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (cropName.present) {
+      map['crop_name'] = Variable<String>(cropName.value);
+    }
+    if (category.present) {
+      map['category'] = Variable<String>(category.value);
+    }
+    if (quantity.present) {
+      map['quantity'] = Variable<double>(quantity.value);
+    }
+    if (unit.present) {
+      map['unit'] = Variable<String>(unit.value);
+    }
+    if (pricePerUnit.present) {
+      map['price_per_unit'] = Variable<double>(pricePerUnit.value);
+    }
+    if (grade.present) {
+      map['grade'] = Variable<String>(grade.value);
+    }
+    if (harvestDate.present) {
+      map['harvest_date'] = Variable<DateTime>(harvestDate.value);
+    }
+    if (district.present) {
+      map['district'] = Variable<String>(district.value);
+    }
+    if (farmerName.present) {
+      map['farmer_name'] = Variable<String>(farmerName.value);
+    }
+    if (farmerPhone.present) {
+      map['farmer_phone'] = Variable<String>(farmerPhone.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (imagePath.present) {
+      map['image_path'] = Variable<String>(imagePath.value);
+    }
+    if (isSold.present) {
+      map['is_sold'] = Variable<bool>(isSold.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('HarvestListingsCompanion(')
+          ..write('id: $id, ')
+          ..write('cropName: $cropName, ')
+          ..write('category: $category, ')
+          ..write('quantity: $quantity, ')
+          ..write('unit: $unit, ')
+          ..write('pricePerUnit: $pricePerUnit, ')
+          ..write('grade: $grade, ')
+          ..write('harvestDate: $harvestDate, ')
+          ..write('district: $district, ')
+          ..write('farmerName: $farmerName, ')
+          ..write('farmerPhone: $farmerPhone, ')
+          ..write('description: $description, ')
+          ..write('imagePath: $imagePath, ')
+          ..write('isSold: $isSold, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -1523,12 +2246,14 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $CropsTable crops = $CropsTable(this);
   late final $TasksTable tasks = $TasksTable(this);
   late final $LedgerEntriesTable ledgerEntries = $LedgerEntriesTable(this);
+  late final $HarvestListingsTable harvestListings =
+      $HarvestListingsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [scanResults, crops, tasks, ledgerEntries];
+      [scanResults, crops, tasks, ledgerEntries, harvestListings];
 }
 
 typedef $$ScanResultsTableCreateCompanionBuilder = ScanResultsCompanion
@@ -2495,6 +3220,335 @@ typedef $$LedgerEntriesTableProcessedTableManager = ProcessedTableManager<
     ),
     LedgerEntry,
     PrefetchHooks Function()>;
+typedef $$HarvestListingsTableCreateCompanionBuilder = HarvestListingsCompanion
+    Function({
+  required String id,
+  required String cropName,
+  required String category,
+  required double quantity,
+  Value<String> unit,
+  required double pricePerUnit,
+  Value<String> grade,
+  required DateTime harvestDate,
+  required String district,
+  required String farmerName,
+  required String farmerPhone,
+  Value<String?> description,
+  Value<String?> imagePath,
+  Value<bool> isSold,
+  required DateTime createdAt,
+  Value<int> rowid,
+});
+typedef $$HarvestListingsTableUpdateCompanionBuilder = HarvestListingsCompanion
+    Function({
+  Value<String> id,
+  Value<String> cropName,
+  Value<String> category,
+  Value<double> quantity,
+  Value<String> unit,
+  Value<double> pricePerUnit,
+  Value<String> grade,
+  Value<DateTime> harvestDate,
+  Value<String> district,
+  Value<String> farmerName,
+  Value<String> farmerPhone,
+  Value<String?> description,
+  Value<String?> imagePath,
+  Value<bool> isSold,
+  Value<DateTime> createdAt,
+  Value<int> rowid,
+});
+
+class $$HarvestListingsTableFilterComposer
+    extends Composer<_$AppDatabase, $HarvestListingsTable> {
+  $$HarvestListingsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get cropName => $composableBuilder(
+      column: $table.cropName, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get category => $composableBuilder(
+      column: $table.category, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get quantity => $composableBuilder(
+      column: $table.quantity, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get unit => $composableBuilder(
+      column: $table.unit, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get pricePerUnit => $composableBuilder(
+      column: $table.pricePerUnit, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get grade => $composableBuilder(
+      column: $table.grade, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get harvestDate => $composableBuilder(
+      column: $table.harvestDate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get district => $composableBuilder(
+      column: $table.district, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get farmerName => $composableBuilder(
+      column: $table.farmerName, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get farmerPhone => $composableBuilder(
+      column: $table.farmerPhone, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get imagePath => $composableBuilder(
+      column: $table.imagePath, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isSold => $composableBuilder(
+      column: $table.isSold, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$HarvestListingsTableOrderingComposer
+    extends Composer<_$AppDatabase, $HarvestListingsTable> {
+  $$HarvestListingsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get cropName => $composableBuilder(
+      column: $table.cropName, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get category => $composableBuilder(
+      column: $table.category, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get quantity => $composableBuilder(
+      column: $table.quantity, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get unit => $composableBuilder(
+      column: $table.unit, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get pricePerUnit => $composableBuilder(
+      column: $table.pricePerUnit,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get grade => $composableBuilder(
+      column: $table.grade, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get harvestDate => $composableBuilder(
+      column: $table.harvestDate, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get district => $composableBuilder(
+      column: $table.district, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get farmerName => $composableBuilder(
+      column: $table.farmerName, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get farmerPhone => $composableBuilder(
+      column: $table.farmerPhone, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get imagePath => $composableBuilder(
+      column: $table.imagePath, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isSold => $composableBuilder(
+      column: $table.isSold, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$HarvestListingsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $HarvestListingsTable> {
+  $$HarvestListingsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get cropName =>
+      $composableBuilder(column: $table.cropName, builder: (column) => column);
+
+  GeneratedColumn<String> get category =>
+      $composableBuilder(column: $table.category, builder: (column) => column);
+
+  GeneratedColumn<double> get quantity =>
+      $composableBuilder(column: $table.quantity, builder: (column) => column);
+
+  GeneratedColumn<String> get unit =>
+      $composableBuilder(column: $table.unit, builder: (column) => column);
+
+  GeneratedColumn<double> get pricePerUnit => $composableBuilder(
+      column: $table.pricePerUnit, builder: (column) => column);
+
+  GeneratedColumn<String> get grade =>
+      $composableBuilder(column: $table.grade, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get harvestDate => $composableBuilder(
+      column: $table.harvestDate, builder: (column) => column);
+
+  GeneratedColumn<String> get district =>
+      $composableBuilder(column: $table.district, builder: (column) => column);
+
+  GeneratedColumn<String> get farmerName => $composableBuilder(
+      column: $table.farmerName, builder: (column) => column);
+
+  GeneratedColumn<String> get farmerPhone => $composableBuilder(
+      column: $table.farmerPhone, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => column);
+
+  GeneratedColumn<String> get imagePath =>
+      $composableBuilder(column: $table.imagePath, builder: (column) => column);
+
+  GeneratedColumn<bool> get isSold =>
+      $composableBuilder(column: $table.isSold, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$HarvestListingsTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $HarvestListingsTable,
+    HarvestListing,
+    $$HarvestListingsTableFilterComposer,
+    $$HarvestListingsTableOrderingComposer,
+    $$HarvestListingsTableAnnotationComposer,
+    $$HarvestListingsTableCreateCompanionBuilder,
+    $$HarvestListingsTableUpdateCompanionBuilder,
+    (
+      HarvestListing,
+      BaseReferences<_$AppDatabase, $HarvestListingsTable, HarvestListing>
+    ),
+    HarvestListing,
+    PrefetchHooks Function()> {
+  $$HarvestListingsTableTableManager(
+      _$AppDatabase db, $HarvestListingsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$HarvestListingsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$HarvestListingsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$HarvestListingsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> cropName = const Value.absent(),
+            Value<String> category = const Value.absent(),
+            Value<double> quantity = const Value.absent(),
+            Value<String> unit = const Value.absent(),
+            Value<double> pricePerUnit = const Value.absent(),
+            Value<String> grade = const Value.absent(),
+            Value<DateTime> harvestDate = const Value.absent(),
+            Value<String> district = const Value.absent(),
+            Value<String> farmerName = const Value.absent(),
+            Value<String> farmerPhone = const Value.absent(),
+            Value<String?> description = const Value.absent(),
+            Value<String?> imagePath = const Value.absent(),
+            Value<bool> isSold = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              HarvestListingsCompanion(
+            id: id,
+            cropName: cropName,
+            category: category,
+            quantity: quantity,
+            unit: unit,
+            pricePerUnit: pricePerUnit,
+            grade: grade,
+            harvestDate: harvestDate,
+            district: district,
+            farmerName: farmerName,
+            farmerPhone: farmerPhone,
+            description: description,
+            imagePath: imagePath,
+            isSold: isSold,
+            createdAt: createdAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String cropName,
+            required String category,
+            required double quantity,
+            Value<String> unit = const Value.absent(),
+            required double pricePerUnit,
+            Value<String> grade = const Value.absent(),
+            required DateTime harvestDate,
+            required String district,
+            required String farmerName,
+            required String farmerPhone,
+            Value<String?> description = const Value.absent(),
+            Value<String?> imagePath = const Value.absent(),
+            Value<bool> isSold = const Value.absent(),
+            required DateTime createdAt,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              HarvestListingsCompanion.insert(
+            id: id,
+            cropName: cropName,
+            category: category,
+            quantity: quantity,
+            unit: unit,
+            pricePerUnit: pricePerUnit,
+            grade: grade,
+            harvestDate: harvestDate,
+            district: district,
+            farmerName: farmerName,
+            farmerPhone: farmerPhone,
+            description: description,
+            imagePath: imagePath,
+            isSold: isSold,
+            createdAt: createdAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable<$HarvestListingsTable, HarvestListing>(table),
+                    BaseReferences<_$AppDatabase, $HarvestListingsTable,
+                        HarvestListing>(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$HarvestListingsTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $HarvestListingsTable,
+    HarvestListing,
+    $$HarvestListingsTableFilterComposer,
+    $$HarvestListingsTableOrderingComposer,
+    $$HarvestListingsTableAnnotationComposer,
+    $$HarvestListingsTableCreateCompanionBuilder,
+    $$HarvestListingsTableUpdateCompanionBuilder,
+    (
+      HarvestListing,
+      BaseReferences<_$AppDatabase, $HarvestListingsTable, HarvestListing>
+    ),
+    HarvestListing,
+    PrefetchHooks Function()>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -2507,4 +3561,6 @@ class $AppDatabaseManager {
       $$TasksTableTableManager(_db, _db.tasks);
   $$LedgerEntriesTableTableManager get ledgerEntries =>
       $$LedgerEntriesTableTableManager(_db, _db.ledgerEntries);
+  $$HarvestListingsTableTableManager get harvestListings =>
+      $$HarvestListingsTableTableManager(_db, _db.harvestListings);
 }

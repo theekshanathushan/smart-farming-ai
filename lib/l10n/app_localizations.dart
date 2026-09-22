@@ -477,6 +477,294 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Didn\'t receive code? Resend'**
   String get didntReceiveCode;
+
+  /// No description provided for @harvestMarketplace.
+  ///
+  /// In en, this message translates to:
+  /// **'Harvest Marketplace'**
+  String get harvestMarketplace;
+
+  /// No description provided for @directFromFarmers.
+  ///
+  /// In en, this message translates to:
+  /// **'Direct from local farmers'**
+  String get directFromFarmers;
+
+  /// No description provided for @sellHarvest.
+  ///
+  /// In en, this message translates to:
+  /// **'Sell Harvest'**
+  String get sellHarvest;
+
+  /// No description provided for @myListings.
+  ///
+  /// In en, this message translates to:
+  /// **'My Listings'**
+  String get myListings;
+
+  /// No description provided for @browseProduce.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse Produce'**
+  String get browseProduce;
+
+  /// No description provided for @searchProduceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search crops (e.g. Tomato, Carrot, Jaffna)...'**
+  String get searchProduceHint;
+
+  /// No description provided for @filterCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get filterCategory;
+
+  /// No description provided for @allCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get allCategories;
+
+  /// No description provided for @vegetables.
+  ///
+  /// In en, this message translates to:
+  /// **'Vegetables'**
+  String get vegetables;
+
+  /// No description provided for @fruits.
+  ///
+  /// In en, this message translates to:
+  /// **'Fruits'**
+  String get fruits;
+
+  /// No description provided for @grains.
+  ///
+  /// In en, this message translates to:
+  /// **'Grains'**
+  String get grains;
+
+  /// No description provided for @spices.
+  ///
+  /// In en, this message translates to:
+  /// **'Spices'**
+  String get spices;
+
+  /// No description provided for @others.
+  ///
+  /// In en, this message translates to:
+  /// **'Others'**
+  String get others;
+
+  /// No description provided for @noProduceFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No harvest listings found'**
+  String get noProduceFound;
+
+  /// No description provided for @pricePerKg.
+  ///
+  /// In en, this message translates to:
+  /// **'Rs. {price} / {unit}'**
+  String pricePerKg(String price, String unit);
+
+  /// No description provided for @availableQty.
+  ///
+  /// In en, this message translates to:
+  /// **'Available: {qty} {unit}'**
+  String availableQty(String qty, String unit);
+
+  /// No description provided for @contactFarmer.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact Farmer'**
+  String get contactFarmer;
+
+  /// No description provided for @callSeller.
+  ///
+  /// In en, this message translates to:
+  /// **'Call Farmer'**
+  String get callSeller;
+
+  /// No description provided for @whatsAppSeller.
+  ///
+  /// In en, this message translates to:
+  /// **'WhatsApp'**
+  String get whatsAppSeller;
+
+  /// No description provided for @addNewHarvest.
+  ///
+  /// In en, this message translates to:
+  /// **'Post Harvest for Sale'**
+  String get addNewHarvest;
+
+  /// No description provided for @cropName.
+  ///
+  /// In en, this message translates to:
+  /// **'Crop Name'**
+  String get cropName;
+
+  /// No description provided for @cropNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Big Onion, Tomato, Carrot'**
+  String get cropNameHint;
+
+  /// No description provided for @selectCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Category'**
+  String get selectCategory;
+
+  /// No description provided for @quantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Quantity'**
+  String get quantity;
+
+  /// No description provided for @unitLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Unit'**
+  String get unitLabel;
+
+  /// No description provided for @pricePerUnitLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Selling Price (Rs. per unit)'**
+  String get pricePerUnitLabel;
+
+  /// No description provided for @marketPriceSuggestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s wholesale ref: Rs. {price}/kg'**
+  String marketPriceSuggestion(String price);
+
+  /// No description provided for @qualityGrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Quality Grade'**
+  String get qualityGrade;
+
+  /// No description provided for @gradeA.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade A (Premium)'**
+  String get gradeA;
+
+  /// No description provided for @gradeB.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade B (Standard)'**
+  String get gradeB;
+
+  /// No description provided for @organic.
+  ///
+  /// In en, this message translates to:
+  /// **'Organic (Certified / Natural)'**
+  String get organic;
+
+  /// No description provided for @harvestDateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Harvest Date'**
+  String get harvestDateLabel;
+
+  /// No description provided for @districtLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'District / Market Hub'**
+  String get districtLocation;
+
+  /// No description provided for @selectDistrict.
+  ///
+  /// In en, this message translates to:
+  /// **'Select District'**
+  String get selectDistrict;
+
+  /// No description provided for @farmerContact.
+  ///
+  /// In en, this message translates to:
+  /// **'Farmer Contact Phone'**
+  String get farmerContact;
+
+  /// No description provided for @descriptionOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes / Details (Optional)'**
+  String get descriptionOptional;
+
+  /// No description provided for @descriptionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Freshly picked this morning, bulk transport available'**
+  String get descriptionHint;
+
+  /// No description provided for @publishListing.
+  ///
+  /// In en, this message translates to:
+  /// **'Publish Harvest Listing'**
+  String get publishListing;
+
+  /// No description provided for @markAsSold.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as Sold'**
+  String get markAsSold;
+
+  /// No description provided for @soldOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Sold Out'**
+  String get soldOut;
+
+  /// No description provided for @available.
+  ///
+  /// In en, this message translates to:
+  /// **'Available'**
+  String get available;
+
+  /// No description provided for @deleteListing.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Listing'**
+  String get deleteListing;
+
+  /// No description provided for @listingCreatedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Harvest listing posted successfully!'**
+  String get listingCreatedSuccess;
+
+  /// No description provided for @confirmDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this listing?'**
+  String get confirmDelete;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// No description provided for @harvestDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Harvest Details'**
+  String get harvestDetails;
+
+  /// No description provided for @farmerInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Farmer Information'**
+  String get farmerInfo;
 }
 
 class _AppLocalizationsDelegate

@@ -65,5 +65,70 @@
     "digitOtpHint": "6-digit OTP",
     "enterOtpValidation": "Please enter the 6-digit OTP",
     "verifyOtp": "Verify OTP",
-    "didntReceiveCode": "Didn't receive code? Resend"
+    "didntReceiveCode": "Didn't receive code? Resend",
+    "harvestMarketplace": "Harvest Marketplace",
+    "directFromFarmers": "Direct from local farmers",
+    "sellHarvest": "Sell Harvest",
+    "myListings": "My Listings",
+    "browseProduce": "Browse Produce",
+    "searchProduceHint": "Search crops (e.g. Tomato, Carrot, Jaffna)...",
+    "filterCategory": "Category",
+    "allCategories": "All",
+    "vegetables": "Vegetables",
+    "fruits": "Fruits",
+    "grains": "Grains",
+    "spices": "Spices",
+    "others": "Others",
+    "noProduceFound": "No harvest listings found",
+    "pricePerKg": "Rs. {price} / {unit}",
+    "@pricePerKg": {
+      "placeholders": {
+        "price": {"type": "String"},
+        "unit": {"type": "String"}
+      }
+    },
+    "availableQty": "Available: {qty} {unit}",
+    "@availableQty": {
+      "placeholders": {
+        "qty": {"type": "String"},
+        "unit": {"type": "String"}
+      }
+    },
+    "contactFarmer": "Contact Farmer",
+    "callSeller": "Call Farmer",
+    "whatsAppSeller": "WhatsApp",
+    "addNewHarvest": "Post Harvest for Sale",
+    "cropName": "Crop Name",
+    "cropNameHint": "e.g. Big Onion, Tomato, Carrot",
+    "selectCategory": "Select Category",
+    "quantity": "Quantity",
+    "unitLabel": "Unit",
+    "pricePerUnitLabel": "Selling Price (Rs. per unit)",
+    "marketPriceSuggestion": "Today's wholesale ref: Rs. {price}/kg",
+    "@marketPriceSuggestion": {
+      "placeholders": {
+        "price": {"type": "String"}
+      }
+    },
+    "qualityGrade": "Quality Grade",
+    "gradeA": "Grade A (Premium)",
+    "gradeB": "Grade B (Standard)",
+    "organic": "Organic (Certified / Natural)",
+    "harvestDateLabel": "Harvest Date",
+    "districtLocation": "District / Market Hub",
+    "selectDistrict": "Select District",
+    "farmerContact": "Farmer Contact Phone",
+    "descriptionOptional": "Notes / Details (Optional)",
+    "descriptionHint": "e.g. Freshly picked this morning, bulk transport available",
+    "publishListing": "Publish Harvest Listing",
+    "markAsSold": "Mark as Sold",
+    "soldOut": "Sold Out",
+    "available": "Available",
+    "deleteListing": "Delete Listing",
+    "listingCreatedSuccess": "Harvest listing posted successfully!",
+    "confirmDelete": "Are you sure you want to delete this listing?",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "harvestDetails": "Harvest Details",
+    "farmerInfo": "Farmer Information"
 }

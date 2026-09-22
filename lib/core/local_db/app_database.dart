@@ -11,6 +11,7 @@ import 'tables/scan_results.dart';
 import 'tables/crops.dart';
 import 'tables/tasks.dart';
 import 'tables/ledger_entries.dart';
+import 'tables/harvest_listings.dart';
 
 part 'app_database.g.dart';
 
@@ -19,12 +20,12 @@ final databaseProvider = Provider<AppDatabase>((ref) {
   return AppDatabase();
 });
 
-@DriftDatabase(tables: [ScanResults, Crops, Tasks, LedgerEntries])
+@DriftDatabase(tables: [ScanResults, Crops, Tasks, LedgerEntries, HarvestListings])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -41,6 +42,9 @@ class AppDatabase extends _$AppDatabase {
           }
           if (from < 4) {
             await m.createTable(ledgerEntries);
+          }
+          if (from < 5) {
+            await m.createTable(harvestListings);
           }
         },
       );
@@ -71,6 +75,28 @@ class AppDatabase extends _$AppDatabase {
   Future<int> insertLedgerEntry(LedgerEntriesCompanion entry) => into(ledgerEntries).insert(entry);
   Future<List<LedgerEntry>> getAllLedgerEntries() => (select(ledgerEntries)..orderBy([(t) => OrderingTerm.desc(t.date)])).get();
   Future<int> deleteLedgerEntry(LedgerEntry entry) => delete(ledgerEntries).delete(entry);
+
+  // DAOs for HarvestListings
+  Future<int> insertHarvestListing(HarvestListingsCompanion listing) => into(harvestListings).insert(listing);
+  Future<List<HarvestListing>> getAllHarvestListings() =>
+      (select(harvestListings)..orderBy([(t) => OrderingTerm.desc(t.createdAt)])).get();
+  Future<List<HarvestListing>> getActiveHarvestListings() =>
+      (select(harvestListings)
+        ..where((t) => t.isSold.equals(false))
+        ..orderBy([(t) => OrderingTerm.desc(t.createdAt)]))
+          .get();
+  Future<List<HarvestListing>> getHarvestListingsByPhone(String phone) =>
+      (select(harvestListings)
+        ..where((t) => t.farmerPhone.equals(phone))
+        ..orderBy([(t) => OrderingTerm.desc(t.createdAt)]))
+          .get();
+  Future<HarvestListing?> getHarvestListingById(String id) =>
+      (select(harvestListings)..where((t) => t.id.equals(id))).getSingleOrNull();
+  Future<bool> updateHarvestListing(HarvestListing listing) => update(harvestListings).replace(listing);
+  Future<int> markHarvestAsSold(String id) =>
+      (update(harvestListings)..where((t) => t.id.equals(id))).write(const HarvestListingsCompanion(isSold: Value(true)));
+  Future<int> deleteHarvestListing(String id) =>
+      (delete(harvestListings)..where((t) => t.id.equals(id))).go();
 }
 
 LazyDatabase _openConnection() {

@@ -196,4 +196,156 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get didntReceiveCode => 'Didn\'t receive code? Resend';
+
+  @override
+  String get harvestMarketplace => 'Harvest Marketplace';
+
+  @override
+  String get directFromFarmers => 'Direct from local farmers';
+
+  @override
+  String get sellHarvest => 'Sell Harvest';
+
+  @override
+  String get myListings => 'My Listings';
+
+  @override
+  String get browseProduce => 'Browse Produce';
+
+  @override
+  String get searchProduceHint =>
+      'Search crops (e.g. Tomato, Carrot, Jaffna)...';
+
+  @override
+  String get filterCategory => 'Category';
+
+  @override
+  String get allCategories => 'All';
+
+  @override
+  String get vegetables => 'Vegetables';
+
+  @override
+  String get fruits => 'Fruits';
+
+  @override
+  String get grains => 'Grains';
+
+  @override
+  String get spices => 'Spices';
+
+  @override
+  String get others => 'Others';
+
+  @override
+  String get noProduceFound => 'No harvest listings found';
+
+  @override
+  String pricePerKg(String price, String unit) {
+    return 'Rs. $price / $unit';
+  }
+
+  @override
+  String availableQty(String qty, String unit) {
+    return 'Available: $qty $unit';
+  }
+
+  @override
+  String get contactFarmer => 'Contact Farmer';
+
+  @override
+  String get callSeller => 'Call Farmer';
+
+  @override
+  String get whatsAppSeller => 'WhatsApp';
+
+  @override
+  String get addNewHarvest => 'Post Harvest for Sale';
+
+  @override
+  String get cropName => 'Crop Name';
+
+  @override
+  String get cropNameHint => 'e.g. Big Onion, Tomato, Carrot';
+
+  @override
+  String get selectCategory => 'Select Category';
+
+  @override
+  String get quantity => 'Quantity';
+
+  @override
+  String get unitLabel => 'Unit';
+
+  @override
+  String get pricePerUnitLabel => 'Selling Price (Rs. per unit)';
+
+  @override
+  String marketPriceSuggestion(String price) {
+    return 'Today\'s wholesale ref: Rs. $price/kg';
+  }
+
+  @override
+  String get qualityGrade => 'Quality Grade';
+
+  @override
+  String get gradeA => 'Grade A (Premium)';
+
+  @override
+  String get gradeB => 'Grade B (Standard)';
+
+  @override
+  String get organic => 'Organic (Certified / Natural)';
+
+  @override
+  String get harvestDateLabel => 'Harvest Date';
+
+  @override
+  String get districtLocation => 'District / Market Hub';
+
+  @override
+  String get selectDistrict => 'Select District';
+
+  @override
+  String get farmerContact => 'Farmer Contact Phone';
+
+  @override
+  String get descriptionOptional => 'Notes / Details (Optional)';
+
+  @override
+  String get descriptionHint =>
+      'e.g. Freshly picked this morning, bulk transport available';
+
+  @override
+  String get publishListing => 'Publish Harvest Listing';
+
+  @override
+  String get markAsSold => 'Mark as Sold';
+
+  @override
+  String get soldOut => 'Sold Out';
+
+  @override
+  String get available => 'Available';
+
+  @override
+  String get deleteListing => 'Delete Listing';
+
+  @override
+  String get listingCreatedSuccess => 'Harvest listing posted successfully!';
+
+  @override
+  String get confirmDelete => 'Are you sure you want to delete this listing?';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get harvestDetails => 'Harvest Details';
+
+  @override
+  String get farmerInfo => 'Farmer Information';
 }

@@ -199,4 +199,154 @@ class AppLocalizationsSi extends AppLocalizations {
 
   @override
   String get didntReceiveCode => 'කේතය නොලැබුණිද? නැවත එවන්න';
+
+  @override
+  String get harvestMarketplace => 'අස්වනු වෙළඳපොළ';
+
+  @override
+  String get directFromFarmers => 'දේශීය ගොවීන්ගෙන් සෘජුවම';
+
+  @override
+  String get sellHarvest => 'පලදාව විකුණන්න';
+
+  @override
+  String get myListings => 'මගේ දැන්වීම්';
+
+  @override
+  String get browseProduce => 'පලදාව ගවේෂණය';
+
+  @override
+  String get searchProduceHint => 'බෝග සොයන්න (උදා: තක්කාලි, කැරට්, දඹුල්ල)...';
+
+  @override
+  String get filterCategory => 'වර්ගය';
+
+  @override
+  String get allCategories => 'සියල්ල';
+
+  @override
+  String get vegetables => 'එළවළු';
+
+  @override
+  String get fruits => 'පලතුරු';
+
+  @override
+  String get grains => 'ධාන්‍ය';
+
+  @override
+  String get spices => 'කුළුබඩු';
+
+  @override
+  String get others => 'වෙනත්';
+
+  @override
+  String get noProduceFound => 'අස්වනු දැන්වීම් කිසිවක් හමු නොවීය';
+
+  @override
+  String pricePerKg(String price, String unit) {
+    return 'රු. $price / $unit';
+  }
+
+  @override
+  String availableQty(String qty, String unit) {
+    return 'ප්‍රමාණය: $qty $unit';
+  }
+
+  @override
+  String get contactFarmer => 'ගොවියා අමතන්න';
+
+  @override
+  String get callSeller => 'ඇමතුමක් ගන්න';
+
+  @override
+  String get whatsAppSeller => 'WhatsApp';
+
+  @override
+  String get addNewHarvest => 'පලදාව විකිණීමට එක් කරන්න';
+
+  @override
+  String get cropName => 'බෝගයේ නම';
+
+  @override
+  String get cropNameHint => 'උදා: ලොකු ළූණු, තක්කාලි, කැරට්';
+
+  @override
+  String get selectCategory => 'වර්ගය තෝරන්න';
+
+  @override
+  String get quantity => 'ප්‍රමාණය';
+
+  @override
+  String get unitLabel => 'ඒකකය';
+
+  @override
+  String get pricePerUnitLabel => 'විකුණුම් මිල (ඒකකයකට රු.)';
+
+  @override
+  String marketPriceSuggestion(String price) {
+    return 'අද තොග වෙළඳපල මිල: රු. $price/kg';
+  }
+
+  @override
+  String get qualityGrade => 'තත්ත්ව ශ්‍රේණිය';
+
+  @override
+  String get gradeA => 'Grade A (පළමු පෙළ)';
+
+  @override
+  String get gradeB => 'Grade B (සාමාන්‍ය)';
+
+  @override
+  String get organic => 'කාබනික (Organic)';
+
+  @override
+  String get harvestDateLabel => 'නෙළාගත් දිනය';
+
+  @override
+  String get districtLocation => 'දිස්ත්‍රික්කය / ආසන්න නගරය';
+
+  @override
+  String get selectDistrict => 'දිස්ත්‍රික්කය තෝරන්න';
+
+  @override
+  String get farmerContact => 'ගොවියාගේ දුරකථන අංකය';
+
+  @override
+  String get descriptionOptional => 'අමතර විස්තර (විකල්ප)';
+
+  @override
+  String get descriptionHint => 'උදා: අද උදෑසන නෙළන ලදී, ප්‍රවාහනය කළ හැක';
+
+  @override
+  String get publishListing => 'දැන්වීම පළ කරන්න';
+
+  @override
+  String get markAsSold => 'විකිණී අවසන් ලෙස ලකුණු කරන්න';
+
+  @override
+  String get soldOut => 'විකිණී අවසන්';
+
+  @override
+  String get available => 'ලබාගත හැක';
+
+  @override
+  String get deleteListing => 'දැන්වීම ඉවත් කරන්න';
+
+  @override
+  String get listingCreatedSuccess => 'අස්වනු දැන්වීම සාර්ථකව පළ කරන ලදී!';
+
+  @override
+  String get confirmDelete => 'මෙම දැන්වීම ඉවත් කිරීමට ඔබට විශ්වාසද?';
+
+  @override
+  String get cancel => 'අවලංගු කරන්න';
+
+  @override
+  String get delete => 'ඉවත් කරන්න';
+
+  @override
+  String get harvestDetails => 'අස්වනු විස්තර';
+
+  @override
+  String get farmerInfo => 'ගොවියාගේ තොරතුරු';
 }
