@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:agri_ai/l10n/app_localizations.dart';
 import '../providers/auth_provider.dart';
 
 class OtpVerificationScreen extends ConsumerStatefulWidget {
@@ -29,6 +29,8 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     // Listen for state changes (success / error)
     ref.listen<AuthState>(authProvider, (previous, next) {
       if (next.status == AuthStateStatus.error && next.errorMessage != null) {
@@ -43,7 +45,6 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
           ),
         );
       } else if (next.status == AuthStateStatus.success) {
-        // Navigate to Home upon success
         context.go('/home');
       }
     });
@@ -58,8 +59,8 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black87),
         title: Text(
-          'Verify Number',
-          style: GoogleFonts.inter(color: Colors.black87, fontWeight: FontWeight.bold),
+          l10n.verifyNumber,
+          style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
         ),
       ),
       body: SafeArea(
@@ -77,9 +78,9 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  'Enter OTP',
+                  l10n.enterOtp,
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.inter(
+                  style: const TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.w900,
                     color: Colors.black87,
@@ -87,9 +88,9 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'We sent a 6-digit code to\n${authState.phoneNumber ?? "your number"}',
+                  '${l10n.sentCodeTo}\n${authState.phoneNumber ?? l10n.yourNumber}',
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.inter(
+                  style: const TextStyle(
                     fontSize: 16,
                     color: Colors.black54,
                     height: 1.5,
@@ -100,7 +101,7 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
                 // OTP Field
                 TextFormField(
                   controller: _otpController,
-                  decoration: _inputDecoration('6-digit OTP', Icons.security),
+                  decoration: _inputDecoration(l10n.digitOtpHint, Icons.security),
                   style: const TextStyle(fontSize: 24, letterSpacing: 8, color: Colors.black87, fontWeight: FontWeight.bold),
                   keyboardType: TextInputType.number,
                   textAlign: TextAlign.center,
@@ -108,7 +109,7 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
                   textInputAction: TextInputAction.done,
                   validator: (value) {
                     if (value == null || value.trim().length != 6) {
-                      return 'Please enter the 6-digit OTP';
+                      return l10n.enterOtpValidation;
                     }
                     return null;
                   },
@@ -122,7 +123,7 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
                     backgroundColor: Colors.green[700],
                     foregroundColor: Colors.white,
                     disabledBackgroundColor: Colors.grey[400],
-                    padding: const EdgeInsets.symmetric(vertical: 20), // Height > 48dp
+                    padding: const EdgeInsets.symmetric(vertical: 20),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -137,8 +138,8 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
                           ),
                         )
                       : Text(
-                          'Verify OTP',
-                          style: GoogleFonts.inter(
+                          l10n.verifyOtp,
+                          style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
@@ -151,7 +152,6 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
                   onPressed: isLoading
                       ? null
                       : () {
-                          // Resend logic
                           if (authState.phoneNumber != null) {
                             ref.read(authProvider.notifier).sendOTP(
                                   authState.phoneNumber!,
@@ -160,11 +160,11 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
                           }
                         },
                   style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16), // Large touch target
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
                   child: Text(
-                    'Didn\'t receive code? Resend',
-                    style: GoogleFonts.inter(
+                    l10n.didntReceiveCode,
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                       color: Colors.black87,
@@ -179,22 +179,21 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
     );
   }
 
-  // Extracted input decoration for thick borders and high contrast
   InputDecoration _inputDecoration(String hint, IconData icon) {
     return InputDecoration(
       hintText: hint,
       hintStyle: const TextStyle(color: Colors.black54, letterSpacing: 0, fontSize: 16, fontWeight: FontWeight.normal),
-      counterText: '', // Hide max length counter
+      counterText: '',
       filled: true,
       fillColor: Colors.white,
-      contentPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16), // Large touch target
+      contentPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Colors.black87, width: 2), // Thick border
+        borderSide: const BorderSide(color: Colors.black87, width: 2),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: Colors.green[700]!, width: 3), // Thicker when focused
+        borderSide: BorderSide(color: Colors.green[700]!, width: 3),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
