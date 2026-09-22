@@ -11,10 +11,20 @@ class AppTheme {
   static const Color textDark = Color(0xFF111827); // Near Black for crisp text
   static const Color textLight = Color(0xFF6B7280); // Subtle Gray
 
-  static ThemeData get lightTheme {
-    // Premium Typography: Poppins for headings, Inter for body
-    final TextTheme bodyTextTheme = GoogleFonts.interTextTheme();
-    final TextTheme headingTextTheme = GoogleFonts.poppinsTextTheme();
+  static ThemeData getLightTheme(String languageCode) {
+    TextTheme bodyTextTheme;
+    TextTheme headingTextTheme;
+
+    if (languageCode == 'si') {
+      bodyTextTheme = GoogleFonts.notoSansSinhalaTextTheme();
+      headingTextTheme = GoogleFonts.notoSansSinhalaTextTheme();
+    } else if (languageCode == 'ta') {
+      bodyTextTheme = GoogleFonts.notoSansTamilTextTheme();
+      headingTextTheme = GoogleFonts.notoSansTamilTextTheme();
+    } else {
+      bodyTextTheme = GoogleFonts.interTextTheme();
+      headingTextTheme = GoogleFonts.poppinsTextTheme();
+    }
 
     return ThemeData(
       useMaterial3: true,

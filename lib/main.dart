@@ -51,7 +51,7 @@ class AgriAIApp extends ConsumerWidget {
 
     return MaterialApp.router(
       title: 'AgriAI',
-      theme: AppTheme.lightTheme,
+      theme: AppTheme.getLightTheme(locale.languageCode),
       routerConfig: router,
       debugShowCheckedModeBanner: false,
       locale: locale,
