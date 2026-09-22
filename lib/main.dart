@@ -9,7 +9,9 @@ import 'core/local_db/app_database.dart';
 import 'core/theme/app_theme.dart';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'core/providers/locale_provider.dart';
 void main() async {
   // Ensure widget binding is initialized
   WidgetsFlutterBinding.ensureInitialized();
@@ -45,11 +47,21 @@ class AgriAIApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(goRouterProvider);
 
+    final locale = ref.watch(localeProvider);
+
     return MaterialApp.router(
       title: 'AgriAI',
       theme: AppTheme.lightTheme,
       routerConfig: router,
       debugShowCheckedModeBanner: false,
+      locale: locale,
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: AppLocalizations.supportedLocales,
     );
   }
 }

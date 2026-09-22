@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../data/weather_provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -15,6 +16,7 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final authState = ref.watch(authProvider);
+    final l10n = AppLocalizations.of(context)!;
     
     return Scaffold(
       body: Stack(
@@ -67,15 +69,15 @@ class HomeScreen extends ConsumerWidget {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                'Good Morning,',
-                                style: TextStyle(
+                              Text(
+                                l10n.goodMorning,
+                                style: const TextStyle(
                                   fontSize: 18,
                                   color: Colors.white70,
                                 ),
                               ),
                               Text(
-                                authState.name?.isNotEmpty == true ? authState.name! : 'Farmer',
+                                authState.name?.isNotEmpty == true ? authState.name! : l10n.farmer,
                                 style: const TextStyle(
                                   fontSize: 32,
                                   fontWeight: FontWeight.bold,
@@ -120,7 +122,7 @@ class HomeScreen extends ConsumerWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Quick Tools',
+                          l10n.quickTools,
                           style: theme.textTheme.titleLarge,
                         ),
                       ],
@@ -135,49 +137,49 @@ class HomeScreen extends ConsumerWidget {
                       children: [
                         _QuickToolItem(
                           icon: Icons.add_circle_outline_rounded,
-                          label: 'Add Crop',
+                          label: l10n.addCrop,
                           color: theme.colorScheme.primary,
                           onTap: () => context.push('/farm/add-crop'),
                         ),
                         _QuickToolItem(
                           icon: Icons.science_outlined,
-                          label: 'Fertilizer',
+                          label: l10n.fertilizer,
                           color: theme.colorScheme.primary,
                           onTap: () => context.push('/fertilizer'),
                         ),
                         _QuickToolItem(
                           icon: Icons.menu_book_rounded,
-                          label: 'Pest Guide',
+                          label: l10n.pestGuide,
                           color: theme.colorScheme.primary,
                           onTap: () => context.push('/guide'),
                         ),
                         _QuickToolItem(
                           icon: Icons.smart_toy_outlined,
-                          label: 'AI Helper',
+                          label: l10n.aiHelper,
                           color: theme.colorScheme.primary,
                           onTap: () => context.push('/chat'),
                         ),
                         _QuickToolItem(
                           icon: Icons.water_drop_outlined,
-                          label: 'Irrigation',
+                          label: l10n.irrigation,
                           color: theme.colorScheme.primary,
                           onTap: () => context.push('/irrigation'),
                         ),
                         _QuickToolItem(
                           icon: Icons.account_balance_wallet_outlined,
-                          label: 'Ledger',
+                          label: l10n.ledger,
                           color: theme.colorScheme.primary,
                           onTap: () => context.push('/ledger'),
                         ),
                         _QuickToolItem(
                           icon: Icons.forum_outlined,
-                          label: 'Community',
+                          label: l10n.community,
                           color: theme.colorScheme.primary,
                           onTap: () => context.push('/community'),
                         ),
                         _QuickToolItem(
                           icon: Icons.storefront_outlined,
-                          label: 'Buy & Sell',
+                          label: l10n.buySell,
                           color: theme.colorScheme.primary,
                           onTap: () => context.push('/ecommerce'),
                         ),
@@ -194,14 +196,14 @@ class HomeScreen extends ConsumerWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Live Alerts',
+                          l10n.liveAlerts,
                           style: theme.textTheme.titleLarge,
                         ),
                         TextButton(
                           onPressed: () {
                             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('All alerts shown'), backgroundColor: Colors.black87));
                           },
-                          child: const Text('See All'),
+                          child: Text(l10n.seeAll),
                         ),
                       ],
                     ),
@@ -254,6 +256,7 @@ class _WeatherDashboard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final weatherAsync = ref.watch(weatherProvider);
+    final l10n = AppLocalizations.of(context)!;
     
     return ClipRRect(
       borderRadius: BorderRadius.circular(24),
@@ -276,7 +279,7 @@ class _WeatherDashboard extends ConsumerWidget {
           child: weatherAsync.when(
             data: (weather) {
               final temp = weather['temperature'] ?? '--';
-              final desc = weather['description'] ?? 'Current Weather';
+              final desc = weather['description'] ?? l10n.currentWeather;
               return Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -317,7 +320,7 @@ class _WeatherDashboard extends ConsumerWidget {
                 const Icon(Icons.cloud_off, color: Colors.white70, size: 32),
                 const SizedBox(height: 8),
                 Text(
-                  'Weather unavailable',
+                  l10n.weatherUnavailable,
                   style: TextStyle(color: Colors.white.withValues(alpha: 0.9), fontSize: 14),
                 ),
               ],

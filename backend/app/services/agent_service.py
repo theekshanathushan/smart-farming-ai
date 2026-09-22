@@ -6,9 +6,12 @@ from app.services.weather_service import WeatherService
 
 class AgriAgentService:
     def __init__(self):
-        # Initialize the AsyncOpenAI client. Expects OPENAI_API_KEY environment variable.
-        api_key = os.getenv("OPENAI_API_KEY", "dummy_key_for_local_dev")
-        self.client = AsyncOpenAI(api_key=api_key)
+        # Initialize the AsyncOpenAI client to use Gemini's OpenAI compatible endpoint
+        api_key = os.getenv("GEMINI_API_KEY", "dummy_key_for_local_dev")
+        self.client = AsyncOpenAI(
+            api_key=api_key,
+            base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
+        )
         self.weather_service = WeatherService()
 
     async def stream_advice(self, request: ChatRequest):
@@ -54,7 +57,7 @@ class AgriAgentService:
 
         # Make the streaming request to OpenAI
         response = await self.client.chat.completions.create(
-            model="gpt-4o",
+            model="gemini-3.8-flash",
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": request.message}

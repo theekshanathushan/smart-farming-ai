@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 class MainLayout extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
 
@@ -19,6 +19,7 @@ class MainLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     
     return Scaffold(
       body: navigationShell,
@@ -44,26 +45,26 @@ class MainLayout extends StatelessWidget {
           child: NavigationBar(
             selectedIndex: navigationShell.currentIndex,
             onDestinationSelected: _onItemTapped,
-            destinations: const [
+            destinations: [
               NavigationDestination(
-                icon: Icon(Icons.home_outlined),
-                selectedIcon: Icon(Icons.home_rounded),
-                label: 'Home',
+                icon: const Icon(Icons.home_outlined),
+                selectedIcon: const Icon(Icons.home_rounded),
+                label: l10n.navHome,
               ),
               NavigationDestination(
-                icon: Icon(Icons.grass_outlined),
-                selectedIcon: Icon(Icons.grass_rounded),
-                label: 'Farm',
+                icon: const Icon(Icons.grass_outlined),
+                selectedIcon: const Icon(Icons.grass_rounded),
+                label: l10n.navFarm,
               ),
               NavigationDestination(
-                icon: Icon(Icons.camera_alt_outlined),
-                selectedIcon: Icon(Icons.camera_alt_rounded),
-                label: 'Scan',
+                icon: const Icon(Icons.camera_alt_outlined),
+                selectedIcon: const Icon(Icons.camera_alt_rounded),
+                label: l10n.navScan,
               ),
               NavigationDestination(
-                icon: Icon(Icons.storefront_outlined),
-                selectedIcon: Icon(Icons.storefront_rounded),
-                label: 'Market',
+                icon: const Icon(Icons.storefront_outlined),
+                selectedIcon: const Icon(Icons.storefront_rounded),
+                label: l10n.navMarket,
               ),
             ],
           ),

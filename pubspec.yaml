@@ -9,6 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
   flutter_riverpod: ^2.5.1
   drift: ^2.16.0
   sqlite3_flutter_libs: ^0.5.21
@@ -41,6 +43,7 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  generate: true
   assets:
     - .env
     - assets/models/model.tflite

@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../home/presentation/home_screen.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Scaffold(
       body: Stack(
         children: [
@@ -42,21 +45,21 @@ class WelcomeScreen extends StatelessWidget {
                 const SizedBox(height: 40),
                 
                 // Typography
-                const Column(
+                Column(
                   children: [
                     Text(
-                      'Agri AI',
-                      style: TextStyle(
+                      l10n.appTitle,
+                      style: const TextStyle(
                         fontSize: 48,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                         letterSpacing: 1.5,
                       ),
                     ),
-                    SizedBox(height: 12),
+                    const SizedBox(height: 12),
                     Text(
-                      'Empowering Farmers with AI',
-                      style: TextStyle(
+                      l10n.empoweringFarmers,
+                      style: const TextStyle(
                         fontSize: 18,
                         color: Colors.white70,
                         fontWeight: FontWeight.w500,
@@ -95,9 +98,9 @@ class WelcomeScreen extends StatelessWidget {
                         ),
                         elevation: 0,
                       ),
-                      child: const Text(
-                        'Get Started',
-                        style: TextStyle(
+                      child: Text(
+                        l10n.getStarted,
+                        style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w700,
                           letterSpacing: 1.1,
