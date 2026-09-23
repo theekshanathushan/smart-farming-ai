@@ -143,5 +143,19 @@
     "myFarmTitle": "என் பண்ணை",
     "myCrops": "என் பயிர்கள்",
     "quickActions": "விரைவான செயல்கள்",
-    "dailyTasks": "தினசரி பணிகள்"
+    "dailyTasks": "தினசரி பணிகள்",
+    "searchCrops": "பயிர் அல்லது சந்தையைத் தேடுக...",
+    "allCategories": "அனைத்தும்",
+    "vegetables": "காய்கறிகள்",
+    "fruits": "பழங்கள்",
+    "grainsAndSpices": "தானியங்கள் & மசாலா",
+    "priceDetails": "விலை விவரங்கள்",
+    "minPrice": "குறைந்தபட்ச விலை",
+    "maxPrice": "அதிகபட்ச விலை",
+    "wholesalePrice": "மொத்த விலை",
+    "retailPrice": "சில்லறை விலை",
+    "otherMarkets": "பிற சந்தைகளுடன் ஒப்பீடு",
+    "aiMarketInsight": "AI சந்தை வழிகாட்டல்",
+    "sellThisCrop": "இந்த விளைச்சலை விற்கவும்",
+    "noProduceFound": "பொருத்தமான பயிர் எதுவும் கிடைக்கவில்லை"
 }

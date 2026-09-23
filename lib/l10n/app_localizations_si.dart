@@ -228,7 +228,7 @@ class AppLocalizationsSi extends AppLocalizations {
   String get vegetables => 'එළවළු';
 
   @override
-  String get fruits => 'පලතුරු';
+  String get fruits => 'පළතුරු';
 
   @override
   String get grains => 'ධාන්‍ය';
@@ -240,7 +240,7 @@ class AppLocalizationsSi extends AppLocalizations {
   String get others => 'වෙනත්';
 
   @override
-  String get noProduceFound => 'අස්වනු දැන්වීම් කිසිවක් හමු නොවීය';
+  String get noProduceFound => 'සෙවීමට ගැළපෙන බෝග හමු නොවීය';
 
   @override
   String pricePerKg(String price, String unit) {
@@ -457,4 +457,34 @@ class AppLocalizationsSi extends AppLocalizations {
 
   @override
   String get dailyTasks => 'දෛනික කාර්යයන්';
+
+  @override
+  String get searchCrops => 'බෝග හෝ වෙළඳපොල සොයන්න...';
+
+  @override
+  String get grainsAndSpices => 'ධාන්‍ය සහ කුළුබඩු';
+
+  @override
+  String get priceDetails => 'මිල විස්තර';
+
+  @override
+  String get minPrice => 'අවම මිල';
+
+  @override
+  String get maxPrice => 'උපරිම මිල';
+
+  @override
+  String get wholesalePrice => 'තොග මිල';
+
+  @override
+  String get retailPrice => 'සිල්ලර මිල';
+
+  @override
+  String get otherMarkets => 'වෙනත් වෙළඳපොලවල් සමඟ සංසන්දනය';
+
+  @override
+  String get aiMarketInsight => 'AI වෙළඳපල උපදෙස';
+
+  @override
+  String get sellThisCrop => 'මෙම අස්වැන්න විකුණන්න';
 }

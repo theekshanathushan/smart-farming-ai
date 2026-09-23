@@ -178,5 +178,19 @@
     "myFarmTitle": "My Farm",
     "myCrops": "My Crops",
     "quickActions": "Quick Actions",
-    "dailyTasks": "Daily Tasks"
+    "dailyTasks": "Daily Tasks",
+    "searchCrops": "Search crops or markets...",
+    "allCategories": "All",
+    "vegetables": "Vegetables",
+    "fruits": "Fruits",
+    "grainsAndSpices": "Grains & Spices",
+    "priceDetails": "Price Details",
+    "minPrice": "Minimum Price",
+    "maxPrice": "Maximum Price",
+    "wholesalePrice": "Wholesale Price",
+    "retailPrice": "Retail Price",
+    "otherMarkets": "Other Markets Comparison",
+    "aiMarketInsight": "AI Market Advice",
+    "sellThisCrop": "Sell This Produce",
+    "noProduceFound": "No produce found matching your search"
 }

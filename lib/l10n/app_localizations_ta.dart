@@ -240,7 +240,7 @@ class AppLocalizationsTa extends AppLocalizations {
   String get others => 'மற்றவை';
 
   @override
-  String get noProduceFound => 'அறுவடை விளம்பரங்கள் எதுவும் கிடைக்கவில்லை';
+  String get noProduceFound => 'பொருத்தமான பயிர் எதுவும் கிடைக்கவில்லை';
 
   @override
   String pricePerKg(String price, String unit) {
@@ -461,4 +461,34 @@ class AppLocalizationsTa extends AppLocalizations {
 
   @override
   String get dailyTasks => 'தினசரி பணிகள்';
+
+  @override
+  String get searchCrops => 'பயிர் அல்லது சந்தையைத் தேடுக...';
+
+  @override
+  String get grainsAndSpices => 'தானியங்கள் & மசாலா';
+
+  @override
+  String get priceDetails => 'விலை விவரங்கள்';
+
+  @override
+  String get minPrice => 'குறைந்தபட்ச விலை';
+
+  @override
+  String get maxPrice => 'அதிகபட்ச விலை';
+
+  @override
+  String get wholesalePrice => 'மொத்த விலை';
+
+  @override
+  String get retailPrice => 'சில்லறை விலை';
+
+  @override
+  String get otherMarkets => 'பிற சந்தைகளுடன் ஒப்பீடு';
+
+  @override
+  String get aiMarketInsight => 'AI சந்தை வழிகாட்டல்';
+
+  @override
+  String get sellThisCrop => 'இந்த விளைச்சலை விற்கவும்';
 }

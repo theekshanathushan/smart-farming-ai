@@ -238,7 +238,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get others => 'Others';
 
   @override
-  String get noProduceFound => 'No harvest listings found';
+  String get noProduceFound => 'No produce found matching your search';
 
   @override
   String pricePerKg(String price, String unit) {
@@ -457,4 +457,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dailyTasks => 'Daily Tasks';
+
+  @override
+  String get searchCrops => 'Search crops or markets...';
+
+  @override
+  String get grainsAndSpices => 'Grains & Spices';
+
+  @override
+  String get priceDetails => 'Price Details';
+
+  @override
+  String get minPrice => 'Minimum Price';
+
+  @override
+  String get maxPrice => 'Maximum Price';
+
+  @override
+  String get wholesalePrice => 'Wholesale Price';
+
+  @override
+  String get retailPrice => 'Retail Price';
+
+  @override
+  String get otherMarkets => 'Other Markets Comparison';
+
+  @override
+  String get aiMarketInsight => 'AI Market Advice';
+
+  @override
+  String get sellThisCrop => 'Sell This Produce';
 }

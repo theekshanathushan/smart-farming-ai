@@ -143,5 +143,19 @@
     "myFarmTitle": "මගේ ගොවිපල",
     "myCrops": "මගේ බෝග",
     "quickActions": "ඉක්මන් ක්‍රියා",
-    "dailyTasks": "දෛනික කාර්යයන්"
+    "dailyTasks": "දෛනික කාර්යයන්",
+    "searchCrops": "බෝග හෝ වෙළඳපොල සොයන්න...",
+    "allCategories": "සියල්ල",
+    "vegetables": "එළවළු",
+    "fruits": "පළතුරු",
+    "grainsAndSpices": "ධාන්‍ය සහ කුළුබඩු",
+    "priceDetails": "මිල විස්තර",
+    "minPrice": "අවම මිල",
+    "maxPrice": "උපරිම මිල",
+    "wholesalePrice": "තොග මිල",
+    "retailPrice": "සිල්ලර මිල",
+    "otherMarkets": "වෙනත් වෙළඳපොලවල් සමඟ සංසන්දනය",
+    "aiMarketInsight": "AI වෙළඳපල උපදෙස",
+    "sellThisCrop": "මෙම අස්වැන්න විකුණන්න",
+    "noProduceFound": "සෙවීමට ගැළපෙන බෝග හමු නොවීය"
 }

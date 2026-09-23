@@ -559,7 +559,7 @@ abstract class AppLocalizations {
   /// No description provided for @noProduceFound.
   ///
   /// In en, this message translates to:
-  /// **'No harvest listings found'**
+  /// **'No produce found matching your search'**
   String get noProduceFound;
 
   /// No description provided for @pricePerKg.
@@ -963,6 +963,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Daily Tasks'**
   String get dailyTasks;
+
+  /// No description provided for @searchCrops.
+  ///
+  /// In en, this message translates to:
+  /// **'Search crops or markets...'**
+  String get searchCrops;
+
+  /// No description provided for @grainsAndSpices.
+  ///
+  /// In en, this message translates to:
+  /// **'Grains & Spices'**
+  String get grainsAndSpices;
+
+  /// No description provided for @priceDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Price Details'**
+  String get priceDetails;
+
+  /// No description provided for @minPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum Price'**
+  String get minPrice;
+
+  /// No description provided for @maxPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum Price'**
+  String get maxPrice;
+
+  /// No description provided for @wholesalePrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Wholesale Price'**
+  String get wholesalePrice;
+
+  /// No description provided for @retailPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Retail Price'**
+  String get retailPrice;
+
+  /// No description provided for @otherMarkets.
+  ///
+  /// In en, this message translates to:
+  /// **'Other Markets Comparison'**
+  String get otherMarkets;
+
+  /// No description provided for @aiMarketInsight.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Market Advice'**
+  String get aiMarketInsight;
+
+  /// No description provided for @sellThisCrop.
+  ///
+  /// In en, this message translates to:
+  /// **'Sell This Produce'**
+  String get sellThisCrop;
 }
 
 class _AppLocalizationsDelegate
