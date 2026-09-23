@@ -352,4 +352,113 @@ class AppLocalizationsTa extends AppLocalizations {
 
   @override
   String get farmerInfo => 'விவசாயி விவரங்கள்';
+
+  @override
+  String get marketSpikeAlert => 'சந்தை விலை உயர்வு விழிப்பூட்டல்';
+
+  @override
+  String get marketSpikeDesc =>
+      'இன்று தம்புள்ளை சந்தையில் தக்காளி விலை 15% உயர்ந்துள்ளது.';
+
+  @override
+  String get oneHourAgo => '1 மணி நேரத்திற்கு முன்';
+
+  @override
+  String get weatherWarningAlert => 'வானிலை எச்சரிக்கை';
+
+  @override
+  String get weatherWarningDesc =>
+      'நாளை மாலை பலத்த மழை பெய்யக்கூடும். உரம் இடுவதைத் தள்ளிப்போடுங்கள்.';
+
+  @override
+  String get threeHoursAgo => '3 மணி நேரத்திற்கு முன்';
+
+  @override
+  String get cropScheduleAlert => 'பயிர் அட்டவணை';
+
+  @override
+  String get cropScheduleDesc =>
+      'உங்கள் நெல் வயலுக்கு (பகுதி A) நீர் பாய்ச்ச வேண்டிய நேரம் இது.';
+
+  @override
+  String get justNow => 'சற்று முன்';
+
+  @override
+  String get marketPricesTitle => 'சந்தை விலைகள்';
+
+  @override
+  String perUnit(String unit) {
+    return '$unitக்கு';
+  }
+
+  @override
+  String get trendUp => 'அதிகரிப்பு';
+
+  @override
+  String get trendDown => 'குறைவு';
+
+  @override
+  String get trendStable => 'நிலையானது';
+
+  @override
+  String get identifyCropDisease => 'பயிர் நோய்களை அடையாளம் காணுங்கள்';
+
+  @override
+  String get scanInstruction =>
+      'சிறந்த முடிவுகளுக்கு இலையை சட்டகத்திற்குள் தெளிவாக வைக்கவும்.';
+
+  @override
+  String get scanNow => 'இப்போது ஸ்கேன் செய்';
+
+  @override
+  String get analyzingCrop => 'பயிரை ஆய்வு செய்கிறது...';
+
+  @override
+  String get keepDeviceSteady => 'சாதனத்தை அசையாமல் வைத்திருக்கவும்.';
+
+  @override
+  String get analysisFailed => 'ஆய்வு தோல்வியடைந்தது';
+
+  @override
+  String get tryAgain => 'மீண்டும் முயற்சிக்கவும்';
+
+  @override
+  String get scanResult => 'ஸ்கேன் முடிவு';
+
+  @override
+  String get attentionNeeded => 'கவனம் தேவை';
+
+  @override
+  String get greatNews => 'நல்ல செய்தி!';
+
+  @override
+  String confidence(String value) {
+    return 'நம்பகத்தன்மை: $value%';
+  }
+
+  @override
+  String severity(String value) {
+    return 'தீவிரம்: $value';
+  }
+
+  @override
+  String get savedToOfflineDb => 'ஆஃப்லைன் தரவுத்தளத்தில் சேமிக்கப்பட்டது';
+
+  @override
+  String get saveResult => 'முடிவைச் சேமிக்கவும்';
+
+  @override
+  String get saved => 'சேமிக்கப்பட்டது';
+
+  @override
+  String get myFarmTitle => 'என் பண்ணை';
+
+  @override
+  String get myCrops => 'என் பயிர்கள்';
+
+  @override
+  String get quickActions => 'விரைவான செயல்கள்';
+
+  @override
+  String get dailyTasks => 'தினசரி பணிகள்';
 }

@@ -349,4 +349,112 @@ class AppLocalizationsSi extends AppLocalizations {
 
   @override
   String get farmerInfo => 'ගොවියාගේ තොරතුරු';
+
+  @override
+  String get marketSpikeAlert => 'වෙළඳපල මිල ඉහළ යාම';
+
+  @override
+  String get marketSpikeDesc =>
+      'අද දඹුල්ල වෙළඳපොළේ තක්කාලි මිල 15% කින් ඉහළ ගොස් ඇත.';
+
+  @override
+  String get oneHourAgo => 'පැයකට පෙර';
+
+  @override
+  String get weatherWarningAlert => 'කාලගුණ අනතුරු ඇඟවීම';
+
+  @override
+  String get weatherWarningDesc =>
+      'හෙට සවස තද වැසි අපේක්ෂා කෙරේ. පොහොර යෙදීම කල් දමන්න.';
+
+  @override
+  String get threeHoursAgo => 'පැය 3 කට පෙර';
+
+  @override
+  String get cropScheduleAlert => 'බෝග කාලසටහන';
+
+  @override
+  String get cropScheduleDesc => 'ඔබගේ වී වගාවට (A කොටස) ජලය සැපයීමට වේලාවයි.';
+
+  @override
+  String get justNow => 'දැන්';
+
+  @override
+  String get marketPricesTitle => 'වෙළඳපල මිල ගණන්';
+
+  @override
+  String perUnit(String unit) {
+    return '$unitකට';
+  }
+
+  @override
+  String get trendUp => 'ඉහළට';
+
+  @override
+  String get trendDown => 'පහළට';
+
+  @override
+  String get trendStable => 'ස්ථාවරයි';
+
+  @override
+  String get identifyCropDisease => 'බෝග රෝග හඳුනාගන්න';
+
+  @override
+  String get scanInstruction =>
+      'හොඳම ප්‍රතිඵල සඳහා කොළය පැහැදිලිව රාමුව තුළ තබන්න.';
+
+  @override
+  String get scanNow => 'දැන් ස්කෑන් කරන්න';
+
+  @override
+  String get analyzingCrop => 'බෝගය විශ්ලේෂණය කරමින්...';
+
+  @override
+  String get keepDeviceSteady => 'කරුණාකර දුරකථනය සෙලවීමෙන් තොරව තබාගන්න.';
+
+  @override
+  String get analysisFailed => 'විශ්ලේෂණය අසාර්ථකයි';
+
+  @override
+  String get tryAgain => 'නැවත උත්සාහ කරන්න';
+
+  @override
+  String get scanResult => 'ස්කෑන් ප්‍රතිඵලය';
+
+  @override
+  String get attentionNeeded => 'අවධානය අවශ්‍යයි';
+
+  @override
+  String get greatNews => 'සුභ ආරංචියක්!';
+
+  @override
+  String confidence(String value) {
+    return 'නිරවද්‍යතාවය: $value%';
+  }
+
+  @override
+  String severity(String value) {
+    return 'තීව්‍රතාව: $value';
+  }
+
+  @override
+  String get savedToOfflineDb => 'Offline දත්ත ගබඩාවට සුරකින ලදී';
+
+  @override
+  String get saveResult => 'ප්‍රතිඵලය සුරකින්න';
+
+  @override
+  String get saved => 'සුරකින ලදී';
+
+  @override
+  String get myFarmTitle => 'මගේ ගොවිපල';
+
+  @override
+  String get myCrops => 'මගේ බෝග';
+
+  @override
+  String get quickActions => 'ඉක්මන් ක්‍රියා';
+
+  @override
+  String get dailyTasks => 'දෛනික කාර්යයන්';
 }

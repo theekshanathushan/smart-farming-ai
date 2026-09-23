@@ -765,6 +765,204 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Farmer Information'**
   String get farmerInfo;
+
+  /// No description provided for @marketSpikeAlert.
+  ///
+  /// In en, this message translates to:
+  /// **'Market Spike Alert'**
+  String get marketSpikeAlert;
+
+  /// No description provided for @marketSpikeDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Tomato prices have increased by 15% in Dambulla market today.'**
+  String get marketSpikeDesc;
+
+  /// No description provided for @oneHourAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'1 hour ago'**
+  String get oneHourAgo;
+
+  /// No description provided for @weatherWarningAlert.
+  ///
+  /// In en, this message translates to:
+  /// **'Weather Warning'**
+  String get weatherWarningAlert;
+
+  /// No description provided for @weatherWarningDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Heavy rain expected tomorrow evening. Postpone fertilizer application.'**
+  String get weatherWarningDesc;
+
+  /// No description provided for @threeHoursAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'3 hours ago'**
+  String get threeHoursAgo;
+
+  /// No description provided for @cropScheduleAlert.
+  ///
+  /// In en, this message translates to:
+  /// **'Crop Schedule'**
+  String get cropScheduleAlert;
+
+  /// No description provided for @cropScheduleDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'It is time to water your Paddy field (Block A).'**
+  String get cropScheduleDesc;
+
+  /// No description provided for @justNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Just now'**
+  String get justNow;
+
+  /// No description provided for @marketPricesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Market Prices'**
+  String get marketPricesTitle;
+
+  /// No description provided for @perUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'per {unit}'**
+  String perUnit(String unit);
+
+  /// No description provided for @trendUp.
+  ///
+  /// In en, this message translates to:
+  /// **'UP'**
+  String get trendUp;
+
+  /// No description provided for @trendDown.
+  ///
+  /// In en, this message translates to:
+  /// **'DOWN'**
+  String get trendDown;
+
+  /// No description provided for @trendStable.
+  ///
+  /// In en, this message translates to:
+  /// **'STABLE'**
+  String get trendStable;
+
+  /// No description provided for @identifyCropDisease.
+  ///
+  /// In en, this message translates to:
+  /// **'Identify Crop Disease'**
+  String get identifyCropDisease;
+
+  /// No description provided for @scanInstruction.
+  ///
+  /// In en, this message translates to:
+  /// **'Position the leaf clearly within the frame for best results.'**
+  String get scanInstruction;
+
+  /// No description provided for @scanNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan Now'**
+  String get scanNow;
+
+  /// No description provided for @analyzingCrop.
+  ///
+  /// In en, this message translates to:
+  /// **'Analyzing crop...'**
+  String get analyzingCrop;
+
+  /// No description provided for @keepDeviceSteady.
+  ///
+  /// In en, this message translates to:
+  /// **'Please keep the device steady.'**
+  String get keepDeviceSteady;
+
+  /// No description provided for @analysisFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Analysis Failed'**
+  String get analysisFailed;
+
+  /// No description provided for @tryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Try Again'**
+  String get tryAgain;
+
+  /// No description provided for @scanResult.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan Result'**
+  String get scanResult;
+
+  /// No description provided for @attentionNeeded.
+  ///
+  /// In en, this message translates to:
+  /// **'Attention Needed'**
+  String get attentionNeeded;
+
+  /// No description provided for @greatNews.
+  ///
+  /// In en, this message translates to:
+  /// **'Great News!'**
+  String get greatNews;
+
+  /// No description provided for @confidence.
+  ///
+  /// In en, this message translates to:
+  /// **'Confidence: {value}%'**
+  String confidence(String value);
+
+  /// No description provided for @severity.
+  ///
+  /// In en, this message translates to:
+  /// **'Severity: {value}'**
+  String severity(String value);
+
+  /// No description provided for @savedToOfflineDb.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved to offline database'**
+  String get savedToOfflineDb;
+
+  /// No description provided for @saveResult.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Result'**
+  String get saveResult;
+
+  /// No description provided for @saved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get saved;
+
+  /// No description provided for @myFarmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My Farm'**
+  String get myFarmTitle;
+
+  /// No description provided for @myCrops.
+  ///
+  /// In en, this message translates to:
+  /// **'My Crops'**
+  String get myCrops;
+
+  /// No description provided for @quickActions.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick Actions'**
+  String get quickActions;
+
+  /// No description provided for @dailyTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Tasks'**
+  String get dailyTasks;
 }
 
 class _AppLocalizationsDelegate

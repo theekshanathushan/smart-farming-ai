@@ -348,4 +348,113 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get farmerInfo => 'Farmer Information';
+
+  @override
+  String get marketSpikeAlert => 'Market Spike Alert';
+
+  @override
+  String get marketSpikeDesc =>
+      'Tomato prices have increased by 15% in Dambulla market today.';
+
+  @override
+  String get oneHourAgo => '1 hour ago';
+
+  @override
+  String get weatherWarningAlert => 'Weather Warning';
+
+  @override
+  String get weatherWarningDesc =>
+      'Heavy rain expected tomorrow evening. Postpone fertilizer application.';
+
+  @override
+  String get threeHoursAgo => '3 hours ago';
+
+  @override
+  String get cropScheduleAlert => 'Crop Schedule';
+
+  @override
+  String get cropScheduleDesc =>
+      'It is time to water your Paddy field (Block A).';
+
+  @override
+  String get justNow => 'Just now';
+
+  @override
+  String get marketPricesTitle => 'Market Prices';
+
+  @override
+  String perUnit(String unit) {
+    return 'per $unit';
+  }
+
+  @override
+  String get trendUp => 'UP';
+
+  @override
+  String get trendDown => 'DOWN';
+
+  @override
+  String get trendStable => 'STABLE';
+
+  @override
+  String get identifyCropDisease => 'Identify Crop Disease';
+
+  @override
+  String get scanInstruction =>
+      'Position the leaf clearly within the frame for best results.';
+
+  @override
+  String get scanNow => 'Scan Now';
+
+  @override
+  String get analyzingCrop => 'Analyzing crop...';
+
+  @override
+  String get keepDeviceSteady => 'Please keep the device steady.';
+
+  @override
+  String get analysisFailed => 'Analysis Failed';
+
+  @override
+  String get tryAgain => 'Try Again';
+
+  @override
+  String get scanResult => 'Scan Result';
+
+  @override
+  String get attentionNeeded => 'Attention Needed';
+
+  @override
+  String get greatNews => 'Great News!';
+
+  @override
+  String confidence(String value) {
+    return 'Confidence: $value%';
+  }
+
+  @override
+  String severity(String value) {
+    return 'Severity: $value';
+  }
+
+  @override
+  String get savedToOfflineDb => 'Saved to offline database';
+
+  @override
+  String get saveResult => 'Save Result';
+
+  @override
+  String get saved => 'Saved';
+
+  @override
+  String get myFarmTitle => 'My Farm';
+
+  @override
+  String get myCrops => 'My Crops';
+
+  @override
+  String get quickActions => 'Quick Actions';
+
+  @override
+  String get dailyTasks => 'Daily Tasks';
 }

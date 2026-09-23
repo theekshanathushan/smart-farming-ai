@@ -130,5 +130,53 @@
     "cancel": "Cancel",
     "delete": "Delete",
     "harvestDetails": "Harvest Details",
-    "farmerInfo": "Farmer Information"
+    "farmerInfo": "Farmer Information",
+    "marketSpikeAlert": "Market Spike Alert",
+    "marketSpikeDesc": "Tomato prices have increased by 15% in Dambulla market today.",
+    "oneHourAgo": "1 hour ago",
+    "weatherWarningAlert": "Weather Warning",
+    "weatherWarningDesc": "Heavy rain expected tomorrow evening. Postpone fertilizer application.",
+    "threeHoursAgo": "3 hours ago",
+    "cropScheduleAlert": "Crop Schedule",
+    "cropScheduleDesc": "It is time to water your Paddy field (Block A).",
+    "justNow": "Just now",
+    "marketPricesTitle": "Market Prices",
+    "perUnit": "per {unit}",
+    "@perUnit": {
+      "placeholders": {
+        "unit": {"type": "String"}
+      }
+    },
+    "trendUp": "UP",
+    "trendDown": "DOWN",
+    "trendStable": "STABLE",
+    "identifyCropDisease": "Identify Crop Disease",
+    "scanInstruction": "Position the leaf clearly within the frame for best results.",
+    "scanNow": "Scan Now",
+    "analyzingCrop": "Analyzing crop...",
+    "keepDeviceSteady": "Please keep the device steady.",
+    "analysisFailed": "Analysis Failed",
+    "tryAgain": "Try Again",
+    "scanResult": "Scan Result",
+    "attentionNeeded": "Attention Needed",
+    "greatNews": "Great News!",
+    "confidence": "Confidence: {value}%",
+    "@confidence": {
+      "placeholders": {
+        "value": {"type": "String"}
+      }
+    },
+    "severity": "Severity: {value}",
+    "@severity": {
+      "placeholders": {
+        "value": {"type": "String"}
+      }
+    },
+    "savedToOfflineDb": "Saved to offline database",
+    "saveResult": "Save Result",
+    "saved": "Saved",
+    "myFarmTitle": "My Farm",
+    "myCrops": "My Crops",
+    "quickActions": "Quick Actions",
+    "dailyTasks": "Daily Tasks"
 }

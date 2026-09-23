@@ -6,6 +6,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'scan_controller.dart';
 import '../../../core/theme/app_theme.dart';
 import 'package:go_router/go_router.dart';
+import 'package:agri_ai/l10n/app_localizations.dart';
 
 class CameraScanScreen extends ConsumerWidget {
   const CameraScanScreen({super.key});
