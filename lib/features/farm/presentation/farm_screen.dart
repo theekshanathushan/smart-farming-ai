@@ -81,8 +81,14 @@ class FarmScreen extends ConsumerWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(title, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold, color: textColor)),
-        if (actionLabel != null && onAction != null)
+        Expanded(
+          child: Text(
+            title, 
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold, color: textColor),
+          ),
+        ),
+        if (actionLabel != null && onAction != null) ...[
+          const SizedBox(width: 8),
           TextButton(
             onPressed: onAction,
             style: TextButton.styleFrom(
@@ -93,6 +99,7 @@ class FarmScreen extends ConsumerWidget {
             ),
             child: Text(actionLabel, style: const TextStyle(fontWeight: FontWeight.bold)),
           ),
+        ],
       ],
     );
   }

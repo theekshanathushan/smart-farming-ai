@@ -194,9 +194,11 @@ class HomeScreen extends ConsumerWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          l10n.liveAlerts,
-                          style: theme.textTheme.titleLarge,
+                        Expanded(
+                          child: Text(
+                            l10n.liveAlerts,
+                            style: theme.textTheme.titleLarge,
+                          ),
                         ),
                         TextButton(
                           onPressed: () {
@@ -444,11 +446,15 @@ class _LiveAlertCard extends StatelessWidget {
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      title,
-                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                      ),
                     ),
+                    const SizedBox(width: 8),
                     Text(
                       time,
                       style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey),

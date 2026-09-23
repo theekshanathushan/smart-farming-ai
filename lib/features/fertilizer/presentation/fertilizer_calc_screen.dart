@@ -126,13 +126,22 @@ class _FertilizerCalcScreenState extends State<FertilizerCalcScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              const Icon(Icons.science, color: Colors.greenAccent),
-              const SizedBox(width: 16),
-              Text(name, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-            ],
+          Expanded(
+            child: Row(
+              children: [
+                const Icon(Icons.science, color: Colors.greenAccent),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Text(
+                    name, 
+                    style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
           ),
+          const SizedBox(width: 12),
           Text('${amount.toStringAsFixed(1)} kg', style: const TextStyle(color: Colors.greenAccent, fontSize: 20, fontWeight: FontWeight.bold)),
         ],
       ),
