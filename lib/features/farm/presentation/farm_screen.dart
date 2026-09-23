@@ -1,11 +1,11 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import '../data/farm_repository.dart';
 import '../../../core/local_db/app_database.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/widgets/animated_farm_background.dart';
+import '../../../l10n/app_localizations.dart';
 
 final tasksProvider = FutureProvider<List<Task>>((ref) {
   return ref.watch(farmRepositoryProvider).getTasks();
@@ -23,6 +23,7 @@ class FarmScreen extends ConsumerWidget {
     final cropsAsync = ref.watch(cropsProvider);
     final tasksAsync = ref.watch(tasksProvider);
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final isDark = theme.brightness == Brightness.dark;
     final textColor = isDark ? Colors.white : Colors.black87;
     final mutedTextColor = isDark ? Colors.white70 : Colors.black54;
@@ -30,7 +31,7 @@ class FarmScreen extends ConsumerWidget {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text('My Farm', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold, color: textColor)),
+        title: Text(l10n.myFarmTitle, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold, color: textColor)),
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
@@ -52,17 +53,17 @@ class FarmScreen extends ConsumerWidget {
                   _buildDashboardHeader(context, cropsAsync, tasksAsync, textColor, mutedTextColor),
                   const SizedBox(height: 32),
                   
-                  _buildSectionHeader(context, 'My Crops', textColor, actionLabel: '+ Add Crop', onAction: () => context.push('/farm/add-crop')),
+                  _buildSectionHeader(context, l10n.myCrops, textColor, actionLabel: '+ ${l10n.addCrop}', onAction: () => context.push('/farm/add-crop')),
                   const SizedBox(height: 16),
                   _buildCropsSection(context, cropsAsync, textColor, mutedTextColor),
                   
                   const SizedBox(height: 32),
-                  _buildSectionHeader(context, 'Quick Actions', textColor),
+                  _buildSectionHeader(context, l10n.quickActions, textColor),
                   const SizedBox(height: 16),
-                  _buildQuickActions(context, ref, cropsAsync, textColor),
+                  _buildQuickActions(context, ref, cropsAsync, textColor, l10n),
                   
                   const SizedBox(height: 32),
-                  _buildSectionHeader(context, 'Daily Tasks', textColor),
+                  _buildSectionHeader(context, l10n.dailyTasks, textColor),
                   const SizedBox(height: 16),
                   _buildTasksSection(context, ref, tasksAsync, textColor, mutedTextColor),
                   
@@ -99,12 +100,13 @@ class FarmScreen extends ConsumerWidget {
   Widget _buildDashboardHeader(BuildContext context, AsyncValue<List<Crop>> cropsAsync, AsyncValue<List<Task>> tasksAsync, Color textColor, Color mutedTextColor) {
     int activeCropsCount = cropsAsync.asData?.value.length ?? 0;
     int pendingTasksCount = tasksAsync.asData?.value.where((t) => !t.isCompleted).length ?? 0;
+    final lang = Localizations.localeOf(context).languageCode;
 
     return Row(
       children: [
         Expanded(
           child: _StatCard(
-            title: 'Active Crops',
+            title: lang == 'si' ? 'සක්‍රිය බෝග' : (lang == 'ta' ? 'செயலில் உள்ள பயிர்கள்' : 'Active Crops'),
             value: activeCropsCount.toString(),
             icon: Icons.eco,
             iconColor: Theme.of(context).colorScheme.primary,
@@ -115,7 +117,7 @@ class FarmScreen extends ConsumerWidget {
         const SizedBox(width: 16),
         Expanded(
           child: _StatCard(
-            title: 'Pending Tasks',
+            title: lang == 'si' ? 'ඉතිරි කාර්යයන්' : (lang == 'ta' ? 'நிலுவையிலுள்ள பணிகள்' : 'Pending Tasks'),
             value: pendingTasksCount.toString(),
             icon: Icons.assignment_late,
             iconColor: Theme.of(context).colorScheme.secondary,
@@ -129,6 +131,7 @@ class FarmScreen extends ConsumerWidget {
 
   Widget _buildCropsSection(BuildContext context, AsyncValue<List<Crop>> cropsAsync, Color textColor, Color mutedTextColor) {
     final theme = Theme.of(context);
+    final lang = Localizations.localeOf(context).languageCode;
     return cropsAsync.when(
       data: (crops) => crops.isEmpty 
           ? _GlassCard(
@@ -139,7 +142,10 @@ class FarmScreen extends ConsumerWidget {
                   children: [
                     Icon(Icons.nature_people, size: 48, color: mutedTextColor),
                     const SizedBox(height: 12),
-                    Text("No crops added yet.", style: TextStyle(color: textColor, fontWeight: FontWeight.w500)),
+                    Text(
+                      lang == 'si' ? 'තවමත් බෝග එකතු කර නොමැත.' : (lang == 'ta' ? 'பயிர்கள் எதுவும் இன்னும் சேர்க்கப்படவில்லை.' : 'No crops added yet.'),
+                      style: TextStyle(color: textColor, fontWeight: FontWeight.w500),
+                    ),
                   ],
                 ),
               ),
@@ -193,40 +199,44 @@ class FarmScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildQuickActions(BuildContext context, WidgetRef ref, AsyncValue<List<Crop>> cropsAsync, Color textColor) {
+  Widget _buildQuickActions(BuildContext context, WidgetRef ref, AsyncValue<List<Crop>> cropsAsync, Color textColor, AppLocalizations l10n) {
     final theme = Theme.of(context);
+    final lang = Localizations.localeOf(context).languageCode;
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
         children: [
           _ActionBtn(
             icon: Icons.water_drop, 
-            label: 'Irrigation', 
+            label: l10n.irrigation, 
             textColor: textColor,
             onTap: () => context.push('/irrigation'),
           ),
           _ActionBtn(
             icon: Icons.science, 
-            label: 'Fertilizer',
+            label: l10n.fertilizer, 
             textColor: textColor, 
             onTap: () => context.push('/fertilizer'),
           ),
           _ActionBtn(
             icon: Icons.point_of_sale, 
-            label: 'Income',
+            label: lang == 'si' ? 'ආදායම්' : (lang == 'ta' ? 'வருமானம்' : 'Income'),
             textColor: textColor, 
             onTap: () => context.push('/ledger/add'),
           ),
           _ActionBtn(
             icon: Icons.note_add, 
-            label: 'Add Task',
+            label: lang == 'si' ? 'කාර්යයක් එක් කරන්න' : (lang == 'ta' ? 'பணி சேர்' : 'Add Task'),
             textColor: textColor, 
             onTap: () {
               cropsAsync.whenData((crops) {
                 if (crops.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: const Text('Please add a crop first to add a task.', style: TextStyle(color: Colors.white)), 
+                      content: Text(
+                        lang == 'si' ? 'කාර්යයක් එක් කිරීමට කරුණාකර පළමුව බෝගයක් එක් කරන්න.' : (lang == 'ta' ? 'பணியைச் சேர்க்க முதலில் ஒரு பயிரைச் சேர்க்கவும்.' : 'Please add a crop first to add a task.'),
+                        style: const TextStyle(color: Colors.white),
+                      ), 
                       backgroundColor: theme.colorScheme.error,
                     ),
                   );
@@ -238,7 +248,7 @@ class FarmScreen extends ConsumerWidget {
           ),
           _ActionBtn(
             icon: Icons.smart_toy, 
-            label: 'AI Advice',
+            label: lang == 'si' ? 'AI උපදෙස්' : (lang == 'ta' ? 'AI ஆலோசனை' : 'AI Advice'),
             textColor: textColor, 
             onTap: () => context.push('/chat'),
           ),
@@ -250,6 +260,7 @@ class FarmScreen extends ConsumerWidget {
   Widget _buildTasksSection(BuildContext context, WidgetRef ref, AsyncValue<List<Task>> tasksAsync, Color textColor, Color mutedTextColor) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final lang = Localizations.localeOf(context).languageCode;
     
     return tasksAsync.when(
       data: (tasks) => tasks.isEmpty
@@ -261,7 +272,10 @@ class FarmScreen extends ConsumerWidget {
                   children: [
                     Icon(Icons.task_alt, size: 48, color: mutedTextColor),
                     const SizedBox(height: 12),
-                    Text("All caught up for today!", style: TextStyle(color: textColor, fontWeight: FontWeight.w500)),
+                    Text(
+                      lang == 'si' ? "අද දිනට සියලු කාර්යයන් අවසන්!" : (lang == 'ta' ? "இன்றைய பணிகள் அனைத்தும் முடிந்தது!" : "All caught up for today!"),
+                      style: TextStyle(color: textColor, fontWeight: FontWeight.w500),
+                    ),
                   ],
                 ),
               ),
