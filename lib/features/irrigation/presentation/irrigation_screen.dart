@@ -159,7 +159,9 @@ class _IrrigationScreenState extends State<IrrigationScreen> {
             children: [
               Icon(icon, color: Colors.blueAccent),
               const SizedBox(width: 12),
-              Text(title, style: const TextStyle(color: Colors.white70, fontSize: 16)),
+              Expanded(
+                child: Text(title, style: const TextStyle(color: Colors.white70, fontSize: 16)),
+              ),
             ],
           ),
           const SizedBox(height: 8),

@@ -67,9 +67,11 @@ class PestDetailScreen extends StatelessWidget {
             children: [
               Icon(icon, color: Colors.greenAccent, size: 24),
               const SizedBox(width: 12),
-              Text(
-                title,
-                style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                ),
               ),
             ],
           ),

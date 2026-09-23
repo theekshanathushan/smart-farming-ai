@@ -217,8 +217,10 @@ class CameraScanScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 16),
           Center(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
+            child: Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 8,
+              runSpacing: 8,
               children: [
                 Container(
                   padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
@@ -231,8 +233,7 @@ class CameraScanScreen extends ConsumerWidget {
                     style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
                   ),
                 ),
-                if (isDiseased && state.result!.severity.isNotEmpty) ...[
-                  const SizedBox(width: 8),
+                if (isDiseased && state.result!.severity.isNotEmpty)
                   Container(
                     padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
                     decoration: BoxDecoration(
@@ -244,7 +245,6 @@ class CameraScanScreen extends ConsumerWidget {
                       style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.orange),
                     ),
                   ),
-                ]
               ],
             ),
           ),

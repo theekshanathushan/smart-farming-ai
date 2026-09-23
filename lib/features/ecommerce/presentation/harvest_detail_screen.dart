@@ -132,14 +132,17 @@ class HarvestDetailScreen extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.baseline,
                     textBaseline: TextBaseline.alphabetic,
                     children: [
-                      Text(
-                        l10n.pricePerKg(listing.pricePerUnit.toStringAsFixed(0), listing.unit),
-                        style: TextStyle(
-                          fontSize: 26,
-                          fontWeight: FontWeight.w900,
-                          color: theme.colorScheme.primary,
+                      Expanded(
+                        child: Text(
+                          l10n.pricePerKg(listing.pricePerUnit.toStringAsFixed(0), listing.unit),
+                          style: TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.w900,
+                            color: theme.colorScheme.primary,
+                          ),
                         ),
                       ),
+                      const SizedBox(width: 8),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
