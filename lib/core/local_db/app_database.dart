@@ -12,6 +12,7 @@ import 'tables/crops.dart';
 import 'tables/tasks.dart';
 import 'tables/ledger_entries.dart';
 import 'tables/harvest_listings.dart';
+import 'tables/chat_messages.dart';
 
 part 'app_database.g.dart';
 
@@ -20,12 +21,12 @@ final databaseProvider = Provider<AppDatabase>((ref) {
   return AppDatabase();
 });
 
-@DriftDatabase(tables: [ScanResults, Crops, Tasks, LedgerEntries, HarvestListings])
+@DriftDatabase(tables: [ScanResults, Crops, Tasks, LedgerEntries, HarvestListings, ChatMessages])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -45,6 +46,9 @@ class AppDatabase extends _$AppDatabase {
           }
           if (from < 5) {
             await m.createTable(harvestListings);
+          }
+          if (from < 6) {
+            await m.createTable(chatMessages);
           }
         },
       );
@@ -97,6 +101,14 @@ class AppDatabase extends _$AppDatabase {
       (update(harvestListings)..where((t) => t.id.equals(id))).write(const HarvestListingsCompanion(isSold: Value(true)));
   Future<int> deleteHarvestListing(String id) =>
       (delete(harvestListings)..where((t) => t.id.equals(id))).go();
+
+  // DAOs for ChatMessages
+  Future<int> insertChatMessage(ChatMessagesCompanion message) => into(chatMessages).insert(message);
+  Future<List<ChatMessageEntry>> getAllChatMessages() =>
+      (select(chatMessages)..orderBy([(t) => OrderingTerm.asc(t.timestamp)])).get();
+  Stream<List<ChatMessageEntry>> watchAllChatMessages() =>
+      (select(chatMessages)..orderBy([(t) => OrderingTerm.asc(t.timestamp)])).watch();
+  Future<int> clearChatHistory() => delete(chatMessages).go();
 }
 
 LazyDatabase _openConnection() {

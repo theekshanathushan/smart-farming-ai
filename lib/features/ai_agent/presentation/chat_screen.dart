@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:drift/drift.dart' show Value;
 import '../data/agent_api_client.dart';
-import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/location_service.dart';
+import '../../../core/local_db/app_database.dart';
 import 'package:geolocator/geolocator.dart';
 
 final agentApiClientProvider = Provider((ref) => AgentApiClient());
@@ -34,6 +35,22 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
   void initState() {
     super.initState();
     _fetchLocation();
+    _loadSavedMessages();
+  }
+
+  Future<void> _loadSavedMessages() async {
+    final db = ref.read(databaseProvider);
+    final savedMessages = await db.getAllChatMessages();
+    if (mounted && savedMessages.isNotEmpty) {
+      setState(() {
+        _messages.addAll(
+          savedMessages.map(
+            (entry) => ChatMessage(text: entry.message, isUser: entry.isUser),
+          ),
+        );
+      });
+      _scrollToBottom();
+    }
   }
 
   Future<void> _fetchLocation() async {
@@ -60,6 +77,16 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
     
     _controller.clear();
     _scrollToBottom();
+
+    final db = ref.read(databaseProvider);
+    // Persist user prompt to local database
+    await db.insertChatMessage(
+      ChatMessagesCompanion(
+        message: Value(text),
+        isUser: const Value(true),
+        timestamp: Value(DateTime.now()),
+      ),
+    );
     
     final apiClient = ref.read(agentApiClientProvider);
     
@@ -83,6 +110,19 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
           );
         });
         _scrollToBottom();
+      }
+
+      // Persist completed AI response to local database
+      final lastIndex = _messages.length - 1;
+      final responseText = _messages[lastIndex].text.trim();
+      if (responseText.isNotEmpty) {
+        await db.insertChatMessage(
+          ChatMessagesCompanion(
+            message: Value(responseText),
+            isUser: const Value(false),
+            timestamp: Value(DateTime.now()),
+          ),
+        );
       }
     } catch (e) {
       if (!mounted) return;
@@ -136,6 +176,38 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
             ],
           ],
         ),
+        actions: [
+          if (_messages.isNotEmpty)
+            IconButton(
+              icon: const Icon(Icons.delete_sweep_outlined),
+              tooltip: 'Clear Chat History',
+              onPressed: () async {
+                final confirmed = await showDialog<bool>(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    title: const Text('Clear Chat History'),
+                    content: const Text('Are you sure you want to delete all saved conversations?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(ctx, false),
+                        child: const Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.pop(ctx, true),
+                        child: const Text('Clear', style: TextStyle(color: Colors.red)),
+                      ),
+                    ],
+                  ),
+                );
+                if (confirmed == true && mounted) {
+                  await ref.read(databaseProvider).clearChatHistory();
+                  setState(() {
+                    _messages.clear();
+                  });
+                }
+              },
+            ),
+        ],
       ),
       body: Column(
         children: [

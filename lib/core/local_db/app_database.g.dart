@@ -2239,6 +2239,348 @@ class HarvestListingsCompanion extends UpdateCompanion<HarvestListing> {
   }
 }
 
+class $ChatMessagesTable extends ChatMessages
+    with TableInfo<$ChatMessagesTable, ChatMessageEntry> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ChatMessagesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _messageMeta =
+      const VerificationMeta('message');
+  @override
+  late final GeneratedColumn<String> message = GeneratedColumn<String>(
+      'message', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _isUserMeta = const VerificationMeta('isUser');
+  @override
+  late final GeneratedColumn<bool> isUser = GeneratedColumn<bool>(
+      'is_user', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_user" IN (0, 1))'));
+  static const VerificationMeta _timestampMeta =
+      const VerificationMeta('timestamp');
+  @override
+  late final GeneratedColumn<DateTime> timestamp = GeneratedColumn<DateTime>(
+      'timestamp', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _cropTypeMeta =
+      const VerificationMeta('cropType');
+  @override
+  late final GeneratedColumn<String> cropType = GeneratedColumn<String>(
+      'crop_type', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _sessionIdMeta =
+      const VerificationMeta('sessionId');
+  @override
+  late final GeneratedColumn<String> sessionId = GeneratedColumn<String>(
+      'session_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, message, isUser, timestamp, cropType, sessionId];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'chat_messages';
+  @override
+  VerificationContext validateIntegrity(Insertable<ChatMessageEntry> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('message')) {
+      context.handle(_messageMeta,
+          message.isAcceptableOrUnknown(data['message']!, _messageMeta));
+    } else if (isInserting) {
+      context.missing(_messageMeta);
+    }
+    if (data.containsKey('is_user')) {
+      context.handle(_isUserMeta,
+          isUser.isAcceptableOrUnknown(data['is_user']!, _isUserMeta));
+    } else if (isInserting) {
+      context.missing(_isUserMeta);
+    }
+    if (data.containsKey('timestamp')) {
+      context.handle(_timestampMeta,
+          timestamp.isAcceptableOrUnknown(data['timestamp']!, _timestampMeta));
+    } else if (isInserting) {
+      context.missing(_timestampMeta);
+    }
+    if (data.containsKey('crop_type')) {
+      context.handle(_cropTypeMeta,
+          cropType.isAcceptableOrUnknown(data['crop_type']!, _cropTypeMeta));
+    }
+    if (data.containsKey('session_id')) {
+      context.handle(_sessionIdMeta,
+          sessionId.isAcceptableOrUnknown(data['session_id']!, _sessionIdMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ChatMessageEntry map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ChatMessageEntry(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      message: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}message'])!,
+      isUser: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_user'])!,
+      timestamp: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}timestamp'])!,
+      cropType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}crop_type']),
+      sessionId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}session_id']),
+    );
+  }
+
+  @override
+  $ChatMessagesTable createAlias(String alias) {
+    return $ChatMessagesTable(attachedDatabase, alias);
+  }
+}
+
+class ChatMessageEntry extends DataClass
+    implements Insertable<ChatMessageEntry> {
+  final int id;
+  final String message;
+  final bool isUser;
+  final DateTime timestamp;
+  final String? cropType;
+  final String? sessionId;
+  const ChatMessageEntry(
+      {required this.id,
+      required this.message,
+      required this.isUser,
+      required this.timestamp,
+      this.cropType,
+      this.sessionId});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['message'] = Variable<String>(message);
+    map['is_user'] = Variable<bool>(isUser);
+    map['timestamp'] = Variable<DateTime>(timestamp);
+    if (!nullToAbsent || cropType != null) {
+      map['crop_type'] = Variable<String>(cropType);
+    }
+    if (!nullToAbsent || sessionId != null) {
+      map['session_id'] = Variable<String>(sessionId);
+    }
+    return map;
+  }
+
+  ChatMessagesCompanion toCompanion(bool nullToAbsent) {
+    return ChatMessagesCompanion(
+      id: Value(id),
+      message: Value(message),
+      isUser: Value(isUser),
+      timestamp: Value(timestamp),
+      cropType: cropType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(cropType),
+      sessionId: sessionId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sessionId),
+    );
+  }
+
+  factory ChatMessageEntry.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ChatMessageEntry(
+      id: serializer.fromJson<int>(json['id']),
+      message: serializer.fromJson<String>(json['message']),
+      isUser: serializer.fromJson<bool>(json['isUser']),
+      timestamp: serializer.fromJson<DateTime>(json['timestamp']),
+      cropType: serializer.fromJson<String?>(json['cropType']),
+      sessionId: serializer.fromJson<String?>(json['sessionId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'message': serializer.toJson<String>(message),
+      'isUser': serializer.toJson<bool>(isUser),
+      'timestamp': serializer.toJson<DateTime>(timestamp),
+      'cropType': serializer.toJson<String?>(cropType),
+      'sessionId': serializer.toJson<String?>(sessionId),
+    };
+  }
+
+  ChatMessageEntry copyWith(
+          {int? id,
+          String? message,
+          bool? isUser,
+          DateTime? timestamp,
+          Value<String?> cropType = const Value.absent(),
+          Value<String?> sessionId = const Value.absent()}) =>
+      ChatMessageEntry(
+        id: id ?? this.id,
+        message: message ?? this.message,
+        isUser: isUser ?? this.isUser,
+        timestamp: timestamp ?? this.timestamp,
+        cropType: cropType.present ? cropType.value : this.cropType,
+        sessionId: sessionId.present ? sessionId.value : this.sessionId,
+      );
+  ChatMessageEntry copyWithCompanion(ChatMessagesCompanion data) {
+    return ChatMessageEntry(
+      id: data.id.present ? data.id.value : this.id,
+      message: data.message.present ? data.message.value : this.message,
+      isUser: data.isUser.present ? data.isUser.value : this.isUser,
+      timestamp: data.timestamp.present ? data.timestamp.value : this.timestamp,
+      cropType: data.cropType.present ? data.cropType.value : this.cropType,
+      sessionId: data.sessionId.present ? data.sessionId.value : this.sessionId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ChatMessageEntry(')
+          ..write('id: $id, ')
+          ..write('message: $message, ')
+          ..write('isUser: $isUser, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('cropType: $cropType, ')
+          ..write('sessionId: $sessionId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, message, isUser, timestamp, cropType, sessionId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ChatMessageEntry &&
+          other.id == this.id &&
+          other.message == this.message &&
+          other.isUser == this.isUser &&
+          other.timestamp == this.timestamp &&
+          other.cropType == this.cropType &&
+          other.sessionId == this.sessionId);
+}
+
+class ChatMessagesCompanion extends UpdateCompanion<ChatMessageEntry> {
+  final Value<int> id;
+  final Value<String> message;
+  final Value<bool> isUser;
+  final Value<DateTime> timestamp;
+  final Value<String?> cropType;
+  final Value<String?> sessionId;
+  const ChatMessagesCompanion({
+    this.id = const Value.absent(),
+    this.message = const Value.absent(),
+    this.isUser = const Value.absent(),
+    this.timestamp = const Value.absent(),
+    this.cropType = const Value.absent(),
+    this.sessionId = const Value.absent(),
+  });
+  ChatMessagesCompanion.insert({
+    this.id = const Value.absent(),
+    required String message,
+    required bool isUser,
+    required DateTime timestamp,
+    this.cropType = const Value.absent(),
+    this.sessionId = const Value.absent(),
+  })  : message = Value(message),
+        isUser = Value(isUser),
+        timestamp = Value(timestamp);
+  static Insertable<ChatMessageEntry> custom({
+    Expression<int>? id,
+    Expression<String>? message,
+    Expression<bool>? isUser,
+    Expression<DateTime>? timestamp,
+    Expression<String>? cropType,
+    Expression<String>? sessionId,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (message != null) 'message': message,
+      if (isUser != null) 'is_user': isUser,
+      if (timestamp != null) 'timestamp': timestamp,
+      if (cropType != null) 'crop_type': cropType,
+      if (sessionId != null) 'session_id': sessionId,
+    });
+  }
+
+  ChatMessagesCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? message,
+      Value<bool>? isUser,
+      Value<DateTime>? timestamp,
+      Value<String?>? cropType,
+      Value<String?>? sessionId}) {
+    return ChatMessagesCompanion(
+      id: id ?? this.id,
+      message: message ?? this.message,
+      isUser: isUser ?? this.isUser,
+      timestamp: timestamp ?? this.timestamp,
+      cropType: cropType ?? this.cropType,
+      sessionId: sessionId ?? this.sessionId,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (message.present) {
+      map['message'] = Variable<String>(message.value);
+    }
+    if (isUser.present) {
+      map['is_user'] = Variable<bool>(isUser.value);
+    }
+    if (timestamp.present) {
+      map['timestamp'] = Variable<DateTime>(timestamp.value);
+    }
+    if (cropType.present) {
+      map['crop_type'] = Variable<String>(cropType.value);
+    }
+    if (sessionId.present) {
+      map['session_id'] = Variable<String>(sessionId.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ChatMessagesCompanion(')
+          ..write('id: $id, ')
+          ..write('message: $message, ')
+          ..write('isUser: $isUser, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('cropType: $cropType, ')
+          ..write('sessionId: $sessionId')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -2248,12 +2590,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $LedgerEntriesTable ledgerEntries = $LedgerEntriesTable(this);
   late final $HarvestListingsTable harvestListings =
       $HarvestListingsTable(this);
+  late final $ChatMessagesTable chatMessages = $ChatMessagesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [scanResults, crops, tasks, ledgerEntries, harvestListings];
+      [scanResults, crops, tasks, ledgerEntries, harvestListings, chatMessages];
 }
 
 typedef $$ScanResultsTableCreateCompanionBuilder = ScanResultsCompanion
@@ -3549,6 +3892,192 @@ typedef $$HarvestListingsTableProcessedTableManager = ProcessedTableManager<
     ),
     HarvestListing,
     PrefetchHooks Function()>;
+typedef $$ChatMessagesTableCreateCompanionBuilder = ChatMessagesCompanion
+    Function({
+  Value<int> id,
+  required String message,
+  required bool isUser,
+  required DateTime timestamp,
+  Value<String?> cropType,
+  Value<String?> sessionId,
+});
+typedef $$ChatMessagesTableUpdateCompanionBuilder = ChatMessagesCompanion
+    Function({
+  Value<int> id,
+  Value<String> message,
+  Value<bool> isUser,
+  Value<DateTime> timestamp,
+  Value<String?> cropType,
+  Value<String?> sessionId,
+});
+
+class $$ChatMessagesTableFilterComposer
+    extends Composer<_$AppDatabase, $ChatMessagesTable> {
+  $$ChatMessagesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get message => $composableBuilder(
+      column: $table.message, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isUser => $composableBuilder(
+      column: $table.isUser, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get timestamp => $composableBuilder(
+      column: $table.timestamp, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get cropType => $composableBuilder(
+      column: $table.cropType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get sessionId => $composableBuilder(
+      column: $table.sessionId, builder: (column) => ColumnFilters(column));
+}
+
+class $$ChatMessagesTableOrderingComposer
+    extends Composer<_$AppDatabase, $ChatMessagesTable> {
+  $$ChatMessagesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get message => $composableBuilder(
+      column: $table.message, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isUser => $composableBuilder(
+      column: $table.isUser, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get timestamp => $composableBuilder(
+      column: $table.timestamp, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get cropType => $composableBuilder(
+      column: $table.cropType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get sessionId => $composableBuilder(
+      column: $table.sessionId, builder: (column) => ColumnOrderings(column));
+}
+
+class $$ChatMessagesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ChatMessagesTable> {
+  $$ChatMessagesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get message =>
+      $composableBuilder(column: $table.message, builder: (column) => column);
+
+  GeneratedColumn<bool> get isUser =>
+      $composableBuilder(column: $table.isUser, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get timestamp =>
+      $composableBuilder(column: $table.timestamp, builder: (column) => column);
+
+  GeneratedColumn<String> get cropType =>
+      $composableBuilder(column: $table.cropType, builder: (column) => column);
+
+  GeneratedColumn<String> get sessionId =>
+      $composableBuilder(column: $table.sessionId, builder: (column) => column);
+}
+
+class $$ChatMessagesTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $ChatMessagesTable,
+    ChatMessageEntry,
+    $$ChatMessagesTableFilterComposer,
+    $$ChatMessagesTableOrderingComposer,
+    $$ChatMessagesTableAnnotationComposer,
+    $$ChatMessagesTableCreateCompanionBuilder,
+    $$ChatMessagesTableUpdateCompanionBuilder,
+    (
+      ChatMessageEntry,
+      BaseReferences<_$AppDatabase, $ChatMessagesTable, ChatMessageEntry>
+    ),
+    ChatMessageEntry,
+    PrefetchHooks Function()> {
+  $$ChatMessagesTableTableManager(_$AppDatabase db, $ChatMessagesTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ChatMessagesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ChatMessagesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ChatMessagesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> message = const Value.absent(),
+            Value<bool> isUser = const Value.absent(),
+            Value<DateTime> timestamp = const Value.absent(),
+            Value<String?> cropType = const Value.absent(),
+            Value<String?> sessionId = const Value.absent(),
+          }) =>
+              ChatMessagesCompanion(
+            id: id,
+            message: message,
+            isUser: isUser,
+            timestamp: timestamp,
+            cropType: cropType,
+            sessionId: sessionId,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required String message,
+            required bool isUser,
+            required DateTime timestamp,
+            Value<String?> cropType = const Value.absent(),
+            Value<String?> sessionId = const Value.absent(),
+          }) =>
+              ChatMessagesCompanion.insert(
+            id: id,
+            message: message,
+            isUser: isUser,
+            timestamp: timestamp,
+            cropType: cropType,
+            sessionId: sessionId,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable<$ChatMessagesTable, ChatMessageEntry>(table),
+                    BaseReferences<_$AppDatabase, $ChatMessagesTable,
+                        ChatMessageEntry>(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$ChatMessagesTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $ChatMessagesTable,
+    ChatMessageEntry,
+    $$ChatMessagesTableFilterComposer,
+    $$ChatMessagesTableOrderingComposer,
+    $$ChatMessagesTableAnnotationComposer,
+    $$ChatMessagesTableCreateCompanionBuilder,
+    $$ChatMessagesTableUpdateCompanionBuilder,
+    (
+      ChatMessageEntry,
+      BaseReferences<_$AppDatabase, $ChatMessagesTable, ChatMessageEntry>
+    ),
+    ChatMessageEntry,
+    PrefetchHooks Function()>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -3563,4 +4092,6 @@ class $AppDatabaseManager {
       $$LedgerEntriesTableTableManager(_db, _db.ledgerEntries);
   $$HarvestListingsTableTableManager get harvestListings =>
       $$HarvestListingsTableTableManager(_db, _db.harvestListings);
+  $$ChatMessagesTableTableManager get chatMessages =>
+      $$ChatMessagesTableTableManager(_db, _db.chatMessages);
 }
