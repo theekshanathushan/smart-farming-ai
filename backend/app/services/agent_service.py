@@ -55,7 +55,7 @@ class AgriAgentService:
 
         system_prompt += "Use this context to tailor your advice specifically to their situation."
 
-        # Make the streaming request to OpenAI
+        # Make the streaming request to OpenAI compatible Gemini endpoint
         response = await self.client.chat.completions.create(
             model="gemini-3.8-flash",
             messages=[
