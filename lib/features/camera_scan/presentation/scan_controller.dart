@@ -4,7 +4,7 @@ import 'package:drift/drift.dart';
 import '../data/crop_disease_classifier.dart';
 import '../domain/classifier_result.dart';
 import '../../../core/local_db/app_database.dart';
-import '../../../main.dart'; 
+import '../../../core/services/firebase_sync_service.dart';
 
 class ScanState {
   final bool isLoading;
@@ -41,9 +41,10 @@ class ScanState {
 class ScanController extends StateNotifier<ScanState> {
   final ICropDiseaseClassifier _classifier;
   final AppDatabase _db;
+  final FirebaseSyncService _syncService;
   final ImagePicker _picker = ImagePicker();
 
-  ScanController(this._classifier, this._db) : super(ScanState());
+  ScanController(this._classifier, this._db, this._syncService) : super(ScanState());
 
   Future<void> captureAndClassify(ImageSource source) async {
     try {
@@ -72,13 +73,23 @@ class ScanController extends StateNotifier<ScanState> {
     if (state.imagePath == null || state.result == null) return;
 
     try {
+      final now = DateTime.now();
       await _db.insertScanResult(ScanResultsCompanion(
         imagePath: Value(state.imagePath!),
         predictedLabel: Value(state.result!.label),
         confidence: Value(state.result!.confidence),
-        timestamp: Value(DateTime.now()),
+        timestamp: Value(now),
         notes: notes != null ? Value(notes) : const Value.absent(),
       ));
+
+      _syncService.syncScanResult(
+        predictedLabel: state.result!.label,
+        confidence: state.result!.confidence,
+        imagePath: state.imagePath,
+        notes: notes,
+        timestamp: now,
+      );
+
       state = state.copyWith(isSaved: true);
     } catch (e) {
       state = state.copyWith(error: "Failed to save: $e");
@@ -93,5 +104,6 @@ class ScanController extends StateNotifier<ScanState> {
 final scanControllerProvider = StateNotifierProvider<ScanController, ScanState>((ref) {
   final classifier = ref.watch(cropDiseaseClassifierProvider);
   final db = ref.watch(databaseProvider);
-  return ScanController(classifier, db);
+  final syncService = ref.watch(firebaseSyncServiceProvider);
+  return ScanController(classifier, db, syncService);
 });

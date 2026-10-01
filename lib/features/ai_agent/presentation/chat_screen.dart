@@ -4,6 +4,7 @@ import 'package:drift/drift.dart' show Value;
 import '../data/agent_api_client.dart';
 import '../../../core/utils/location_service.dart';
 import '../../../core/local_db/app_database.dart';
+import '../../../core/services/firebase_sync_service.dart';
 import 'package:geolocator/geolocator.dart';
 
 final agentApiClientProvider = Provider((ref) => AgentApiClient());
@@ -79,13 +80,20 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
     _scrollToBottom();
 
     final db = ref.read(databaseProvider);
-    // Persist user prompt to local database
+    final firebaseSync = ref.read(firebaseSyncServiceProvider);
+
+    // Persist user prompt to local database & sync to Firebase
     await db.insertChatMessage(
       ChatMessagesCompanion(
         message: Value(text),
         isUser: const Value(true),
         timestamp: Value(DateTime.now()),
       ),
+    );
+    firebaseSync.syncChatMessage(
+      message: text,
+      isUser: true,
+      timestamp: DateTime.now(),
     );
     
     final apiClient = ref.read(agentApiClientProvider);
@@ -112,7 +120,7 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
         _scrollToBottom();
       }
 
-      // Persist completed AI response to local database
+      // Persist completed AI response to local database & sync to Firebase
       final lastIndex = _messages.length - 1;
       final responseText = _messages[lastIndex].text.trim();
       if (responseText.isNotEmpty) {
@@ -122,6 +130,11 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
             isUser: const Value(false),
             timestamp: Value(DateTime.now()),
           ),
+        );
+        firebaseSync.syncChatMessage(
+          message: responseText,
+          isUser: false,
+          timestamp: DateTime.now(),
         );
       }
     } catch (e) {
