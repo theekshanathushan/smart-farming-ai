@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_analytics/firebase_analytics.dart'; // අලුතින් එකතු කළ කොටස
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'firebase_options.dart';
 
 import 'core/routing/app_router.dart';
@@ -12,28 +12,39 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:agri_ai/l10n/app_localizations.dart';
 import 'core/providers/locale_provider.dart';
+
 void main() async {
   // Ensure widget binding is initialized
   WidgetsFlutterBinding.ensureInitialized();
   
-  await dotenv.load(fileName: ".env");
+  try {
+    await dotenv.load(fileName: ".env");
+  } catch (e) {
+    debugPrint("Warning: Could not load .env: $e");
+  }
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-
-  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    FirebaseAnalytics.instance;
+  } catch (e) {
+    debugPrint("Warning: Firebase initialization error: $e");
+  }
 
   // Initialize the local Drift database instance
-  final database = AppDatabase();
-
-  // Additional initializations (e.g., TFLite) can go here
+  AppDatabase? database;
+  try {
+    database = AppDatabase();
+  } catch (e) {
+    debugPrint("Warning: Database initialization error: $e");
+  }
 
   runApp(
     ProviderScope(
       overrides: [
-        // Override the provider to use the initialized instance
-        databaseProvider.overrideWithValue(database),
+        if (database != null)
+          databaseProvider.overrideWithValue(database),
       ],
       child: const AgriAIApp(),
     ),
@@ -46,7 +57,6 @@ class AgriAIApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(goRouterProvider);
-
     final locale = ref.watch(localeProvider);
 
     return MaterialApp.router(
