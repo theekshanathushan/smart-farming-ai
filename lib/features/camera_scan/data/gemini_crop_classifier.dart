@@ -15,14 +15,6 @@ class GeminiCropClassifier {
     }
 
     try {
-      final model = GenerativeModel(
-        model: 'gemini-3.8-flash',
-        apiKey: _apiKey,
-        generationConfig: GenerationConfig(
-          responseMimeType: 'application/json',
-        )
-      );
-
       final file = File(imagePath);
       final bytes = await file.readAsBytes();
       
@@ -49,7 +41,27 @@ Return a JSON object with the exact following structure without markdown blocks:
         ])
       ];
 
-      final response = await model.generateContent(content);
+      GenerateContentResponse response;
+      try {
+        final model = GenerativeModel(
+          model: 'gemini-flash-latest',
+          apiKey: _apiKey,
+          generationConfig: GenerationConfig(
+            responseMimeType: 'application/json',
+          ),
+        );
+        response = await model.generateContent(content);
+      } catch (e) {
+        // Fallback to flash-lite if primary model has temporary 503 high demand
+        final fallbackModel = GenerativeModel(
+          model: 'gemini-flash-lite-latest',
+          apiKey: _apiKey,
+          generationConfig: GenerationConfig(
+            responseMimeType: 'application/json',
+          ),
+        );
+        response = await fallbackModel.generateContent(content);
+      }
       
       if (response.text != null) {
         String jsonString = response.text!;
