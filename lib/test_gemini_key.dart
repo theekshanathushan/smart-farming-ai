@@ -28,7 +28,7 @@ void main() async {
 
     print('Testing Gemini API key...');
     final response = await model.generateContent(content);
-    print('Success! Response: \${response.text}');
+    print('Success! Response: ${response.text}');
   } catch (e) {
     print('Error caught: $e');
   }

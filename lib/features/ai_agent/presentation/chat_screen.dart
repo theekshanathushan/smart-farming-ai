@@ -5,6 +5,7 @@ import '../data/agent_api_client.dart';
 import '../../../core/utils/location_service.dart';
 import '../../../core/local_db/app_database.dart';
 import '../../../core/services/firebase_sync_service.dart';
+import '../../../core/providers/locale_provider.dart';
 import 'package:geolocator/geolocator.dart';
 
 final agentApiClientProvider = Provider((ref) => AgentApiClient());
@@ -99,9 +100,10 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
     final apiClient = ref.read(agentApiClientProvider);
     
     try {
+      final currentLang = ref.read(localeProvider).languageCode;
       final stream = apiClient.streamChatAdvice(
         message: text,
-        language: 'en', // Default language
+        language: currentLang,
         latitude: _currentPosition?.latitude,
         longitude: _currentPosition?.longitude,
       );

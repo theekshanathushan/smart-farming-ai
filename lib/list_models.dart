@@ -1,9 +1,12 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
+import 'dart:io';
+
 void main() async {
-  const apiKey = 'AQ.Ab8RN6IzdCy8-_-1YdVmcfp95slPE1Jk1BgafNY9eV_y0ChvrA';
-  final url = Uri.parse('https://generativelanguage.googleapis.com/v1beta/models?key=\$apiKey');
+  final envContent = await File('.env').readAsString();
+  final apiKey = envContent.split('\n').firstWhere((l) => l.startsWith('GEMINI_API_KEY=')).replaceFirst('GEMINI_API_KEY=', '').trim();
+  final url = Uri.parse('https://generativelanguage.googleapis.com/v1beta/models?key=$apiKey');
   
   try {
     print('Fetching models...');
@@ -13,7 +16,7 @@ void main() async {
       final models = data['models'] as List;
       print('Available models:');
       for (var model in models) {
-        print("- \${model['name']}");
+        print("- ${model['name']}");
       }
     } else {
       print('Error: ${response.statusCode} - ${response.body}');
