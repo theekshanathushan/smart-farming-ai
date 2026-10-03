@@ -2,9 +2,11 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/local_db/app_database.dart';
 import '../../../core/widgets/animated_farm_background.dart';
 import '../../../core/widgets/glass_container.dart';
+import '../../../core/providers/locale_provider.dart';
 
 final scanHistoryProvider = FutureProvider<List<ScanResult>>((ref) {
   return ref.watch(databaseProvider).getAllScanResults();
@@ -44,7 +46,7 @@ class ScanHistoryScreen extends ConsumerWidget {
                   itemCount: history.length,
                   itemBuilder: (context, index) {
                     final item = history[index];
-                    return _buildHistoryCard(context, item);
+                    return _buildHistoryCard(context, ref, item);
                   },
                 );
               },
@@ -57,13 +59,13 @@ class ScanHistoryScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildHistoryCard(BuildContext context, ScanResult item) {
+  Widget _buildHistoryCard(BuildContext context, WidgetRef ref, ScanResult item) {
     final dateFormat = DateFormat('MMM dd, yyyy • hh:mm a');
     final confidencePercent = (item.confidence * 100).toStringAsFixed(1);
     
     return InkWell(
       onTap: () {
-        _showImageDialog(context, item.imagePath);
+        _showImageDialog(context, ref, item);
       },
       borderRadius: BorderRadius.circular(16),
       child: GlassContainer(
@@ -112,15 +114,114 @@ class ScanHistoryScreen extends ConsumerWidget {
     );
   }
 
-  void _showImageDialog(BuildContext context, String path) {
+  void _showImageDialog(BuildContext context, WidgetRef ref, ScanResult item) {
     showDialog(
       context: context,
-      builder: (_) => Dialog(
+      builder: (dialogCtx) => Dialog(
         backgroundColor: Colors.transparent,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(16),
-          child: InteractiveViewer(
-            child: Image.file(File(path)),
+        insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.3),
+                blurRadius: 15,
+                offset: const Offset(0, 5),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              ClipRRect(
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                child: SizedBox(
+                  height: 260,
+                  width: double.infinity,
+                  child: InteractiveViewer(
+                    child: Image.file(
+                      File(item.imagePath),
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => Container(
+                        color: Colors.grey.shade900,
+                        child: const Icon(Icons.broken_image, color: Colors.white54, size: 60),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      item.predictedLabel,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            '${(item.confidence * 100).toStringAsFixed(1)}% Confidence',
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.primary,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                        const Spacer(),
+                        Text(
+                          DateFormat('MMM dd, yyyy').format(item.timestamp),
+                          style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 18),
+                    FilledButton.icon(
+                      onPressed: () {
+                        Navigator.pop(dialogCtx);
+                        final currentLang = ref.read(localeProvider).languageCode;
+                        String prompt;
+                        if (currentLang == 'si') {
+                          prompt = 'පෙර ස්කෑන් කරන ලද බෝගයේ තොරතුරු:\n'
+                              '• බෝගය / රෝගය: ${item.predictedLabel}\n'
+                              '• විශ්වාසනීයත්වය: ${(item.confidence * 100).toStringAsFixed(1)}%\n\n'
+                              'කරුණාකර මෙම බෝගය රැකබලා ගැනීමට හෝ ප්‍රතිකාර කිරීමට අවශ්‍ය උපදෙස් කරුණු වශයෙන් (Point by point) සවිස්තරාත්මකව ලබා දෙන්න.';
+                        } else if (currentLang == 'ta') {
+                          prompt = 'முந்தைய ஸ்கேன் செய்யப்பட்ட பயிர் விபரம்:\n'
+                              '• பயிர் / நோய்: ${item.predictedLabel}\n'
+                              '• துல்லியம்: ${(item.confidence * 100).toStringAsFixed(1)}%\n\n'
+                              'தயவுசெய்து இந்த பயிருக்கான விரிவான பராமரிப்பு அல்லது சிகிச்சை வழிகாட்டல்களை குறிப்புகளாக (Point by point) விளக்கவும்.';
+                        } else {
+                          prompt = 'Details from a previous scan in my history:\n'
+                              '• Crop / Diagnosis: ${item.predictedLabel}\n'
+                              '• Confidence: ${(item.confidence * 100).toStringAsFixed(1)}%\n\n'
+                              'Please provide a detailed, point-by-point guide on treatment, care routine, and prevention tips for this diagnosis.';
+                        }
+                        context.push('/chat', extra: prompt);
+                      },
+                      icon: const Icon(Icons.psychology, size: 20),
+                      label: const Text('Ask AgriAI about this scan', style: TextStyle(fontWeight: FontWeight.bold)),
+                      style: FilledButton.styleFrom(
+                        minimumSize: const Size(double.infinity, 46),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
       ),

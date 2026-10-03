@@ -6,9 +6,61 @@ import 'package:permission_handler/permission_handler.dart';
 import 'scan_controller.dart';
 import 'package:go_router/go_router.dart';
 import 'package:agri_ai/l10n/app_localizations.dart';
+import '../../../core/providers/locale_provider.dart';
+import '../domain/classifier_result.dart';
 
 class CameraScanScreen extends ConsumerWidget {
   const CameraScanScreen({super.key});
+
+  void _askAiAboutScan(BuildContext context, WidgetRef ref, ClassifierResult result) {
+    final currentLang = ref.read(localeProvider).languageCode;
+    final isDiseased = !result.isHealthy && !result.label.contains('Unrecognized');
+    final isHealthy = result.isHealthy && !result.label.contains('Unrecognized');
+    
+    String prompt;
+    if (isDiseased) {
+      final condition = result.diseaseName.isNotEmpty ? result.diseaseName : result.label;
+      if (currentLang == 'si') {
+        prompt = 'මගේ බෝගයේ කොළ ස්කෑන් කළ විට හඳුනාගත් රෝග විස්තර පහත දැක්වේ:\n\n'
+            '• හඳුනාගත් රෝගය: $condition\n'
+            '• බරපතලකම (Severity): ${result.severity}\n'
+            '• ආකෘති විශ්වාසනීයත්වය: ${(result.confidence * 100).toStringAsFixed(1)}%\n'
+            '${result.treatmentPlan.isNotEmpty ? '• මූලික උපදෙස්: ${result.treatmentPlan}\n' : ''}\n'
+            'කරුණාකර මෙම රෝගය සුව කිරීමට අවශ්‍ය සවිස්තරාත්මක ප්‍රතිකාර, ස්වාභාවික හා කාබනික ක්‍රම, සහ නැවත බෝවීම වැළැක්වීමේ පියවර කරුණු වශයෙන් (Point by point) පැහැදිලිව ලබා දෙන්න.';
+      } else if (currentLang == 'ta') {
+        prompt = 'எனது பயிரின் இலை ஸ்கேன் செய்யப்பட்டதன் முடிவுகள்:\n\n'
+            '• கண்டறியப்பட்ட நோய்: $condition\n'
+            '• தீவிரம்: ${result.severity}\n'
+            '• மாதிரி துல்லியம்: ${(result.confidence * 100).toStringAsFixed(1)}%\n'
+            '${result.treatmentPlan.isNotEmpty ? '• முதற்கட்ட சிகிச்சை: ${result.treatmentPlan}\n' : ''}\n'
+            'தயவுசெய்து இந்த நோயைக் கட்டுப்படுத்த இயற்கை முறைகள், மருந்து பரிந்துரைகள் மற்றும் தடுப்பு வழிகளை குறிப்புகளாக (Point by point) தெளிவாக விளக்குங்கள்.';
+      } else {
+        prompt = 'I scanned a crop leaf and the diagnosis returned the following details:\n\n'
+            '• Crop Condition / Disease: $condition\n'
+            '• Severity: ${result.severity}\n'
+            '• Model Confidence: ${(result.confidence * 100).toStringAsFixed(1)}%\n'
+            '${result.treatmentPlan.isNotEmpty ? '• Preliminary Treatment: ${result.treatmentPlan}\n' : ''}\n'
+            'Please provide comprehensive, point-by-point advice covering:\n'
+            '1. Diagnosis & Key Symptoms\n'
+            '2. Causes & Environmental Factors\n'
+            '3. Immediate Organic & Natural Remedies\n'
+            '4. Chemical Controls or Fertilizer Adjustments with recommended dosages\n'
+            '5. Long-term Prevention & Field Care';
+      }
+    } else if (isHealthy) {
+      if (currentLang == 'si') {
+        prompt = 'මගේ බෝගය නිරෝගී (${result.label}) ලෙස ස්කෑන් කර ඇත. මෙම බෝගයේ නිරෝගීභාවය රැකගෙන උපරිම අස්වැන්නක් ලබා ගැනීමට අවශ්‍ය ජල සම්පාදනය, පොහොර යෙදීම සහ රැකවරණ උපදෙස් කරුණු වශයෙන් (Point by point) පැහැදිලි කරන්න.';
+      } else if (currentLang == 'ta') {
+        prompt = 'எனது பயிர் ஆரோக்கியமானது (${result.label}) என உறுதி செய்யப்பட்டுள்ளது. இதன் ஆரோக்கியத்தைப் பேணவும் அதிக விளைச்சலைப் பெறவும் தேவையான ஆலோசனைகளை குறிப்புகளாக (Point by point) விளக்கவும்.';
+      } else {
+        prompt = 'I scanned my crop leaf and it was identified as healthy (${result.label}). Please provide point-by-point advice on optimal fertilizers, irrigation schedule, and preventive care to maximize healthy yield.';
+      }
+    } else {
+      prompt = 'I scanned a plant leaf but the result was unrecognized. What are the best guidelines for taking clear diagnostic leaf photos and identifying plant issues accurately?';
+    }
+
+    context.push('/chat', extra: prompt);
+  }
 
   Future<void> _handleCapture(WidgetRef ref, BuildContext context, ImageSource source) async {
     if (source == ImageSource.camera) {
@@ -274,15 +326,16 @@ class CameraScanScreen extends ConsumerWidget {
                       : 'Please consult with a local agricultural expert for specific treatments.', 
                     style: TextStyle(color: Theme.of(context).colorScheme.onSurface)
                   ),
-                  const SizedBox(height: 12),
-                  OutlinedButton.icon(
-                    onPressed: () => context.push('/chat'),
-                    icon: const Icon(Icons.smart_toy, size: 18),
-                    label: const Text('Ask AI Agent for Details'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Theme.of(context).colorScheme.primary,
-                      side: BorderSide(color: Theme.of(context).colorScheme.primary),
-                      minimumSize: const Size(double.infinity, 40),
+                  const SizedBox(height: 14),
+                  FilledButton.icon(
+                    onPressed: () => _askAiAboutScan(context, ref, state.result!),
+                    icon: const Icon(Icons.psychology, size: 20),
+                    label: const Text('Ask AI for In-Depth Details (Point-by-Point)', style: TextStyle(fontWeight: FontWeight.bold)),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: Colors.redAccent,
+                      foregroundColor: Colors.white,
+                      minimumSize: const Size(double.infinity, 48),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                   ),
                 ],
@@ -298,17 +351,34 @@ class CameraScanScreen extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3)),
               ),
-              child: Row(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.verified, color: Theme.of(context).colorScheme.primary),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      state.result!.treatmentPlan.isNotEmpty 
-                      ? state.result!.treatmentPlan 
-                      : 'Your crop looks perfectly healthy! Keep up the good irrigation and fertilizer routine.', 
-                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface)
-                    )
+                  Row(
+                    children: [
+                      Icon(Icons.verified, color: Theme.of(context).colorScheme.primary),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          state.result!.treatmentPlan.isNotEmpty 
+                          ? state.result!.treatmentPlan 
+                          : 'Your crop looks perfectly healthy! Keep up the good irrigation and fertilizer routine.', 
+                          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  OutlinedButton.icon(
+                    onPressed: () => _askAiAboutScan(context, ref, state.result!),
+                    icon: const Icon(Icons.smart_toy_outlined, size: 18),
+                    label: const Text('Ask AI for Care & Yield Tips'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Theme.of(context).colorScheme.primary,
+                      side: BorderSide(color: Theme.of(context).colorScheme.primary),
+                      minimumSize: const Size(double.infinity, 44),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
                   ),
                 ],
               ),
@@ -325,7 +395,7 @@ class CameraScanScreen extends ConsumerWidget {
               ),
               child: Text(l10n.tryAgain, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
             )
-          else
+          else ...[
             ElevatedButton.icon(
               onPressed: state.isSaved
                   ? null
@@ -345,6 +415,17 @@ class CameraScanScreen extends ConsumerWidget {
                 minimumSize: const Size(double.infinity, 56),
               ),
             ),
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              onPressed: () => _askAiAboutScan(context, ref, state.result!),
+              icon: const Icon(Icons.forum_outlined),
+              label: const Text('Chat with AgriAI about this scan', style: TextStyle(fontWeight: FontWeight.bold)),
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size(double.infinity, 50),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              ),
+            ),
+          ],
         ],
       );
     }
