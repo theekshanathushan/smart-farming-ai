@@ -117,7 +117,10 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/chat',
-        builder: (context, state) => const AiChatScreen(),
+        builder: (context, state) {
+          final initialMessage = state.extra as String?;
+          return AiChatScreen(initialMessage: initialMessage);
+        },
       ),
       GoRoute(
         path: '/ledger',

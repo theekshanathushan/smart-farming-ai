@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart' show Value;
+import 'package:flutter_markdown/flutter_markdown.dart';
 import '../data/agent_api_client.dart';
 import '../../../core/utils/location_service.dart';
 import '../../../core/local_db/app_database.dart';
@@ -18,7 +19,8 @@ class ChatMessage {
 }
 
 class AiChatScreen extends ConsumerStatefulWidget {
-  const AiChatScreen({super.key});
+  final String? initialMessage;
+  const AiChatScreen({super.key, this.initialMessage});
 
   @override
   ConsumerState<AiChatScreen> createState() => _AiChatScreenState();
@@ -32,12 +34,21 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
   bool _isLoading = false;
   Position? _currentPosition;
   bool _isFetchingLocation = true;
+  bool _initialSent = false;
   
   @override
   void initState() {
     super.initState();
     _fetchLocation();
-    _loadSavedMessages();
+    _initChat();
+  }
+
+  Future<void> _initChat() async {
+    await _loadSavedMessages();
+    if (!_initialSent && widget.initialMessage != null && widget.initialMessage!.trim().isNotEmpty) {
+      _initialSent = true;
+      _sendMessage(widget.initialMessage!.trim());
+    }
   }
 
   Future<void> _loadSavedMessages() async {
@@ -66,8 +77,8 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
     }
   }
   
-  void _sendMessage() async {
-    final text = _controller.text.trim();
+  void _sendMessage([String? promptText]) async {
+    final text = (promptText ?? _controller.text).trim();
     if (text.isEmpty) return;
     
     setState(() {
@@ -77,7 +88,9 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
       _messages.add(ChatMessage(text: '', isUser: false));
     });
     
-    _controller.clear();
+    if (promptText == null) {
+      _controller.clear();
+    }
     _scrollToBottom();
 
     final db = ref.read(databaseProvider);
@@ -249,40 +262,87 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
                   return const SizedBox.shrink();
                 }
 
+                final isUser = message.isUser;
                 return Align(
-                  alignment: message.isUser ? Alignment.centerRight : Alignment.centerLeft,
+                  alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
                   child: Container(
                     margin: const EdgeInsets.symmetric(vertical: 6.0),
-                    padding: const EdgeInsets.all(16.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
                     constraints: BoxConstraints(
-                      maxWidth: MediaQuery.of(context).size.width * 0.8,
+                      maxWidth: MediaQuery.of(context).size.width * (isUser ? 0.8 : 0.88),
                     ),
                     decoration: BoxDecoration(
-                      color: message.isUser 
-                          ? Theme.of(context).colorScheme.secondary 
+                      color: isUser 
+                          ? Theme.of(context).colorScheme.primary 
                           : Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.only(
-                        topLeft: const Radius.circular(24),
-                        topRight: const Radius.circular(24),
-                        bottomLeft: Radius.circular(message.isUser ? 24 : 4),
-                        bottomRight: Radius.circular(message.isUser ? 4 : 24),
+                        topLeft: const Radius.circular(20),
+                        topRight: const Radius.circular(20),
+                        bottomLeft: Radius.circular(isUser ? 20 : 4),
+                        bottomRight: Radius.circular(isUser ? 4 : 20),
                       ),
+                      border: isUser
+                          ? null
+                          : Border.all(
+                              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
+                              width: 1,
+                            ),
                       boxShadow: [
-                        if (!message.isUser)
-                          BoxShadow(
-                            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          )
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.04),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
                       ],
                     ),
-                    child: Text(
-                      message.text,
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: message.isUser ? Theme.of(context).colorScheme.onSecondary : Theme.of(context).colorScheme.onSurface,
-                        height: 1.5,
-                      ),
-                    ),
+                    child: isUser
+                        ? Text(
+                            message.text,
+                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              color: Theme.of(context).colorScheme.onPrimary,
+                              height: 1.4,
+                            ),
+                          )
+                        : MarkdownBody(
+                            data: message.text,
+                            selectable: true,
+                            styleSheet: MarkdownStyleSheet(
+                              p: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: Theme.of(context).colorScheme.onSurface,
+                                height: 1.6,
+                                fontSize: 15,
+                              ),
+                              h1: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).colorScheme.primary,
+                                height: 1.4,
+                              ),
+                              h2: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).colorScheme.primary,
+                                height: 1.4,
+                              ),
+                              h3: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).colorScheme.primary,
+                                height: 1.4,
+                              ),
+                              strong: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
+                              listBullet: TextStyle(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15,
+                              ),
+                              listBulletPadding: const EdgeInsets.only(right: 6),
+                              blockSpacing: 10.0,
+                            ),
+                          ),
                   ),
                 );
               },
