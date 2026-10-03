@@ -15,8 +15,20 @@ class WelcomeScreen extends StatelessWidget {
           // Background Image
           Positioned.fill(
             child: Image.asset(
-              'assets/farmer_background.jpg',
+              'assets/images/farm_bg.jpg',
               fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) => Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Color(0xFF1B5E20),
+                      Color(0xFF0D2810),
+                    ],
+                  ),
+                ),
+              ),
             ),
           ),
           
