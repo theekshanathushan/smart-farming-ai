@@ -12,7 +12,7 @@ import '../domain/classifier_result.dart';
 class CameraScanScreen extends ConsumerWidget {
   const CameraScanScreen({super.key});
 
-  void _askAiAboutScan(BuildContext context, WidgetRef ref, ClassifierResult result) {
+  void _askAiAboutScan(BuildContext context, WidgetRef ref, ClassifierResult result, [String? imagePath]) {
     final currentLang = ref.read(localeProvider).languageCode;
     final isDiseased = !result.isHealthy && !result.label.contains('Unrecognized');
     final isHealthy = result.isHealthy && !result.label.contains('Unrecognized');
@@ -59,7 +59,10 @@ class CameraScanScreen extends ConsumerWidget {
       prompt = 'I scanned a plant leaf but the result was unrecognized. What are the best guidelines for taking clear diagnostic leaf photos and identifying plant issues accurately?';
     }
 
-    context.push('/chat', extra: prompt);
+    context.push('/chat', extra: {
+      'prompt': prompt,
+      'imagePath': imagePath,
+    });
   }
 
   Future<void> _handleCapture(WidgetRef ref, BuildContext context, ImageSource source) async {
@@ -328,7 +331,7 @@ class CameraScanScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 14),
                   FilledButton.icon(
-                    onPressed: () => _askAiAboutScan(context, ref, state.result!),
+                    onPressed: () => _askAiAboutScan(context, ref, state.result!, state.imagePath),
                     icon: const Icon(Icons.psychology, size: 20),
                     label: const Text('Ask AI for In-Depth Details (Point-by-Point)', style: TextStyle(fontWeight: FontWeight.bold)),
                     style: FilledButton.styleFrom(
@@ -370,7 +373,7 @@ class CameraScanScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 12),
                   OutlinedButton.icon(
-                    onPressed: () => _askAiAboutScan(context, ref, state.result!),
+                    onPressed: () => _askAiAboutScan(context, ref, state.result!, state.imagePath),
                     icon: const Icon(Icons.smart_toy_outlined, size: 18),
                     label: const Text('Ask AI for Care & Yield Tips'),
                     style: OutlinedButton.styleFrom(
@@ -417,7 +420,7 @@ class CameraScanScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 12),
             OutlinedButton.icon(
-              onPressed: () => _askAiAboutScan(context, ref, state.result!),
+              onPressed: () => _askAiAboutScan(context, ref, state.result!, state.imagePath),
               icon: const Icon(Icons.forum_outlined),
               label: const Text('Chat with AgriAI about this scan', style: TextStyle(fontWeight: FontWeight.bold)),
               style: OutlinedButton.styleFrom(

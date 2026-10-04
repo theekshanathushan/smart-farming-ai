@@ -209,7 +209,10 @@ class ScanHistoryScreen extends ConsumerWidget {
                               '• Confidence: ${(item.confidence * 100).toStringAsFixed(1)}%\n\n'
                               'Please provide a detailed, point-by-point guide on treatment, care routine, and prevention tips for this diagnosis.';
                         }
-                        context.push('/chat', extra: prompt);
+                        context.push('/chat', extra: {
+                          'prompt': prompt,
+                          'imagePath': item.imagePath,
+                        });
                       },
                       icon: const Icon(Icons.psychology, size: 20),
                       label: const Text('Ask AgriAI about this scan', style: TextStyle(fontWeight: FontWeight.bold)),
