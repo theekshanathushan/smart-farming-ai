@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:agri_ai/main.dart';
 
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
 
-    // ⚠️ IMPORTANT: Replace 'YourAppClassName' with the actual class name 
-    // passed to runApp() in your lib/main.dart file (e.g., AgriAiApp).
-    await tester.pumpWidget(const YourAppClassName());
+    // Passed to runApp() in lib/main.dart
+    await tester.pumpWidget(const ProviderScope(child: AgriAIApp()));
 
     // Verify that our counter starts at 0.
     expect(find.text('0'), findsOneWidget);

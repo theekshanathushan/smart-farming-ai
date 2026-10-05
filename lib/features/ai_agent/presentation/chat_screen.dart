@@ -59,7 +59,7 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
     }
     if (!_initialSent && widget.initialMessage != null && widget.initialMessage!.trim().isNotEmpty) {
       _initialSent = true;
-      _sendMessage(widget.initialMessage!.trim(), imagePath: widget.initialImagePath);
+      _sendMessage(widget.initialMessage!.trim(), widget.initialImagePath);
     }
   }
 
@@ -69,7 +69,7 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
     if (widget.initialMessage != null &&
         widget.initialMessage!.trim().isNotEmpty &&
         widget.initialMessage != oldWidget.initialMessage) {
-      _sendMessage(widget.initialMessage!.trim(), imagePath: widget.initialImagePath);
+      _sendMessage(widget.initialMessage!.trim(), widget.initialImagePath);
     }
   }
 
@@ -99,7 +99,7 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
     }
   }
   
-  void _sendMessage([String? promptText, {String? imagePath}]) async {
+  void _sendMessage([String? promptText, String? imagePath]) async {
     final text = (promptText ?? _controller.text).trim();
     if (text.isEmpty) return;
     
@@ -572,7 +572,7 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
                   prompt = 'I scanned my crop leaf and it was identified as healthy (${result.label}). Please provide care tips to maximize yield.';
                 }
               }
-              _sendMessage(prompt, imagePath: scanState.imagePath);
+              _sendMessage(prompt, scanState.imagePath);
             },
             style: FilledButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
@@ -733,7 +733,7 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
         }
       }
 
-      _sendMessage(prompt, imagePath: image.path);
+      _sendMessage(prompt, image.path);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
