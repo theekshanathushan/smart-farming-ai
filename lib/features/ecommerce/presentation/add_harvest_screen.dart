@@ -245,8 +245,9 @@ class _AddHarvestScreenState extends ConsumerState<AddHarvestScreen> {
                           const SizedBox(height: 6),
                           DropdownButtonFormField<String>(
                             value: _category,
+                            isExpanded: true,
                             decoration: const InputDecoration(contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12)),
-                            items: _categories.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
+                            items: _categories.map((c) => DropdownMenuItem(value: c, child: Text(c, overflow: TextOverflow.ellipsis))).toList(),
                             onChanged: (v) => setState(() => _category = v!),
                           ),
                         ],
@@ -261,8 +262,9 @@ class _AddHarvestScreenState extends ConsumerState<AddHarvestScreen> {
                           const SizedBox(height: 6),
                           DropdownButtonFormField<String>(
                             value: _grade,
+                            isExpanded: true,
                             decoration: const InputDecoration(contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12)),
-                            items: _grades.map((g) => DropdownMenuItem(value: g, child: Text(g))).toList(),
+                            items: _grades.map((g) => DropdownMenuItem(value: g, child: Text(g, overflow: TextOverflow.ellipsis))).toList(),
                             onChanged: (v) => setState(() => _grade = v!),
                           ),
                         ],
@@ -309,8 +311,9 @@ class _AddHarvestScreenState extends ConsumerState<AddHarvestScreen> {
                           const SizedBox(height: 6),
                           DropdownButtonFormField<String>(
                             value: _unit,
+                            isExpanded: true,
                             decoration: const InputDecoration(contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 12)),
-                            items: _units.map((u) => DropdownMenuItem(value: u, child: Text(u))).toList(),
+                            items: _units.map((u) => DropdownMenuItem(value: u, child: Text(u, overflow: TextOverflow.ellipsis))).toList(),
                             onChanged: (v) => setState(() => _unit = v!),
                           ),
                         ],
@@ -356,11 +359,12 @@ class _AddHarvestScreenState extends ConsumerState<AddHarvestScreen> {
                 const SizedBox(height: 6),
                 DropdownButtonFormField<String>(
                   value: _district,
+                  isExpanded: true,
                   decoration: const InputDecoration(
                     prefixIcon: Icon(Icons.location_on, color: Colors.redAccent),
                     contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                   ),
-                  items: _districts.map((d) => DropdownMenuItem(value: d, child: Text(d))).toList(),
+                  items: _districts.map((d) => DropdownMenuItem(value: d, child: Text(d, overflow: TextOverflow.ellipsis))).toList(),
                   onChanged: (v) => setState(() => _district = v!),
                 ),
                 const SizedBox(height: 16),

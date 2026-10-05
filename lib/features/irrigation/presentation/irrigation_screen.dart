@@ -307,8 +307,9 @@ class _IrrigationScreenState extends ConsumerState<IrrigationScreen> {
                                   const SizedBox(height: 6),
                                   DropdownButtonFormField<String>(
                                     initialValue: _areaUnit,
+                                    isExpanded: true,
                                     dropdownColor: const Color(0xFF16222F),
-                                    style: const TextStyle(color: Colors.white, fontSize: 15),
+                                    style: const TextStyle(color: Colors.white, fontSize: 14),
                                     decoration: InputDecoration(
                                       filled: true,
                                       fillColor: Colors.white.withValues(alpha: 0.08),
@@ -316,9 +317,9 @@ class _IrrigationScreenState extends ConsumerState<IrrigationScreen> {
                                         borderRadius: BorderRadius.circular(16),
                                         borderSide: BorderSide.none,
                                       ),
-                                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                                      contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
                                     ),
-                                    items: _areaUnits.map((u) => DropdownMenuItem(value: u, child: Text(u))).toList(),
+                                    items: _areaUnits.map((u) => DropdownMenuItem(value: u, child: Text(u, overflow: TextOverflow.ellipsis))).toList(),
                                     onChanged: (val) => setState(() => _areaUnit = val!),
                                   ),
                                 ],

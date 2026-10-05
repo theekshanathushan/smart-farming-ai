@@ -520,13 +520,14 @@ void _showAddNoteDialog(BuildContext context, WidgetRef ref, List<Crop> crops) {
                 children: [
                   DropdownButtonFormField<String>(
                     value: selectedCropId,
+                    isExpanded: true,
                     decoration: InputDecoration(
                       labelText: 'Select Crop',
                       filled: true,
                       fillColor: theme.colorScheme.onSurface.withValues(alpha: 0.05),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
                     ),
-                    items: crops.map((c) => DropdownMenuItem(value: c.id, child: Text(c.name))).toList(),
+                    items: crops.map((c) => DropdownMenuItem(value: c.id, child: Text(c.name, overflow: TextOverflow.ellipsis))).toList(),
                     onChanged: (val) {
                       if (val != null) setState(() => selectedCropId = val);
                     },

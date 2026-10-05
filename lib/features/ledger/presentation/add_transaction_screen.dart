@@ -122,6 +122,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                       const SizedBox(height: 24),
                       DropdownButtonFormField<String>(
                         value: _category,
+                        isExpanded: true,
                         dropdownColor: Colors.grey.shade900,
                         style: const TextStyle(color: Colors.white, fontSize: 16),
                         decoration: InputDecoration(
@@ -130,7 +131,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                           labelStyle: const TextStyle(color: Colors.white70),
                           enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.3))),
                         ),
-                        items: categories.map((cat) => DropdownMenuItem(value: cat, child: Text(cat))).toList(),
+                        items: categories.map((cat) => DropdownMenuItem(value: cat, child: Text(cat, overflow: TextOverflow.ellipsis))).toList(),
                         onChanged: (val) => setState(() => _category = val!),
                       ),
                       const SizedBox(height: 24),
