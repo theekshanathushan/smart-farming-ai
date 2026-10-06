@@ -130,17 +130,25 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
   Widget build(BuildContext context) {
     final currentLang = ref.watch(localeProvider).languageCode;
     final isSi = currentLang == 'si';
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
+    final subtextColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569);
+    final inputFill = isDark ? Colors.black.withValues(alpha: 0.25) : Colors.white.withValues(alpha: 0.85);
+    final inputBorder = isDark ? Colors.white.withValues(alpha: 0.15) : const Color(0xFFCBD5E1);
+    final dropdownBg = isDark ? const Color(0xFF162232) : Colors.white;
 
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: Text(
           isSi ? 'පොහොර ගණකය (AI Fertilizer)' : 'Fertilizer Calculator',
-          style: const TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.bold, color: textColor),
           overflow: TextOverflow.ellipsis,
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
+        iconTheme: IconThemeData(color: textColor),
       ),
       body: Stack(
         children: [
@@ -161,10 +169,10 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
                         Container(
                           padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
-                            color: Colors.greenAccent.withValues(alpha: 0.15),
+                            color: theme.colorScheme.primary.withValues(alpha: 0.15),
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(Icons.auto_awesome, color: Colors.greenAccent, size: 26),
+                          child: Icon(Icons.auto_awesome, color: theme.colorScheme.primary, size: 26),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
@@ -173,8 +181,8 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
                             children: [
                               Text(
                                 isSi ? 'ඕනෑම බෝගයකට AI පොහොර නිර්දේශ' : 'AI Crop Nutrition Engine',
-                                style: const TextStyle(
-                                  color: Colors.white,
+                                style: TextStyle(
+                                  color: textColor,
                                   fontSize: 15,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -185,7 +193,7 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
                                     ? 'ඕනෑම බෝගයක් තෝරන්න හෝ නම ඇතුළත් කරන්න. නිශ්චිත N-P-K ප්‍රමාණ ක්ෂණිකව ගණනය වේ.'
                                     : 'Select or type any crop name. Calculates exact N-P-K & split application stages.',
                                 style: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.75),
+                                  color: subtextColor,
                                   fontSize: 12,
                                   height: 1.3,
                                 ),
@@ -204,14 +212,14 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        // Crop Selection Header (Wrapped in Expanded to prevent any overflow)
+                        // Crop Selection Header
                         Row(
                           children: [
                             Expanded(
                               child: Text(
                                 isSi ? 'බෝගය තෝරන්න (Crop)' : 'Select Crop',
-                                style: const TextStyle(
-                                  color: Colors.white,
+                                style: TextStyle(
+                                  color: textColor,
                                   fontSize: 15,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -228,13 +236,13 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
                               icon: Icon(
                                 _isCustomCrop ? Icons.list_alt : Icons.edit_note,
                                 size: 16,
-                                color: Colors.greenAccent,
+                                color: theme.colorScheme.primary,
                               ),
                               label: Text(
                                 _isCustomCrop
                                     ? (isSi ? 'ලැයිස්තුව' : 'Preset List')
                                     : (isSi ? 'වෙනත් බෝගයක්' : 'Custom Crop'),
-                                style: const TextStyle(color: Colors.greenAccent, fontSize: 12),
+                                style: TextStyle(color: theme.colorScheme.primary, fontSize: 12, fontWeight: FontWeight.bold),
                               ),
                               style: TextButton.styleFrom(
                                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -249,24 +257,24 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
                           DropdownButtonFormField<String>(
                             initialValue: _selectedCrop,
                             isExpanded: true,
-                            dropdownColor: const Color(0xFF1E281E),
-                            style: const TextStyle(color: Colors.white, fontSize: 15),
-                            icon: const Icon(Icons.arrow_drop_down, color: Colors.greenAccent),
+                            dropdownColor: dropdownBg,
+                            style: TextStyle(color: textColor, fontSize: 15),
+                            icon: Icon(Icons.arrow_drop_down, color: theme.colorScheme.primary),
                             decoration: InputDecoration(
                               filled: true,
-                              fillColor: Colors.black.withValues(alpha: 0.25),
+                              fillColor: inputFill,
                               contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(16),
-                                borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.2)),
+                                borderSide: BorderSide(color: inputBorder),
                               ),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(16),
-                                borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.2)),
+                                borderSide: BorderSide(color: inputBorder),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(16),
-                                borderSide: const BorderSide(color: Colors.greenAccent, width: 1.5),
+                                borderSide: BorderSide(color: theme.colorScheme.primary, width: 1.5),
                               ),
                             ),
                             items: _quickCrops
@@ -276,7 +284,7 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
                                         c,
                                         overflow: TextOverflow.ellipsis,
                                         style: TextStyle(
-                                          color: c.contains('Other') ? Colors.greenAccent : Colors.white,
+                                          color: c.contains('Other') ? theme.colorScheme.primary : textColor,
                                           fontWeight: c.contains('Other') ? FontWeight.bold : FontWeight.normal,
                                         ),
                                       ),
@@ -301,18 +309,18 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
                           TextFormField(
                             controller: _customCropController,
                             autofocus: true,
-                            style: const TextStyle(color: Colors.white, fontSize: 15),
+                            style: TextStyle(color: textColor, fontSize: 15),
                             decoration: InputDecoration(
                               hintText: isSi
                                   ? 'උදා: කැරට්, බීට්රූට්, වැනිලා, ගස්ලබු...'
                                   : 'e.g., Bitter Gourd, Capsicum, Ginger, Betel...',
-                              hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.4), fontSize: 13),
+                              hintStyle: TextStyle(color: subtextColor.withValues(alpha: 0.7), fontSize: 13),
                               filled: true,
-                              fillColor: Colors.black.withValues(alpha: 0.3),
-                              prefixIcon: const Icon(Icons.eco_outlined, color: Colors.greenAccent, size: 20),
+                              fillColor: inputFill,
+                              prefixIcon: Icon(Icons.eco_outlined, color: theme.colorScheme.primary, size: 20),
                               suffixIcon: _customCropController.text.isNotEmpty
                                   ? IconButton(
-                                      icon: const Icon(Icons.clear, color: Colors.white54, size: 18),
+                                      icon: Icon(Icons.clear, color: subtextColor, size: 18),
                                       onPressed: () {
                                         _customCropController.clear();
                                         setState(() {});
@@ -322,15 +330,15 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
                               contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(16),
-                                borderSide: const BorderSide(color: Colors.greenAccent),
+                                borderSide: BorderSide(color: inputBorder),
                               ),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(16),
-                                borderSide: const BorderSide(color: Colors.greenAccent, width: 1.2),
+                                borderSide: BorderSide(color: inputBorder),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(16),
-                                borderSide: const BorderSide(color: Colors.greenAccent, width: 2),
+                                borderSide: BorderSide(color: theme.colorScheme.primary, width: 2),
                               ),
                             ),
                             onChanged: (_) => setState(() {}),
@@ -339,19 +347,19 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
 
                         const SizedBox(height: 12),
 
-                        // Quick suggestion custom chips (Dark styled, never white)
+                        // Quick suggestion custom chips
                         SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
                           physics: const BouncingScrollPhysics(),
                           child: Row(
                             children: [
-                              _buildQuickChip('Paddy (වී)'),
-                              _buildQuickChip('Corn (බඩඉරිඟු)'),
-                              _buildQuickChip('Tomato (තක්කාලි)'),
-                              _buildQuickChip('Chilli (මිරිස්)'),
-                              _buildQuickChip('Potato (අර්තාපල්)'),
-                              _buildQuickChip('Banana (කෙසෙල්)'),
-                              _buildQuickChip('Carrot (කැරට්)'),
+                              _buildQuickChip('Paddy (වී)', isDark, textColor, theme),
+                              _buildQuickChip('Corn (බඩඉරිඟු)', isDark, textColor, theme),
+                              _buildQuickChip('Tomato (තක්කාලි)', isDark, textColor, theme),
+                              _buildQuickChip('Chilli (මිරිස්)', isDark, textColor, theme),
+                              _buildQuickChip('Potato (අර්තාපල්)', isDark, textColor, theme),
+                              _buildQuickChip('Banana (කෙසෙල්)', isDark, textColor, theme),
+                              _buildQuickChip('Carrot (කැරට්)', isDark, textColor, theme),
                             ],
                           ),
                         ),
@@ -369,8 +377,8 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
                                 children: [
                                   Text(
                                     isSi ? 'ඉඩම් ප්‍රමාණය (Area)' : 'Land Area (Acres)',
-                                    style: const TextStyle(
-                                      color: Colors.white,
+                                    style: TextStyle(
+                                      color: textColor,
                                       fontSize: 14,
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -380,32 +388,32 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
                                   TextFormField(
                                     controller: _areaController,
                                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                                    style: const TextStyle(
-                                      color: Colors.white,
+                                    style: TextStyle(
+                                      color: textColor,
                                       fontSize: 20,
                                       fontWeight: FontWeight.bold,
                                     ),
                                     decoration: InputDecoration(
                                       filled: true,
-                                      fillColor: Colors.black.withValues(alpha: 0.25),
+                                      fillColor: inputFill,
                                       suffixText: isSi ? 'අක්කර' : 'Acres',
                                       suffixStyle: TextStyle(
-                                        color: Colors.greenAccent.withValues(alpha: 0.9),
+                                        color: theme.colorScheme.primary,
                                         fontSize: 13,
                                         fontWeight: FontWeight.w600,
                                       ),
                                       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(16),
-                                        borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.2)),
+                                        borderSide: BorderSide(color: inputBorder),
                                       ),
                                       enabledBorder: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(16),
-                                        borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.2)),
+                                        borderSide: BorderSide(color: inputBorder),
                                       ),
                                       focusedBorder: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(16),
-                                        borderSide: const BorderSide(color: Colors.greenAccent, width: 1.5),
+                                        borderSide: BorderSide(color: theme.colorScheme.primary, width: 1.5),
                                       ),
                                     ),
                                   ),
@@ -422,7 +430,7 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
                                   Text(
                                     isSi ? 'ක්ෂණික තේරීම්' : 'Quick Sizes',
                                     style: TextStyle(
-                                      color: Colors.white.withValues(alpha: 0.7),
+                                      color: subtextColor,
                                       fontSize: 13,
                                     ),
                                     overflow: TextOverflow.ellipsis,
@@ -432,10 +440,10 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
                                     spacing: 6,
                                     runSpacing: 6,
                                     children: [
-                                      _buildAcreChip('0.25'),
-                                      _buildAcreChip('0.5'),
-                                      _buildAcreChip('1.0'),
-                                      _buildAcreChip('2.0'),
+                                      _buildAcreChip('0.25', isDark, theme, subtextColor),
+                                      _buildAcreChip('0.5', isDark, theme, subtextColor),
+                                      _buildAcreChip('1.0', isDark, theme, subtextColor),
+                                      _buildAcreChip('2.0', isDark, theme, subtextColor),
                                     ],
                                   ),
                                 ],
@@ -450,7 +458,7 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
                         Text(
                           isSi ? 'වර්ධන අවධිය (Growth Stage)' : 'Target Stage',
                           style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.8),
+                            color: subtextColor,
                             fontSize: 13,
                           ),
                         ),
@@ -458,26 +466,26 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
                         DropdownButtonFormField<String>(
                           initialValue: _selectedStage,
                           isExpanded: true,
-                          dropdownColor: const Color(0xFF1E281E),
-                          style: const TextStyle(color: Colors.white70, fontSize: 13),
+                          dropdownColor: dropdownBg,
+                          style: TextStyle(color: textColor, fontSize: 13),
                           decoration: InputDecoration(
                             isDense: true,
                             filled: true,
-                            fillColor: Colors.black.withValues(alpha: 0.2),
+                            fillColor: inputFill,
                             contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.15)),
+                              borderSide: BorderSide(color: inputBorder),
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.15)),
+                              borderSide: BorderSide(color: inputBorder),
                             ),
                           ),
                           items: _stages
                               .map((s) => DropdownMenuItem(
                                     value: s,
-                                    child: Text(s, overflow: TextOverflow.ellipsis),
+                                    child: Text(s, overflow: TextOverflow.ellipsis, style: TextStyle(color: textColor)),
                                   ))
                               .toList(),
                           onChanged: (val) {
@@ -493,33 +501,34 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
                         ElevatedButton.icon(
                           onPressed: _isLoading ? null : _calculate,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.greenAccent,
-                            foregroundColor: Colors.black,
-                            elevation: 4,
-                            shadowColor: Colors.greenAccent.withValues(alpha: 0.4),
-                            padding: const EdgeInsets.symmetric(vertical: 15),
+                            backgroundColor: theme.colorScheme.primary,
+                            foregroundColor: isDark ? const Color(0xFF042F22) : Colors.white,
+                            elevation: 3,
+                            shadowColor: theme.colorScheme.primary.withValues(alpha: 0.35),
+                            padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16),
                             ),
                           ),
                           icon: _isLoading
-                              ? const SizedBox(
+                              ? SizedBox(
                                   width: 20,
                                   height: 20,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2.5,
-                                    color: Colors.black,
+                                    color: isDark ? const Color(0xFF042F22) : Colors.white,
                                   ),
                                 )
-                              : const Icon(Icons.bolt, color: Colors.black, size: 22),
+                              : Icon(Icons.bolt, color: isDark ? const Color(0xFF042F22) : Colors.white, size: 22),
                           label: Text(
                             _isLoading
                                 ? (isSi ? 'AI ගණනය කරමින් පවතී...' : 'AI Calculating...')
                                 : (isSi ? 'AI මගින් පොහොර ගණනය කරන්න' : 'Calculate Fertilizer with AI'),
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.bold,
                               letterSpacing: 0.3,
+                              color: isDark ? const Color(0xFF042F22) : Colors.white,
                             ),
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -531,7 +540,7 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
                   // Results Section
                   if (_planResult != null) ...[
                     const SizedBox(height: 28),
-                    _buildResultsSection(context, _planResult!, isSi),
+                    _buildResultsSection(context, _planResult!, isSi, textColor, subtextColor, isDark, theme),
                   ],
 
                   const SizedBox(height: 40),
@@ -544,7 +553,7 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
     );
   }
 
-  Widget _buildQuickChip(String crop) {
+  Widget _buildQuickChip(String crop, bool isDark, Color textColor, ThemeData theme) {
     final isSelected = !_isCustomCrop && _selectedCrop == crop;
     final label = crop.split(' ').first;
     return Padding(
@@ -561,10 +570,12 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
           decoration: BoxDecoration(
             color: isSelected
-                ? Colors.greenAccent
-                : Colors.black.withValues(alpha: 0.35),
+                ? theme.colorScheme.primary
+                : (isDark ? Colors.black.withValues(alpha: 0.35) : Colors.white.withValues(alpha: 0.85)),
             border: Border.all(
-              color: isSelected ? Colors.greenAccent : Colors.white.withValues(alpha: 0.2),
+              color: isSelected
+                  ? theme.colorScheme.primary
+                  : (isDark ? Colors.white.withValues(alpha: 0.15) : const Color(0xFFCBD5E1)),
               width: 1,
             ),
             borderRadius: BorderRadius.circular(20),
@@ -573,13 +584,15 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               if (isSelected) ...[
-                const Icon(Icons.check, size: 14, color: Colors.black),
+                Icon(Icons.check, size: 14, color: isDark ? const Color(0xFF042F22) : Colors.white),
                 const SizedBox(width: 4),
               ],
               Text(
                 label,
                 style: TextStyle(
-                  color: isSelected ? Colors.black : Colors.white,
+                  color: isSelected
+                      ? (isDark ? const Color(0xFF042F22) : Colors.white)
+                      : textColor,
                   fontSize: 13,
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                 ),
@@ -591,7 +604,7 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
     );
   }
 
-  Widget _buildAcreChip(String val) {
+  Widget _buildAcreChip(String val, bool isDark, ThemeData theme, Color subtextColor) {
     final isSelected = _areaController.text == val;
     return InkWell(
       onTap: () {
@@ -604,17 +617,19 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
           color: isSelected
-              ? Colors.greenAccent.withValues(alpha: 0.25)
-              : Colors.white.withValues(alpha: 0.07),
+              ? theme.colorScheme.primary.withValues(alpha: 0.2)
+              : (isDark ? Colors.white.withValues(alpha: 0.07) : Colors.white.withValues(alpha: 0.85)),
           border: Border.all(
-            color: isSelected ? Colors.greenAccent : Colors.white.withValues(alpha: 0.15),
+            color: isSelected
+                ? theme.colorScheme.primary
+                : (isDark ? Colors.white.withValues(alpha: 0.15) : const Color(0xFFCBD5E1)),
           ),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Text(
           '$val Ac',
           style: TextStyle(
-            color: isSelected ? Colors.greenAccent : Colors.white70,
+            color: isSelected ? theme.colorScheme.primary : subtextColor,
             fontSize: 12,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
           ),
@@ -623,7 +638,7 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
     );
   }
 
-  Widget _buildResultsSection(BuildContext context, FertilizerPlanResult plan, bool isSi) {
+  Widget _buildResultsSection(BuildContext context, FertilizerPlanResult plan, bool isSi, Color textColor, Color subtextColor, bool isDark, ThemeData theme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -634,8 +649,8 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
             Expanded(
               child: Text(
                 isSi ? 'පොහොර නිර්දේශය' : 'Recommended Nutrition',
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: textColor,
                   fontSize: 19,
                   fontWeight: FontWeight.bold,
                 ),
@@ -647,11 +662,11 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
                 color: plan.isAiGenerated
-                    ? Colors.greenAccent.withValues(alpha: 0.2)
-                    : Colors.amberAccent.withValues(alpha: 0.2),
+                    ? theme.colorScheme.primary.withValues(alpha: 0.15)
+                    : Colors.amber.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: plan.isAiGenerated ? Colors.greenAccent : Colors.amberAccent,
+                  color: plan.isAiGenerated ? theme.colorScheme.primary : Colors.amber,
                 ),
               ),
               child: Row(
@@ -660,13 +675,13 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
                   Icon(
                     plan.isAiGenerated ? Icons.auto_awesome : Icons.science_outlined,
                     size: 13,
-                    color: plan.isAiGenerated ? Colors.greenAccent : Colors.amberAccent,
+                    color: plan.isAiGenerated ? theme.colorScheme.primary : Colors.amber.shade700,
                   ),
                   const SizedBox(width: 4),
                   Text(
                     plan.isAiGenerated ? 'AI Custom' : 'Agronomic Baseline',
                     style: TextStyle(
-                      color: plan.isAiGenerated ? Colors.greenAccent : Colors.amberAccent,
+                      color: plan.isAiGenerated ? theme.colorScheme.primary : (isDark ? Colors.amberAccent : Colors.amber.shade900),
                       fontSize: 11,
                       fontWeight: FontWeight.bold,
                     ),
@@ -683,13 +698,20 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [
-                Colors.green.shade900.withValues(alpha: 0.5),
-                Colors.teal.shade900.withValues(alpha: 0.3),
-              ],
+              colors: isDark
+                  ? [
+                      Colors.green.shade900.withValues(alpha: 0.6),
+                      Colors.teal.shade900.withValues(alpha: 0.4),
+                    ]
+                  : [
+                      const Color(0xFFECFDF5),
+                      const Color(0xFFD1FAE5),
+                    ],
             ),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.greenAccent.withValues(alpha: 0.3)),
+            border: Border.all(
+              color: isDark ? Colors.greenAccent.withValues(alpha: 0.3) : const Color(0xFFA7F3D0),
+            ),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -700,8 +722,8 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
                   children: [
                     Text(
                       '${plan.cropName} (${plan.acres} Acres)',
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: isDark ? Colors.white : const Color(0xFF065F46),
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
                       ),
@@ -711,7 +733,7 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
                     Text(
                       isSi ? 'මුළු රසායනික පොහොර අවශ්‍යතාව' : 'Total Fertilizer Requirement',
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.7),
+                        color: isDark ? Colors.white70 : const Color(0xFF047857),
                         fontSize: 12,
                       ),
                       overflow: TextOverflow.ellipsis,
@@ -722,8 +744,8 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
               const SizedBox(width: 8),
               Text(
                 '${plan.totalChemicalKg.toStringAsFixed(1)} kg',
-                style: const TextStyle(
-                  color: Colors.greenAccent,
+                style: TextStyle(
+                  color: isDark ? Colors.greenAccent : const Color(0xFF065F46),
                   fontSize: 21,
                   fontWeight: FontWeight.bold,
                 ),
@@ -735,7 +757,7 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
         const SizedBox(height: 16),
 
         // Fertilizer Cards
-        ...plan.fertilizers.map((f) => _buildFertilizerItemCard(f, isSi)),
+        ...plan.fertilizers.map((f) => _buildFertilizerItemCard(f, isSi, textColor, subtextColor, isDark, theme)),
 
         const SizedBox(height: 16),
 
@@ -749,13 +771,13 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.schedule_outlined, color: Colors.greenAccent, size: 20),
+                    Icon(Icons.schedule_outlined, color: theme.colorScheme.primary, size: 20),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         isSi ? 'පොහොර යෙදීමේ කාලසටහන' : 'Application Stages & Schedule',
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: textColor,
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
                         ),
@@ -768,7 +790,7 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
                 ...plan.applicationStages.asMap().entries.map((entry) {
                   final idx = entry.key;
                   final stage = entry.value;
-                  return _buildStageStep(idx + 1, stage, entry.key == plan.applicationStages.length - 1);
+                  return _buildStageStep(idx + 1, stage, entry.key == plan.applicationStages.length - 1, textColor, subtextColor, theme);
                 }),
               ],
             ),
@@ -786,13 +808,13 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.eco, color: Colors.lightGreenAccent, size: 20),
+                    Icon(Icons.eco, color: theme.colorScheme.secondary, size: 20),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         isSi ? 'කාබනික පොහොර නිර්දේශය' : 'Organic Compost & Manure',
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: textColor,
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
                         ),
@@ -805,7 +827,7 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
                 Text(
                   plan.organicAlternative,
                   style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.9),
+                    color: textColor.withValues(alpha: 0.9),
                     fontSize: 14,
                     height: 1.5,
                   ),
@@ -826,13 +848,13 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.tips_and_updates_outlined, color: Colors.amberAccent, size: 20),
+                    const Icon(Icons.tips_and_updates_outlined, color: Colors.amber, size: 20),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         isSi ? 'විශේෂ කෘෂි උපදෙස්' : 'Practical Application Tips',
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: textColor,
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
                         ),
@@ -845,7 +867,7 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
                 Text(
                   plan.practicalTips,
                   style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.85),
+                    color: subtextColor,
                     fontSize: 13,
                     height: 1.45,
                   ),
@@ -865,26 +887,26 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
             context.push('/chat', extra: prompt);
           },
           style: OutlinedButton.styleFrom(
-            side: const BorderSide(color: Colors.greenAccent),
+            side: BorderSide(color: theme.colorScheme.primary, width: 1.5),
             padding: const EdgeInsets.symmetric(vertical: 14),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           ),
-          icon: const Icon(Icons.chat_bubble_outline, color: Colors.greenAccent),
+          icon: Icon(Icons.chat_bubble_outline, color: theme.colorScheme.primary),
           label: Text(
             isSi ? 'මෙම බෝගය ගැන AgriAI ගෙන් වැඩිදුර අසන්න' : 'Ask AgriAI About This Crop',
-            style: const TextStyle(color: Colors.greenAccent, fontWeight: FontWeight.bold),
+            style: TextStyle(color: theme.colorScheme.primary, fontWeight: FontWeight.bold),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildFertilizerItemCard(FertilizerItem item, bool isSi) {
-    Color iconColor = Colors.greenAccent;
+  Widget _buildFertilizerItemCard(FertilizerItem item, bool isSi, Color textColor, Color subtextColor, bool isDark, ThemeData theme) {
+    Color iconColor = theme.colorScheme.primary;
     if (item.nutrientType.contains('P')) {
-      iconColor = Colors.lightBlueAccent;
+      iconColor = isDark ? Colors.lightBlueAccent : Colors.blue.shade700;
     } else if (item.nutrientType.contains('K')) {
-      iconColor = Colors.orangeAccent;
+      iconColor = isDark ? Colors.orangeAccent : Colors.orange.shade800;
     }
 
     return GlassContainer(
@@ -908,8 +930,8 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
                         children: [
                           Text(
                             item.name,
-                            style: const TextStyle(
-                              color: Colors.white,
+                            style: TextStyle(
+                              color: textColor,
                               fontSize: 15,
                               fontWeight: FontWeight.bold,
                             ),
@@ -919,9 +941,9 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
                             Text(
                               item.nutrientType,
                               style: TextStyle(
-                                color: iconColor.withValues(alpha: 0.9),
+                                color: iconColor,
                                 fontSize: 12,
-                                fontWeight: FontWeight.w500,
+                                fontWeight: FontWeight.w600,
                               ),
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -935,9 +957,9 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: iconColor.withValues(alpha: 0.15),
+                  color: iconColor.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: iconColor.withValues(alpha: 0.4)),
+                  border: Border.all(color: iconColor.withValues(alpha: 0.35)),
                 ),
                 child: Text(
                   '${item.amountKg.toStringAsFixed(1)} kg',
@@ -952,19 +974,19 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
           ),
           if (item.timing.isNotEmpty || item.purpose.isNotEmpty) ...[
             const SizedBox(height: 10),
-            Divider(color: Colors.white.withValues(alpha: 0.1), height: 1),
+            Divider(color: isDark ? Colors.white12 : Colors.black12, height: 1),
             const SizedBox(height: 8),
             if (item.timing.isNotEmpty)
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.calendar_today_outlined, size: 13, color: Colors.white.withValues(alpha: 0.6)),
+                  Icon(Icons.calendar_today_outlined, size: 13, color: subtextColor),
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
                       item.timing,
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.9),
+                        color: textColor.withValues(alpha: 0.9),
                         fontSize: 12.5,
                         height: 1.35,
                       ),
@@ -977,13 +999,13 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.check_circle_outline, size: 14, color: Colors.greenAccent.shade200),
+                  Icon(Icons.check_circle_outline, size: 14, color: theme.colorScheme.secondary),
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
                       item.purpose,
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.85),
+                        color: subtextColor,
                         fontSize: 12.5,
                         height: 1.35,
                       ),
@@ -998,7 +1020,7 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
     );
   }
 
-  Widget _buildStageStep(int stepNum, FertilizerStage stage, bool isLast) {
+  Widget _buildStageStep(int stepNum, FertilizerStage stage, bool isLast, Color textColor, Color subtextColor, ThemeData theme) {
     final hasStageName = stage.stageName.trim().isNotEmpty;
     final hasTiming = stage.timing.trim().isNotEmpty;
 
@@ -1012,11 +1034,11 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
                 width: 24,
                 height: 24,
                 decoration: BoxDecoration(
-                  color: Colors.greenAccent,
+                  color: theme.colorScheme.primary,
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.greenAccent.withValues(alpha: 0.35),
+                      color: theme.colorScheme.primary.withValues(alpha: 0.35),
                       blurRadius: 6,
                       offset: const Offset(0, 1),
                     ),
@@ -1026,7 +1048,7 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
                 child: Text(
                   '$stepNum',
                   style: const TextStyle(
-                    color: Colors.black,
+                    color: Colors.white,
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
                   ),
@@ -1037,7 +1059,7 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
                   child: Container(
                     width: 2,
                     margin: const EdgeInsets.symmetric(vertical: 4),
-                    color: Colors.greenAccent.withValues(alpha: 0.35),
+                    color: theme.colorScheme.primary.withValues(alpha: 0.3),
                   ),
                 ),
             ],
@@ -1053,8 +1075,8 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
                     // Both stage name and timing
                     Text(
                       stage.stageName.trim(),
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: textColor,
                         fontSize: 14.5,
                         fontWeight: FontWeight.bold,
                         height: 1.35,
@@ -1064,23 +1086,23 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
-                        color: Colors.greenAccent.withValues(alpha: 0.15),
+                        color: theme.colorScheme.primary.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                          color: Colors.greenAccent.withValues(alpha: 0.35),
+                          color: theme.colorScheme.primary.withValues(alpha: 0.3),
                           width: 0.8,
                         ),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.schedule, size: 12, color: Colors.greenAccent.shade400),
+                          Icon(Icons.schedule, size: 12, color: theme.colorScheme.primary),
                           const SizedBox(width: 4),
                           Flexible(
                             child: Text(
                               stage.timing.trim(),
                               style: TextStyle(
-                                color: Colors.greenAccent.shade100,
+                                color: theme.colorScheme.primary,
                                 fontSize: 11.5,
                                 fontWeight: FontWeight.w600,
                                 height: 1.3,
@@ -1093,19 +1115,18 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
                   ] else if (hasStageName) ...[
                     Text(
                       stage.stageName.trim(),
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: textColor,
                         fontSize: 14.5,
                         fontWeight: FontWeight.bold,
                         height: 1.35,
                       ),
                     ),
                   ] else if (hasTiming) ...[
-                    // Only timing provided (wraps safely without overflow)
                     Text(
                       stage.timing.trim(),
-                      style: const TextStyle(
-                        color: Colors.greenAccent,
+                      style: TextStyle(
+                        color: theme.colorScheme.primary,
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
                         height: 1.35,
@@ -1117,12 +1138,11 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
                     Text(
                       stage.instructions.trim(),
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.92),
+                        color: subtextColor,
                         fontSize: 13.5,
                         height: 1.48,
                       ),
                     ),
-                  ],
                 ],
               ),
             ),

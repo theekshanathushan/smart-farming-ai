@@ -75,6 +75,12 @@ class _PestDetailScreenState extends ConsumerState<PestDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
+    final subtextColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569);
+    final tagBg = isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.06);
+
     final pest = PestDatabase.pests.firstWhere(
       (p) => p.id == widget.pestId,
       orElse: () => PestDatabase.pests.first,
@@ -83,9 +89,13 @@ class _PestDetailScreenState extends ConsumerState<PestDetailScreen> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text(pest.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        title: Text(
+          pest.name,
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: textColor),
+        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
+        iconTheme: IconThemeData(color: textColor),
       ),
       body: Stack(
         children: [
@@ -105,8 +115,8 @@ class _PestDetailScreenState extends ConsumerState<PestDetailScreen> {
                       fit: BoxFit.cover,
                       errorBuilder: (c, e, s) => Container(
                         height: 220,
-                        color: Colors.grey.withValues(alpha: 0.3),
-                        child: const Icon(Icons.bug_report, color: Colors.greenAccent, size: 90),
+                        color: isDark ? Colors.grey.withValues(alpha: 0.2) : Colors.grey.shade200,
+                        child: const Icon(Icons.bug_report, color: Colors.green, size: 90),
                       ),
                     ),
                   ),
@@ -118,25 +128,29 @@ class _PestDetailScreenState extends ConsumerState<PestDetailScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color: Colors.greenAccent.withValues(alpha: 0.2),
+                          color: Colors.green.withValues(alpha: isDark ? 0.2 : 0.12),
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.greenAccent.withValues(alpha: 0.4)),
+                          border: Border.all(color: isDark ? Colors.greenAccent.withValues(alpha: 0.4) : Colors.green.shade400),
                         ),
                         child: Text(
                           pest.crop,
-                          style: const TextStyle(color: Colors.greenAccent, fontWeight: FontWeight.bold, fontSize: 13),
+                          style: TextStyle(
+                            color: isDark ? Colors.greenAccent : Colors.green.shade800,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                          ),
                         ),
                       ),
                       const SizedBox(width: 8),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.1),
+                          color: tagBg,
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
                           pest.category,
-                          style: const TextStyle(color: Colors.white70, fontSize: 13),
+                          style: TextStyle(color: subtextColor, fontSize: 13, fontWeight: FontWeight.w500),
                         ),
                       ),
                     ],
@@ -163,11 +177,11 @@ class _PestDetailScreenState extends ConsumerState<PestDetailScreen> {
                       OutlinedButton.icon(
                         onPressed: _isLoadingAiAdvice ? null : () => _generateAiProtocol(pest),
                         icon: _isLoadingAiAdvice
-                            ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.greenAccent))
-                            : const Icon(Icons.auto_awesome, color: Colors.greenAccent, size: 18),
-                        label: const Text('AI In-Depth Plan', style: TextStyle(color: Colors.greenAccent)),
+                            ? SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: isDark ? Colors.greenAccent : Colors.green.shade700))
+                            : Icon(Icons.auto_awesome, color: isDark ? Colors.greenAccent : Colors.green.shade700, size: 18),
+                        label: Text('AI In-Depth Plan', style: TextStyle(color: isDark ? Colors.greenAccent : Colors.green.shade700)),
                         style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: Colors.greenAccent),
+                          side: BorderSide(color: isDark ? Colors.greenAccent : Colors.green.shade700),
                           padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 14),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                         ),
@@ -181,12 +195,15 @@ class _PestDetailScreenState extends ConsumerState<PestDetailScreen> {
                     Container(
                       padding: const EdgeInsets.all(18),
                       decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.4),
+                        color: isDark ? Colors.black.withValues(alpha: 0.45) : Colors.white.withValues(alpha: 0.95),
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: Colors.greenAccent.withValues(alpha: 0.5), width: 1.5),
+                        border: Border.all(
+                          color: isDark ? Colors.greenAccent.withValues(alpha: 0.5) : Colors.green.shade400,
+                          width: 1.5,
+                        ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.greenAccent.withValues(alpha: 0.1),
+                            color: Colors.green.withValues(alpha: isDark ? 0.15 : 0.1),
                             blurRadius: 15,
                             spreadRadius: 2,
                           ),
@@ -197,31 +214,35 @@ class _PestDetailScreenState extends ConsumerState<PestDetailScreen> {
                         children: [
                           Row(
                             children: [
-                              const Icon(Icons.auto_awesome, color: Colors.greenAccent, size: 22),
+                              Icon(Icons.auto_awesome, color: isDark ? Colors.greenAccent : Colors.green.shade700, size: 22),
                               const SizedBox(width: 8),
-                              const Text(
+                              Text(
                                 'AI Live Treatment Protocol',
-                                style: TextStyle(color: Colors.greenAccent, fontWeight: FontWeight.bold, fontSize: 16),
+                                style: TextStyle(
+                                  color: isDark ? Colors.greenAccent : Colors.green.shade800,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
                               ),
                               const Spacer(),
                               IconButton(
-                                icon: const Icon(Icons.close, color: Colors.white54, size: 18),
+                                icon: Icon(Icons.close, color: subtextColor, size: 18),
                                 padding: EdgeInsets.zero,
                                 constraints: const BoxConstraints(),
                                 onPressed: () => setState(() => _aiProtocol = null),
                               ),
                             ],
                           ),
-                          const Divider(color: Colors.white12, height: 20),
+                          Divider(color: isDark ? Colors.white12 : Colors.black12, height: 20),
                           MarkdownBody(
                             data: _aiProtocol!,
                             styleSheet: MarkdownStyleSheet(
-                              p: const TextStyle(color: Colors.white70, fontSize: 14, height: 1.5),
-                              h1: const TextStyle(color: Colors.greenAccent, fontSize: 16, fontWeight: FontWeight.bold),
-                              h2: const TextStyle(color: Colors.greenAccent, fontSize: 15, fontWeight: FontWeight.bold),
-                              h3: const TextStyle(color: Colors.lightGreenAccent, fontSize: 14, fontWeight: FontWeight.bold),
-                              strong: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                              listBullet: const TextStyle(color: Colors.greenAccent),
+                              p: TextStyle(color: textColor, fontSize: 14, height: 1.5),
+                              h1: TextStyle(color: isDark ? Colors.greenAccent : Colors.green.shade800, fontSize: 16, fontWeight: FontWeight.bold),
+                              h2: TextStyle(color: isDark ? Colors.greenAccent : Colors.green.shade800, fontSize: 15, fontWeight: FontWeight.bold),
+                              h3: TextStyle(color: isDark ? Colors.lightGreenAccent : Colors.green.shade700, fontSize: 14, fontWeight: FontWeight.bold),
+                              strong: TextStyle(color: textColor, fontWeight: FontWeight.bold),
+                              listBullet: TextStyle(color: isDark ? Colors.greenAccent : Colors.green.shade700),
                             ),
                           ),
                         ],
@@ -230,19 +251,19 @@ class _PestDetailScreenState extends ConsumerState<PestDetailScreen> {
                   ],
 
                   const SizedBox(height: 20),
-                  _buildSection('Scientific Name', pest.scientificName, Icons.science, Colors.cyanAccent),
+                  _buildSection(context, 'Scientific Name', pest.scientificName, Icons.science, Colors.cyan),
                   const SizedBox(height: 14),
-                  _buildSection('Symptoms & Damage', pest.symptoms, Icons.warning_amber_rounded, Colors.orangeAccent),
+                  _buildSection(context, 'Symptoms & Damage', pest.symptoms, Icons.warning_amber_rounded, Colors.orange),
                   const SizedBox(height: 14),
                   if (pest.organicControl.isNotEmpty) ...[
-                    _buildSection('Organic & Biological Control', pest.organicControl, Icons.eco, Colors.greenAccent),
+                    _buildSection(context, 'Organic & Biological Control', pest.organicControl, Icons.eco, Colors.green),
                     const SizedBox(height: 14),
                   ],
                   if (pest.chemicalControl.isNotEmpty) ...[
-                    _buildSection('Recommended Chemical Control', pest.chemicalControl, Icons.medication_liquid_outlined, Colors.redAccent),
+                    _buildSection(context, 'Recommended Chemical Control', pest.chemicalControl, Icons.medication_liquid_outlined, Colors.redAccent),
                     const SizedBox(height: 14),
                   ],
-                  _buildSection('Field Prevention & Care', pest.prevention, Icons.shield_outlined, Colors.blueAccent),
+                  _buildSection(context, 'Field Prevention & Care', pest.prevention, Icons.shield_outlined, Colors.blue),
                   const SizedBox(height: 30),
                 ],
               ),
@@ -253,7 +274,11 @@ class _PestDetailScreenState extends ConsumerState<PestDetailScreen> {
     );
   }
 
-  Widget _buildSection(String title, String content, IconData icon, Color iconColor) {
+  Widget _buildSection(BuildContext context, String title, String content, IconData icon, Color iconColor) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
+    final contentColor = isDark ? Colors.white.withValues(alpha: 0.85) : const Color(0xFF334155);
+
     return GlassContainer(
       padding: const EdgeInsets.all(18),
       borderRadius: 18,
@@ -267,7 +292,7 @@ class _PestDetailScreenState extends ConsumerState<PestDetailScreen> {
               Expanded(
                 child: Text(
                   title,
-                  style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold),
+                  style: TextStyle(color: textColor, fontSize: 17, fontWeight: FontWeight.bold),
                 ),
               ),
             ],
@@ -275,7 +300,7 @@ class _PestDetailScreenState extends ConsumerState<PestDetailScreen> {
           const SizedBox(height: 10),
           Text(
             content,
-            style: const TextStyle(color: Colors.white70, fontSize: 15, height: 1.5),
+            style: TextStyle(color: contentColor, fontSize: 15, height: 1.5),
           ),
         ],
       ),
