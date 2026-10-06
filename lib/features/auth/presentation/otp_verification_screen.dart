@@ -52,15 +52,20 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
     final authState = ref.watch(authProvider);
     final isLoading = authState.status == AuthStateStatus.loading;
 
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
+    final subtextColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black87),
+        iconTheme: IconThemeData(color: textColor),
         title: Text(
           l10n.verifyNumber,
-          style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
+          style: TextStyle(color: textColor, fontWeight: FontWeight.bold),
         ),
       ),
       body: SafeArea(
@@ -71,38 +76,44 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Icon(
-                  Icons.message_rounded,
+                Icon(
+                  Icons.mark_email_read_outlined,
                   size: 64,
-                  color: Colors.black87,
+                  color: theme.colorScheme.primary,
                 ),
                 const SizedBox(height: 24),
                 Text(
                   l10n.enterOtp,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 32,
+                  style: TextStyle(
+                    fontSize: 28,
                     fontWeight: FontWeight.w900,
-                    color: Colors.black87,
+                    color: textColor,
+                    letterSpacing: -0.5,
                   ),
                 ),
                 const SizedBox(height: 12),
                 Text(
                   '${l10n.sentCodeTo}\n${authState.phoneNumber ?? l10n.yourNumber}',
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: Colors.black54,
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: subtextColor,
                     height: 1.5,
                   ),
                 ),
-                const SizedBox(height: 48),
+                const SizedBox(height: 40),
 
                 // OTP Field
                 TextFormField(
                   controller: _otpController,
-                  decoration: _inputDecoration(l10n.digitOtpHint, Icons.security),
-                  style: const TextStyle(fontSize: 24, letterSpacing: 8, color: Colors.black87, fontWeight: FontWeight.bold),
+                  decoration: _inputDecoration(context, l10n.digitOtpHint, Icons.security_outlined),
+                  style: TextStyle(
+                    fontSize: 24, 
+                    letterSpacing: 8, 
+                    color: textColor, 
+                    fontWeight: FontWeight.bold,
+                  ),
                   keyboardType: TextInputType.number,
                   textAlign: TextAlign.center,
                   maxLength: 6,
@@ -114,38 +125,39 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 40),
+                const SizedBox(height: 36),
 
                 // Verify button
                 ElevatedButton(
                   onPressed: isLoading ? null : _verify,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green[700],
+                    backgroundColor: theme.colorScheme.primary,
                     foregroundColor: Colors.white,
-                    disabledBackgroundColor: Colors.grey[400],
-                    padding: const EdgeInsets.symmetric(vertical: 20),
+                    disabledBackgroundColor: isDark ? const Color(0xFF334155) : Colors.grey.shade400,
+                    padding: const EdgeInsets.symmetric(vertical: 18),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(14),
                     ),
+                    elevation: 3,
                   ),
                   child: isLoading
                       ? const SizedBox(
-                          height: 24,
-                          width: 24,
+                          height: 22,
+                          width: 22,
                           child: CircularProgressIndicator(
                             color: Colors.white,
-                            strokeWidth: 3,
+                            strokeWidth: 2.5,
                           ),
                         )
                       : Text(
                           l10n.verifyOtp,
                           style: const TextStyle(
-                            fontSize: 18,
+                            fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 20),
 
                 // Resend OTP button
                 TextButton(
@@ -164,10 +176,10 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
                   ),
                   child: Text(
                     l10n.didntReceiveCode,
-                    style: const TextStyle(
-                      fontSize: 16,
+                    style: TextStyle(
+                      fontSize: 15,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+                      color: theme.colorScheme.primary,
                     ),
                   ),
                 ),
@@ -179,29 +191,35 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
     );
   }
 
-  InputDecoration _inputDecoration(String hint, IconData icon) {
+  InputDecoration _inputDecoration(BuildContext context, String hint, IconData icon) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final fillBg = isDark ? const Color(0xFF16222F) : Colors.white;
+    final borderCol = isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1);
+    final hintCol = isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8);
+    final primaryCol = Theme.of(context).colorScheme.primary;
+
     return InputDecoration(
       hintText: hint,
-      hintStyle: const TextStyle(color: Colors.black54, letterSpacing: 0, fontSize: 16, fontWeight: FontWeight.normal),
+      hintStyle: TextStyle(color: hintCol, letterSpacing: 0, fontSize: 16, fontWeight: FontWeight.normal),
       counterText: '',
       filled: true,
-      fillColor: Colors.white,
+      fillColor: fillBg,
       contentPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Colors.black87, width: 2),
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide(color: borderCol, width: 1.5),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: Colors.green[700]!, width: 3),
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide(color: primaryCol, width: 2),
       ),
       errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: Colors.red[700]!, width: 2),
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: Color(0xFFEF4444), width: 1.5),
       ),
       focusedErrorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: Colors.red[700]!, width: 3),
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: Color(0xFFEF4444), width: 2),
       ),
     );
   }

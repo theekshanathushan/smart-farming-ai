@@ -633,7 +633,10 @@ class _MarketScreenState extends ConsumerState<MarketScreen> {
                           const SizedBox(height: 2),
                           Text(
                             '$rawCrop • $marketLocalized',
-                            style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                            style: TextStyle(
+                              color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
+                              fontSize: 13,
+                            ),
                           ),
                         ],
                       ),
@@ -653,14 +656,14 @@ class _MarketScreenState extends ConsumerState<MarketScreen> {
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-                        Theme.of(context).colorScheme.tertiary.withValues(alpha: 0.08),
+                        Theme.of(context).colorScheme.primary.withValues(alpha: Theme.of(context).brightness == Brightness.dark ? 0.2 : 0.1),
+                        Theme.of(context).colorScheme.tertiary.withValues(alpha: Theme.of(context).brightness == Brightness.dark ? 0.15 : 0.08),
                       ],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2)),
+                    border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.25)),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -670,7 +673,11 @@ class _MarketScreenState extends ConsumerState<MarketScreen> {
                         children: [
                           Text(
                             l10n.priceDetails,
-                            style: TextStyle(color: Colors.grey.shade700, fontSize: 13, fontWeight: FontWeight.w600),
+                            style: TextStyle(
+                              color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFFCBD5E1) : const Color(0xFF334155),
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                           const SizedBox(height: 4),
                           Text(
@@ -678,12 +685,15 @@ class _MarketScreenState extends ConsumerState<MarketScreen> {
                             style: TextStyle(
                               fontSize: 30, 
                               fontWeight: FontWeight.w900, 
-                              color: Theme.of(context).colorScheme.primary
+                              color: Theme.of(context).colorScheme.primary,
                             ),
                           ),
                           Text(
                             l10n.perUnit(localizedUnit),
-                            style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                            style: TextStyle(
+                              color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
+                              fontSize: 13,
+                            ),
                           ),
                         ],
                       ),
@@ -728,14 +738,20 @@ class _MarketScreenState extends ConsumerState<MarketScreen> {
                       child: Container(
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.surface,
+                          color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF131F30) : const Color(0xFFF8FAFC),
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
+                          border: Border.all(color: Theme.of(context).brightness == Brightness.dark ? Colors.white.withValues(alpha: 0.12) : const Color(0xFFE2E8F0)),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(l10n.wholesalePrice, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+                            Text(
+                              l10n.wholesalePrice,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
+                              ),
+                            ),
                             const SizedBox(height: 4),
                             Text(
                               '${_getCurrencySymbol(context)} $wholesale',
@@ -750,14 +766,20 @@ class _MarketScreenState extends ConsumerState<MarketScreen> {
                       child: Container(
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.surface,
+                          color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF131F30) : const Color(0xFFF8FAFC),
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
+                          border: Border.all(color: Theme.of(context).brightness == Brightness.dark ? Colors.white.withValues(alpha: 0.12) : const Color(0xFFE2E8F0)),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(l10n.retailPrice, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+                            Text(
+                              l10n.retailPrice,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
+                              ),
+                            ),
                             const SizedBox(height: 4),
                             Text(
                               '${_getCurrencySymbol(context)} $retail',
@@ -775,8 +797,9 @@ class _MarketScreenState extends ConsumerState<MarketScreen> {
                 Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: Colors.grey.withValues(alpha: 0.08),
+                    color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF131F30) : const Color(0xFFF8FAFC),
                     borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Theme.of(context).brightness == Brightness.dark ? Colors.white.withValues(alpha: 0.12) : const Color(0xFFE2E8F0)),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -784,18 +807,33 @@ class _MarketScreenState extends ConsumerState<MarketScreen> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(l10n.minPrice, style: TextStyle(fontSize: 11, color: Colors.grey.shade600)),
+                          Text(
+                            l10n.minPrice,
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
+                            ),
+                          ),
                           Text(
                             '${_getCurrencySymbol(context)} $minPrice',
                             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                           ),
                         ],
                       ),
-                      Icon(Icons.compare_arrows_rounded, color: Colors.grey.shade500),
+                      Icon(
+                        Icons.compare_arrows_rounded,
+                        color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                      ),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          Text(l10n.maxPrice, style: TextStyle(fontSize: 11, color: Colors.grey.shade600)),
+                          Text(
+                            l10n.maxPrice,
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
+                            ),
+                          ),
                           Text(
                             '${_getCurrencySymbol(context)} $maxPrice',
                             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
@@ -816,7 +854,8 @@ class _MarketScreenState extends ConsumerState<MarketScreen> {
                   const SizedBox(height: 8),
                   Container(
                     decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
+                      color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF131F30) : const Color(0xFFF8FAFC),
+                      border: Border.all(color: Theme.of(context).brightness == Brightness.dark ? Colors.white.withValues(alpha: 0.12) : const Color(0xFFE2E8F0)),
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Column(
@@ -830,7 +869,11 @@ class _MarketScreenState extends ConsumerState<MarketScreen> {
                             children: [
                               Row(
                                 children: [
-                                  Icon(Icons.storefront, size: 16, color: Colors.grey.shade600),
+                                  Icon(
+                                    Icons.storefront,
+                                    size: 16,
+                                    color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                                  ),
                                   const SizedBox(width: 8),
                                   Text(mName, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
                                 ],
@@ -853,27 +896,41 @@ class _MarketScreenState extends ConsumerState<MarketScreen> {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.amber.shade50,
+                      color: Theme.of(context).brightness == Brightness.dark ? Colors.amber.withValues(alpha: 0.15) : Colors.amber.shade50,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.amber.shade200),
+                      border: Border.all(
+                        color: Theme.of(context).brightness == Brightness.dark ? Colors.amber.withValues(alpha: 0.3) : Colors.amber.shade200,
+                      ),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           children: [
-                            Icon(Icons.smart_toy_rounded, color: Colors.amber.shade900, size: 20),
+                            Icon(
+                              Icons.smart_toy_rounded,
+                              color: Theme.of(context).brightness == Brightness.dark ? Colors.amberAccent : Colors.amber.shade900,
+                              size: 20,
+                            ),
                             const SizedBox(width: 8),
                             Text(
                               l10n.aiMarketInsight,
-                              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.amber.shade900, fontSize: 14),
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).brightness == Brightness.dark ? Colors.amberAccent : Colors.amber.shade900,
+                                fontSize: 14,
+                              ),
                             ),
                           ],
                         ),
                         const SizedBox(height: 8),
                         Text(
                           aiInsightText,
-                          style: TextStyle(color: Colors.brown.shade900, fontSize: 13, height: 1.4),
+                          style: TextStyle(
+                            color: Theme.of(context).brightness == Brightness.dark ? Colors.amber.shade100 : Colors.brown.shade900,
+                            fontSize: 13,
+                            height: 1.4,
+                          ),
                         ),
                       ],
                     ),

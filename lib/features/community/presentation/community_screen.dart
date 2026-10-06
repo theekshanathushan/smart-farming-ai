@@ -8,16 +8,20 @@ class CommunityScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('Farmer Community', style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.black.withValues(alpha: 0.3),
-        foregroundColor: Colors.white,
+        title: Text('Farmer Community', style: TextStyle(fontWeight: FontWeight.bold, color: textColor)),
+        backgroundColor: Colors.transparent,
         elevation: 0,
+        iconTheme: IconThemeData(color: textColor),
         actions: [
           IconButton(
-            icon: const Icon(Icons.add_circle_outline),
+            icon: Icon(Icons.add_circle_outline, color: theme.colorScheme.primary),
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Create Post coming soon!')));
             },
@@ -70,6 +74,13 @@ class _PostCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
+    final subtextColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569);
+    final cardBg = isDark ? Colors.black.withValues(alpha: 0.45) : Colors.white.withValues(alpha: 0.92);
+    final cardBorder = isDark ? Colors.white.withValues(alpha: 0.15) : const Color(0xFFE2E8F0);
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       child: ClipRRect(
@@ -79,9 +90,9 @@ class _PostCard extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.black.withValues(alpha: 0.35),
+              color: cardBg,
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
+              border: Border.all(color: cardBorder),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -90,15 +101,15 @@ class _PostCard extends StatelessWidget {
                   children: [
                     CircleAvatar(
                       backgroundColor: Colors.green.shade400,
-                      child: Text(author[0], style: const TextStyle(color: Colors.white)),
+                      child: Text(author[0], style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(author, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
-                          Text(time, style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 12)),
+                          Text(author, style: TextStyle(color: textColor, fontWeight: FontWeight.bold, fontSize: 16)),
+                          Text(time, style: TextStyle(color: subtextColor, fontSize: 12)),
                         ],
                       ),
                     ),
@@ -107,18 +118,18 @@ class _PostCard extends StatelessWidget {
                 const SizedBox(height: 12),
                 Text(
                   content,
-                  style: const TextStyle(color: Colors.white, fontSize: 14),
+                  style: TextStyle(color: textColor, fontSize: 14, height: 1.4),
                 ),
                 const SizedBox(height: 16),
                 Row(
                   children: [
-                    Icon(Icons.thumb_up_alt_outlined, color: Colors.greenAccent.shade200, size: 20),
+                    Icon(Icons.thumb_up_alt_outlined, color: isDark ? Colors.greenAccent.shade200 : Colors.green.shade700, size: 20),
                     const SizedBox(width: 4),
-                    Text('$likes', style: const TextStyle(color: Colors.white70)),
+                    Text('$likes', style: TextStyle(color: subtextColor, fontWeight: FontWeight.w600)),
                     const SizedBox(width: 24),
-                    Icon(Icons.comment_outlined, color: Colors.blueAccent.shade200, size: 20),
+                    Icon(Icons.comment_outlined, color: isDark ? Colors.blueAccent.shade200 : Colors.blue.shade700, size: 20),
                     const SizedBox(width: 4),
-                    Text('$comments', style: const TextStyle(color: Colors.white70)),
+                    Text('$comments', style: TextStyle(color: subtextColor, fontWeight: FontWeight.w600)),
                   ],
                 ),
               ],

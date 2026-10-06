@@ -33,7 +33,13 @@ class ScanHistoryScreen extends ConsumerWidget {
             child: historyAsync.when(
               data: (history) {
                 if (history.isEmpty) {
-                  return const Center(child: Text("No scans found in history.", style: TextStyle(color: Colors.white70)));
+                  final isDark = Theme.of(context).brightness == Brightness.dark;
+                  return Center(
+                    child: Text(
+                      "No scans found in history.", 
+                      style: TextStyle(color: isDark ? Colors.white70 : const Color(0xFF475569), fontSize: 15),
+                    ),
+                  );
                 }
                 return GridView.builder(
                   padding: const EdgeInsets.all(16),
@@ -60,6 +66,10 @@ class ScanHistoryScreen extends ConsumerWidget {
   }
 
   Widget _buildHistoryCard(BuildContext context, WidgetRef ref, ScanResult item) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
+    final subtextColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
     final dateFormat = DateFormat('MMM dd, yyyy • hh:mm a');
     final confidencePercent = (item.confidence * 100).toStringAsFixed(1);
     
@@ -80,7 +90,11 @@ class ScanHistoryScreen extends ConsumerWidget {
                 child: Image.file(
                   File(item.imagePath),
                   fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => const Icon(Icons.broken_image, color: Colors.white54, size: 50),
+                  errorBuilder: (context, error, stackTrace) => Icon(
+                    Icons.broken_image, 
+                    color: isDark ? Colors.white54 : Colors.black38, 
+                    size: 50,
+                  ),
                 ),
               ),
             ),
@@ -91,19 +105,34 @@ class ScanHistoryScreen extends ConsumerWidget {
                 children: [
                   Text(
                     item.predictedLabel,
-                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                    style: TextStyle(
+                      color: textColor, 
+                      fontWeight: FontWeight.bold, 
+                      fontSize: 15,
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    '$confidencePercent% Confidence',
-                    style: const TextStyle(color: Colors.greenAccent, fontSize: 12),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF2E7D32).withValues(alpha: isDark ? 0.25 : 0.12),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      '$confidencePercent% Confidence',
+                      style: TextStyle(
+                        color: isDark ? const Color(0xFF4ADE80) : const Color(0xFF1B5E20),
+                        fontWeight: FontWeight.w600,
+                        fontSize: 11,
+                      ),
+                    ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 6),
                   Text(
                     dateFormat.format(item.timestamp),
-                    style: const TextStyle(color: Colors.white54, fontSize: 10),
+                    style: TextStyle(color: subtextColor, fontSize: 10),
                   ),
                 ],
               ),
