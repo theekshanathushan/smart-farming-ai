@@ -46,18 +46,27 @@ class HarvestDetailScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
+    final subtextColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569);
+    final cardBg = isDark ? const Color(0xFF131F30) : Colors.white;
+    final cardBorder = isDark ? Colors.white.withValues(alpha: 0.12) : const Color(0xFFE2E8F0);
+
     final auth = ref.watch(authProvider);
     final isOwner = auth.phoneNumber != null && auth.phoneNumber == listing.farmerPhone;
 
     final dateFormatted = DateFormat('MMM d, yyyy').format(listing.harvestDate);
 
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        title: Text(listing.cropName, style: const TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black87,
+        title: Text(
+          listing.cropName,
+          style: TextStyle(fontWeight: FontWeight.bold, color: textColor),
+        ),
+        backgroundColor: Colors.transparent,
         elevation: 0,
+        iconTheme: IconThemeData(color: textColor),
         actions: [
           if (isOwner)
             IconButton(
@@ -74,7 +83,13 @@ class HarvestDetailScreen extends ConsumerWidget {
             Container(
               height: 200,
               width: double.infinity,
-              color: Colors.green.shade900,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: isDark
+                      ? [Colors.green.shade900, Colors.teal.shade950]
+                      : [Colors.green.shade800, Colors.teal.shade700],
+                ),
+              ),
               child: Stack(
                 children: [
                   Center(
@@ -138,7 +153,7 @@ class HarvestDetailScreen extends ConsumerWidget {
                           style: TextStyle(
                             fontSize: 26,
                             fontWeight: FontWeight.w900,
-                            color: theme.colorScheme.primary,
+                            color: isDark ? Colors.greenAccent.shade400 : Colors.green.shade800,
                           ),
                         ),
                       ),
@@ -146,16 +161,16 @@ class HarvestDetailScreen extends ConsumerWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
-                          color: Colors.blue.shade50,
+                          color: isDark ? Colors.blue.withValues(alpha: 0.2) : Colors.blue.shade50,
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.blue.shade200),
+                          border: Border.all(color: isDark ? Colors.blue.withValues(alpha: 0.4) : Colors.blue.shade200),
                         ),
                         child: Text(
                           listing.grade,
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
-                            color: Colors.blue.shade800,
+                            color: isDark ? Colors.blueAccent : Colors.blue.shade800,
                           ),
                         ),
                       ),
@@ -164,18 +179,18 @@ class HarvestDetailScreen extends ConsumerWidget {
                   const SizedBox(height: 8),
                   Text(
                     l10n.availableQty(listing.quantity.toStringAsFixed(0), listing.unit),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16,
-                      color: Colors.black87,
+                      color: textColor,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  const Divider(height: 32),
+                  Divider(height: 32, color: isDark ? Colors.white12 : const Color(0xFFE2E8F0)),
 
                   // Key Details Grid
                   Text(
                     l10n.harvestDetails,
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: textColor),
                   ),
                   const SizedBox(height: 12),
                   Row(
@@ -217,20 +232,20 @@ class HarvestDetailScreen extends ConsumerWidget {
                     const SizedBox(height: 24),
                     Text(
                       l10n.descriptionOptional,
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: textColor),
                     ),
                     const SizedBox(height: 8),
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: cardBg,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.grey.shade200),
+                        border: Border.all(color: cardBorder),
                       ),
                       child: Text(
                         listing.description!,
-                        style: const TextStyle(fontSize: 14, height: 1.5, color: Colors.black87),
+                        style: TextStyle(fontSize: 14, height: 1.5, color: textColor),
                       ),
                     ),
                   ],
@@ -240,22 +255,22 @@ class HarvestDetailScreen extends ConsumerWidget {
                   // Farmer Information Card
                   Text(
                     l10n.farmerInfo,
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: textColor),
                   ),
                   const SizedBox(height: 12),
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: cardBg,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.grey.shade200),
+                      border: Border.all(color: cardBorder),
                     ),
                     child: Row(
                       children: [
                         CircleAvatar(
                           radius: 26,
-                          backgroundColor: Colors.green.shade100,
-                          child: Icon(Icons.person, color: theme.colorScheme.primary, size: 28),
+                          backgroundColor: isDark ? Colors.green.shade900 : Colors.green.shade100,
+                          child: Icon(Icons.person, color: isDark ? Colors.greenAccent : theme.colorScheme.primary, size: 28),
                         ),
                         const SizedBox(width: 14),
                         Expanded(
@@ -264,16 +279,16 @@ class HarvestDetailScreen extends ConsumerWidget {
                             children: [
                               Text(
                                 listing.farmerName,
-                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: textColor),
                               ),
                               const SizedBox(height: 4),
                               Row(
                                 children: [
-                                  const Icon(Icons.phone, size: 14, color: Colors.black54),
+                                  Icon(Icons.phone, size: 14, color: subtextColor),
                                   const SizedBox(width: 4),
                                   Text(
                                     listing.farmerPhone,
-                                    style: const TextStyle(color: Colors.black54, fontSize: 13),
+                                    style: TextStyle(color: subtextColor, fontSize: 13),
                                   ),
                                 ],
                               ),
@@ -380,14 +395,21 @@ class _DetailItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
+    final subtextColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569);
+    final cardBg = isDark ? const Color(0xFF131F30) : Colors.white;
+    final cardBorder = isDark ? Colors.white.withValues(alpha: 0.12) : const Color(0xFFE2E8F0);
+
     return Expanded(
       child: Container(
         margin: const EdgeInsets.only(right: 8),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: cardBg,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey.shade200),
+          border: Border.all(color: cardBorder),
         ),
         child: Row(
           children: [
@@ -399,13 +421,13 @@ class _DetailItem extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(color: Colors.black54, fontSize: 11),
+                    style: TextStyle(color: subtextColor, fontSize: 11),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
                     value,
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                    style: TextStyle(color: textColor, fontWeight: FontWeight.bold, fontSize: 13),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),

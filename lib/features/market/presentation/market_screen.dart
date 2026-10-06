@@ -138,6 +138,13 @@ class _MarketScreenState extends ConsumerState<MarketScreen> {
   }
 
   Widget _buildSearchAndFilters(BuildContext context, AppLocalizations l10n) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final searchBg = isDark ? const Color(0xFF131F30).withValues(alpha: 0.92) : Colors.white.withValues(alpha: 0.92);
+    final searchBorder = isDark ? Colors.white.withValues(alpha: 0.15) : const Color(0xFFCBD5E1);
+    final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
+    final subtextColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569);
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: Column(
@@ -145,11 +152,12 @@ class _MarketScreenState extends ConsumerState<MarketScreen> {
           // Search Field
           Container(
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.9),
+              color: searchBg,
               borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: searchBorder),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.08),
+                  color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.06),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -157,6 +165,7 @@ class _MarketScreenState extends ConsumerState<MarketScreen> {
             ),
             child: TextField(
               controller: _searchController,
+              style: TextStyle(color: textColor),
               onChanged: (val) {
                 setState(() {
                   _searchQuery = val;
@@ -164,11 +173,11 @@ class _MarketScreenState extends ConsumerState<MarketScreen> {
               },
               decoration: InputDecoration(
                 hintText: l10n.searchCrops,
-                hintStyle: TextStyle(color: Colors.grey.shade600, fontSize: 14),
-                prefixIcon: Icon(Icons.search, color: Theme.of(context).colorScheme.primary),
+                hintStyle: TextStyle(color: subtextColor, fontSize: 14),
+                prefixIcon: Icon(Icons.search, color: theme.colorScheme.primary),
                 suffixIcon: _searchQuery.isNotEmpty
                     ? IconButton(
-                        icon: const Icon(Icons.clear, size: 18),
+                        icon: Icon(Icons.clear, size: 18, color: subtextColor),
                         onPressed: () {
                           _searchController.clear();
                           setState(() {
@@ -204,6 +213,9 @@ class _MarketScreenState extends ConsumerState<MarketScreen> {
   Widget _buildCategoryChip(String categoryKey, String label) {
     final isSelected = _selectedCategory == categoryKey;
     final primary = Theme.of(context).colorScheme.primary;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final chipBg = isDark ? const Color(0xFF131F30).withValues(alpha: 0.8) : Colors.white.withValues(alpha: 0.85);
+    final borderCol = isDark ? Colors.white.withValues(alpha: 0.15) : const Color(0xFFCBD5E1);
 
     return Padding(
       padding: const EdgeInsets.only(right: 8.0),
@@ -218,14 +230,14 @@ class _MarketScreenState extends ConsumerState<MarketScreen> {
           }
         },
         selectedColor: primary,
-        backgroundColor: Colors.white.withValues(alpha: 0.8),
+        backgroundColor: chipBg,
         labelStyle: TextStyle(
-          color: isSelected ? Colors.white : Colors.black87,
+          color: isSelected ? Colors.white : (isDark ? Colors.white70 : const Color(0xFF334155)),
           fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
           fontSize: 13,
         ),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        side: BorderSide.none,
+        side: BorderSide(color: isSelected ? primary : borderCol),
       ),
     );
   }

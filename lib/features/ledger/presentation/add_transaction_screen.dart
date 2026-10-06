@@ -51,6 +51,13 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
+    final subtextColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569);
+    final dropdownBg = isDark ? const Color(0xFF16222F) : Colors.white;
+    final borderCol = isDark ? Colors.white.withValues(alpha: 0.3) : const Color(0xFFCBD5E1);
+
     final categories = _type == 'Expense' ? _expenseCategories : _incomeCategories;
     if (!categories.contains(_category)) {
       _category = categories.first;
@@ -59,9 +66,10 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('New Transaction', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: Text('New Transaction', style: TextStyle(fontWeight: FontWeight.bold, color: textColor)),
         backgroundColor: Colors.transparent,
         elevation: 0,
+        iconTheme: IconThemeData(color: textColor),
       ),
       body: Stack(
         children: [
@@ -81,7 +89,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                         children: [
                           Expanded(
                             child: RadioListTile<String>(
-                              title: const Text('Expense', style: TextStyle(color: Colors.white)),
+                              title: Text('Expense', style: TextStyle(color: textColor, fontWeight: FontWeight.w600)),
                               value: 'Expense',
                               groupValue: _type,
                               activeColor: Colors.redAccent,
@@ -90,10 +98,10 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                           ),
                           Expanded(
                             child: RadioListTile<String>(
-                              title: const Text('Income', style: TextStyle(color: Colors.white)),
+                              title: Text('Income', style: TextStyle(color: textColor, fontWeight: FontWeight.w600)),
                               value: 'Income',
                               groupValue: _type,
-                              activeColor: Colors.greenAccent,
+                              activeColor: isDark ? Colors.greenAccent : Colors.green.shade700,
                               onChanged: (val) => setState(() => _type = val!),
                             ),
                           ),
@@ -103,15 +111,15 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                       TextFormField(
                         controller: _amountController,
                         keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                        style: const TextStyle(color: Colors.white, fontSize: 24),
+                        style: TextStyle(color: textColor, fontSize: 24, fontWeight: FontWeight.bold),
                         decoration: InputDecoration(
                           fillColor: Colors.transparent,
                           labelText: 'Amount (Rs)',
-                          labelStyle: const TextStyle(color: Colors.white70),
+                          labelStyle: TextStyle(color: subtextColor),
                           prefixText: 'Rs. ',
-                          prefixStyle: const TextStyle(color: Colors.white, fontSize: 24),
-                          enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.3))),
-                          focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.greenAccent)),
+                          prefixStyle: TextStyle(color: textColor, fontSize: 24, fontWeight: FontWeight.bold),
+                          enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: borderCol)),
+                          focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: theme.colorScheme.primary, width: 2)),
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) return 'Enter amount';
@@ -123,34 +131,35 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                       DropdownButtonFormField<String>(
                         value: _category,
                         isExpanded: true,
-                        dropdownColor: Colors.grey.shade900,
-                        style: const TextStyle(color: Colors.white, fontSize: 16),
+                        dropdownColor: dropdownBg,
+                        style: TextStyle(color: textColor, fontSize: 16),
                         decoration: InputDecoration(
                           fillColor: Colors.transparent,
                           labelText: 'Category',
-                          labelStyle: const TextStyle(color: Colors.white70),
-                          enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.3))),
+                          labelStyle: TextStyle(color: subtextColor),
+                          enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: borderCol)),
+                          focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: theme.colorScheme.primary, width: 2)),
                         ),
-                        items: categories.map((cat) => DropdownMenuItem(value: cat, child: Text(cat, overflow: TextOverflow.ellipsis))).toList(),
+                        items: categories.map((cat) => DropdownMenuItem(value: cat, child: Text(cat, overflow: TextOverflow.ellipsis, style: TextStyle(color: textColor)))).toList(),
                         onChanged: (val) => setState(() => _category = val!),
                       ),
                       const SizedBox(height: 24),
                       TextFormField(
                         controller: _descController,
-                        style: const TextStyle(color: Colors.white),
+                        style: TextStyle(color: textColor),
                         decoration: InputDecoration(
                           fillColor: Colors.transparent,
                           labelText: 'Description (Optional)',
-                          labelStyle: const TextStyle(color: Colors.white70),
-                          enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.3))),
-                          focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.greenAccent)),
+                          labelStyle: TextStyle(color: subtextColor),
+                          enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: borderCol)),
+                          focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: theme.colorScheme.primary, width: 2)),
                         ),
                       ),
                       const SizedBox(height: 40),
                       ElevatedButton(
                         onPressed: _saveTransaction,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: _type == 'Expense' ? Colors.redAccent : Colors.greenAccent,
+                          backgroundColor: _type == 'Expense' ? Colors.redAccent : (isDark ? Colors.greenAccent.shade700 : Colors.green.shade700),
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),

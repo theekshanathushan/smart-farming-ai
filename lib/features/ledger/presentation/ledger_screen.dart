@@ -17,14 +17,19 @@ class LedgerScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final entriesAsync = ref.watch(ledgerEntriesProvider);
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
+    final subtextColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569);
 
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('Agri Ledger', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: Text('Agri Ledger', style: TextStyle(fontWeight: FontWeight.bold, color: textColor)),
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
+        iconTheme: IconThemeData(color: textColor),
       ),
       body: Stack(
         children: [
@@ -47,7 +52,7 @@ class LedgerScreen extends ConsumerWidget {
                     _buildDashboard(context, totalIncome, totalExpense, netProfit),
                     Expanded(
                       child: entries.isEmpty
-                          ? const Center(child: Text("No transactions yet.", style: TextStyle(color: Colors.white70)))
+                          ? Center(child: Text("No transactions yet.", style: TextStyle(color: subtextColor, fontSize: 16)))
                           : ListView.builder(
                               padding: const EdgeInsets.symmetric(horizontal: 16),
                               itemCount: entries.length,
@@ -61,8 +66,8 @@ class LedgerScreen extends ConsumerWidget {
                   ],
                 );
               },
-              loading: () => const Center(child: CircularProgressIndicator(color: Colors.white)),
-              error: (err, stack) => Center(child: Text('Error: $err', style: TextStyle(color: Theme.of(context).colorScheme.error))),
+              loading: () => Center(child: CircularProgressIndicator(color: theme.colorScheme.primary)),
+              error: (err, stack) => Center(child: Text('Error: $err', style: TextStyle(color: theme.colorScheme.error))),
             ),
           ),
         ],
@@ -71,23 +76,28 @@ class LedgerScreen extends ConsumerWidget {
         onPressed: () => context.push('/ledger/add'),
         icon: const Icon(Icons.add),
         label: const Text('Add Transaction'),
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        foregroundColor: Theme.of(context).colorScheme.onPrimary,
+        backgroundColor: theme.colorScheme.primary,
+        foregroundColor: theme.colorScheme.onPrimary,
       ),
     );
   }
 
   Widget _buildDashboard(BuildContext context, double income, double expense, double profit) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final subtextColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569);
+    final cardBg = isDark ? Colors.black.withValues(alpha: 0.35) : Colors.white.withValues(alpha: 0.9);
+    final cardBorder = isDark ? Colors.white.withValues(alpha: 0.15) : const Color(0xFFE2E8F0);
+
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.15),
+        color: cardBg,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+        border: Border.all(color: cardBorder),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -95,12 +105,12 @@ class LedgerScreen extends ConsumerWidget {
       ),
       child: Column(
         children: [
-          const Text('Net Profit', style: TextStyle(color: Colors.white70, fontSize: 16)),
+          Text('Net Profit', style: TextStyle(color: subtextColor, fontSize: 16, fontWeight: FontWeight.w600)),
           const SizedBox(height: 8),
           Text(
             'Rs. ${profit.toStringAsFixed(2)}',
             style: TextStyle(
-              color: profit >= 0 ? Theme.of(context).colorScheme.secondary : Theme.of(context).colorScheme.error,
+              color: profit >= 0 ? (isDark ? Colors.greenAccent : Colors.green.shade700) : Theme.of(context).colorScheme.error,
               fontSize: 32,
               fontWeight: FontWeight.bold,
             ),
@@ -109,8 +119,8 @@ class LedgerScreen extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildDashboardMetric('Income', income, Theme.of(context).colorScheme.secondary),
-              _buildDashboardMetric('Expense', expense, Theme.of(context).colorScheme.error),
+              _buildDashboardMetric('Income', income, isDark ? Colors.greenAccent : Colors.green.shade700, subtextColor),
+              _buildDashboardMetric('Expense', expense, Theme.of(context).colorScheme.error, subtextColor),
             ],
           )
         ],
@@ -118,11 +128,11 @@ class LedgerScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildDashboardMetric(String label, double value, Color color) {
+  Widget _buildDashboardMetric(String label, double value, Color color, Color subtextColor) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(color: Colors.white70, fontSize: 14)),
+        Text(label, style: TextStyle(color: subtextColor, fontSize: 14)),
         const SizedBox(height: 4),
         Text(
           'Rs. ${value.toStringAsFixed(2)}',
@@ -134,6 +144,12 @@ class LedgerScreen extends ConsumerWidget {
 
   Widget _buildTransactionCard(BuildContext context, LedgerEntry entry, bool isIncome, WidgetRef ref) {
     final dateFormat = DateFormat('MMM dd, yyyy');
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
+    final subtextColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569);
+    final cardBg = isDark ? Colors.black.withValues(alpha: 0.4) : Colors.white.withValues(alpha: 0.92);
+    final cardBorder = isDark ? Colors.white.withValues(alpha: 0.1) : const Color(0xFFE2E8F0);
+
     return Dismissible(
       key: Key(entry.id.toString()),
       direction: DismissDirection.endToStart,
@@ -154,23 +170,27 @@ class LedgerScreen extends ConsumerWidget {
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
-          color: Colors.black.withValues(alpha: 0.4),
+          color: cardBg,
           borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: cardBorder),
         ),
         child: ListTile(
           leading: CircleAvatar(
-            backgroundColor: isIncome ? Theme.of(context).colorScheme.secondary.withValues(alpha: 0.2) : Theme.of(context).colorScheme.error.withValues(alpha: 0.2),
+            backgroundColor: isIncome ? (isDark ? Colors.greenAccent : Colors.green.shade700).withValues(alpha: 0.15) : Theme.of(context).colorScheme.error.withValues(alpha: 0.15),
             child: Icon(
               isIncome ? Icons.arrow_downward : Icons.arrow_upward,
-              color: isIncome ? Theme.of(context).colorScheme.secondary : Theme.of(context).colorScheme.error,
+              color: isIncome ? (isDark ? Colors.greenAccent : Colors.green.shade700) : Theme.of(context).colorScheme.error,
             ),
           ),
-          title: Text(entry.category, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-          subtitle: Text('${dateFormat.format(entry.date)} ${entry.description != null ? "• ${entry.description}" : ""}', style: const TextStyle(color: Colors.white54, fontSize: 12)),
+          title: Text(entry.category, style: TextStyle(color: textColor, fontWeight: FontWeight.bold)),
+          subtitle: Text(
+            '${dateFormat.format(entry.date)} ${entry.description != null ? "• ${entry.description}" : ""}',
+            style: TextStyle(color: subtextColor, fontSize: 12),
+          ),
           trailing: Text(
             '${isIncome ? '+' : '-'}Rs. ${entry.amount.toStringAsFixed(2)}',
             style: TextStyle(
-              color: isIncome ? Theme.of(context).colorScheme.secondary : Theme.of(context).colorScheme.error,
+              color: isIncome ? (isDark ? Colors.greenAccent : Colors.green.shade700) : Theme.of(context).colorScheme.error,
               fontWeight: FontWeight.bold,
               fontSize: 16,
             ),
