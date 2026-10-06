@@ -51,6 +51,8 @@ void main() async {
   );
 }
 
+import 'core/providers/theme_provider.dart';
+
 class AgriAIApp extends ConsumerWidget {
   const AgriAIApp({super.key});
 
@@ -58,10 +60,13 @@ class AgriAIApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(goRouterProvider);
     final locale = ref.watch(localeProvider);
+    final themeMode = ref.watch(themeModeProvider);
 
     return MaterialApp.router(
       title: 'AgriAI',
       theme: AppTheme.getLightTheme(locale.languageCode),
+      darkTheme: AppTheme.getDarkTheme(locale.languageCode),
+      themeMode: themeMode,
       routerConfig: router,
       debugShowCheckedModeBanner: false,
       locale: locale,
