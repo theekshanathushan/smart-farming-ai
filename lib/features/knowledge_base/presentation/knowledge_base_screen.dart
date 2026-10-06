@@ -105,13 +105,20 @@ class _KnowledgeBaseScreenState extends ConsumerState<KnowledgeBaseScreen> {
               }
             }
 
+            final modalIsDark = Theme.of(context).brightness == Brightness.dark;
+            final modalTextColor = modalIsDark ? Colors.white : const Color(0xFF0F172A);
+            final modalSubtextColor = modalIsDark ? const Color(0xFF94A3B8) : const Color(0xFF475569);
+            final modalBg = modalIsDark ? const Color(0xFF141E15) : Colors.white;
+            final inputBg = modalIsDark ? Colors.white.withValues(alpha: 0.08) : const Color(0xFFF1F5F9);
+            final inputBorder = modalIsDark ? Colors.white.withValues(alpha: 0.15) : const Color(0xFFCBD5E1);
+
             return Container(
               height: MediaQuery.of(context).size.height * 0.88,
               decoration: BoxDecoration(
-                color: const Color(0xFF141E15),
+                color: modalBg,
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-                border: Border.all(color: Colors.greenAccent.withValues(alpha: 0.3)),
-                boxShadow: const [BoxShadow(color: Colors.black54, blurRadius: 20)],
+                border: Border.all(color: Colors.green.withValues(alpha: modalIsDark ? 0.3 : 0.2)),
+                boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 20)],
               ),
               child: Column(
                 children: [
@@ -122,7 +129,7 @@ class _KnowledgeBaseScreenState extends ConsumerState<KnowledgeBaseScreen> {
                       width: 48,
                       height: 5,
                       decoration: BoxDecoration(
-                        color: Colors.white24,
+                        color: modalIsDark ? Colors.white24 : Colors.black12,
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
@@ -134,35 +141,35 @@ class _KnowledgeBaseScreenState extends ConsumerState<KnowledgeBaseScreen> {
                         Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: Colors.greenAccent.withValues(alpha: 0.15),
+                            color: Colors.green.withValues(alpha: modalIsDark ? 0.15 : 0.1),
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(Icons.auto_awesome, color: Colors.greenAccent, size: 22),
+                          child: Icon(Icons.auto_awesome, color: modalIsDark ? Colors.greenAccent : Colors.green.shade700, size: 22),
                         ),
                         const SizedBox(width: 12),
-                        const Expanded(
+                        Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 'AI Crop Pest & Disease Doctor',
-                                style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                                style: TextStyle(color: modalTextColor, fontSize: 18, fontWeight: FontWeight.bold),
                               ),
                               Text(
                                 'Instant comprehensive protection guide for ANY crop',
-                                style: TextStyle(color: Colors.white54, fontSize: 12),
+                                style: TextStyle(color: modalSubtextColor, fontSize: 12),
                               ),
                             ],
                           ),
                         ),
                         IconButton(
-                          icon: const Icon(Icons.close, color: Colors.white70),
+                          icon: Icon(Icons.close, color: modalSubtextColor),
                           onPressed: () => Navigator.pop(sheetCtx),
                         )
                       ],
                     ),
                   ),
-                  const Divider(color: Colors.white12),
+                  Divider(color: modalIsDark ? Colors.white12 : Colors.black12),
 
                   // Search input bar
                   Padding(
@@ -172,17 +179,25 @@ class _KnowledgeBaseScreenState extends ConsumerState<KnowledgeBaseScreen> {
                         Expanded(
                           child: TextField(
                             controller: cropInputController,
-                            style: const TextStyle(color: Colors.white),
+                            style: TextStyle(color: modalTextColor),
                             decoration: InputDecoration(
                               hintText: 'Enter any crop (e.g. Carrot, Passion Fruit, කෙසෙල්)...',
-                              hintStyle: const TextStyle(color: Colors.white38, fontSize: 14),
+                              hintStyle: TextStyle(color: modalSubtextColor.withValues(alpha: 0.7), fontSize: 14),
                               filled: true,
-                              fillColor: Colors.white.withValues(alpha: 0.08),
-                              prefixIcon: const Icon(Icons.grass, color: Colors.greenAccent, size: 20),
+                              fillColor: inputBg,
+                              prefixIcon: Icon(Icons.grass, color: modalIsDark ? Colors.greenAccent : Colors.green.shade700, size: 20),
                               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                borderSide: BorderSide(color: inputBorder),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                borderSide: BorderSide(color: modalIsDark ? Colors.greenAccent : Colors.green.shade700, width: 1.5),
+                              ),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(16),
-                                borderSide: BorderSide.none,
+                                borderSide: BorderSide(color: inputBorder),
                               ),
                             ),
                             onSubmitted: (_) => generateGuide(),
@@ -223,9 +238,9 @@ class _KnowledgeBaseScreenState extends ConsumerState<KnowledgeBaseScreen> {
                           return Padding(
                             padding: const EdgeInsets.only(right: 8.0, bottom: 8.0),
                             child: ActionChip(
-                              label: Text(suggestion, style: const TextStyle(fontSize: 12, color: Colors.white70)),
-                              backgroundColor: Colors.white.withValues(alpha: 0.06),
-                              side: BorderSide(color: Colors.white.withValues(alpha: 0.15)),
+                              label: Text(suggestion, style: TextStyle(fontSize: 12, color: modalTextColor)),
+                              backgroundColor: inputBg,
+                              side: BorderSide(color: inputBorder),
                               onPressed: () {
                                 cropInputController.text = suggestion.split(' (').first;
                                 generateGuide();
@@ -246,17 +261,17 @@ class _KnowledgeBaseScreenState extends ConsumerState<KnowledgeBaseScreen> {
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  const CircularProgressIndicator(color: Colors.greenAccent),
+                                  CircularProgressIndicator(color: modalIsDark ? Colors.greenAccent : Colors.green.shade700),
                                   const SizedBox(height: 16),
                                   Text(
                                     'Consulting AI Crop Protection Model for "${cropInputController.text}"...',
-                                    style: const TextStyle(color: Colors.white70),
+                                    style: TextStyle(color: modalTextColor),
                                     textAlign: TextAlign.center,
                                   ),
                                   const SizedBox(height: 6),
-                                  const Text(
+                                  Text(
                                     'Generating symptoms, organic remedies & chemical dosages...',
-                                    style: TextStyle(color: Colors.white38, fontSize: 12),
+                                    style: TextStyle(color: modalSubtextColor, fontSize: 12),
                                   ),
                                 ],
                               ),
@@ -281,20 +296,20 @@ class _KnowledgeBaseScreenState extends ConsumerState<KnowledgeBaseScreen> {
                                           child: Container(
                                             padding: const EdgeInsets.all(16),
                                             decoration: BoxDecoration(
-                                              color: Colors.black.withValues(alpha: 0.3),
+                                              color: modalIsDark ? Colors.black.withValues(alpha: 0.3) : const Color(0xFFF8FAFC),
                                               borderRadius: BorderRadius.circular(16),
-                                              border: Border.all(color: Colors.white12),
+                                              border: Border.all(color: modalIsDark ? Colors.white12 : const Color(0xFFE2E8F0)),
                                             ),
                                             child: SingleChildScrollView(
                                               child: MarkdownBody(
                                                 data: aiResponse!,
                                                 styleSheet: MarkdownStyleSheet(
-                                                  p: const TextStyle(color: Colors.white70, fontSize: 14, height: 1.5),
-                                                  h1: const TextStyle(color: Colors.greenAccent, fontSize: 18, fontWeight: FontWeight.bold),
-                                                  h2: const TextStyle(color: Colors.greenAccent, fontSize: 16, fontWeight: FontWeight.bold),
-                                                  h3: const TextStyle(color: Colors.lightGreenAccent, fontSize: 15, fontWeight: FontWeight.bold),
-                                                  strong: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                                                  listBullet: const TextStyle(color: Colors.greenAccent),
+                                                  p: TextStyle(color: modalTextColor, fontSize: 14, height: 1.5),
+                                                  h1: TextStyle(color: modalIsDark ? Colors.greenAccent : Colors.green.shade800, fontSize: 18, fontWeight: FontWeight.bold),
+                                                  h2: TextStyle(color: modalIsDark ? Colors.greenAccent : Colors.green.shade800, fontSize: 16, fontWeight: FontWeight.bold),
+                                                  h3: TextStyle(color: modalIsDark ? Colors.lightGreenAccent : Colors.green.shade700, fontSize: 15, fontWeight: FontWeight.bold),
+                                                  strong: TextStyle(color: modalTextColor, fontWeight: FontWeight.bold),
+                                                  listBullet: TextStyle(color: modalIsDark ? Colors.greenAccent : Colors.green.shade700),
                                                 ),
                                               ),
                                             ),
@@ -329,12 +344,12 @@ class _KnowledgeBaseScreenState extends ConsumerState<KnowledgeBaseScreen> {
                                       child: Column(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          Icon(Icons.psychology_outlined, color: Colors.greenAccent.withValues(alpha: 0.4), size: 64),
+                                          Icon(Icons.psychology_outlined, color: (modalIsDark ? Colors.greenAccent : Colors.green.shade700).withValues(alpha: 0.4), size: 64),
                                           const SizedBox(height: 16),
-                                          const Text(
+                                          Text(
                                             'Type any crop name above to generate\ncomplete AI pest & disease guidelines.',
                                             textAlign: TextAlign.center,
-                                            style: TextStyle(color: Colors.white54, fontSize: 15),
+                                            style: TextStyle(color: modalSubtextColor, fontSize: 15),
                                           ),
                                         ],
                                       ),
@@ -352,17 +367,29 @@ class _KnowledgeBaseScreenState extends ConsumerState<KnowledgeBaseScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
+    final subtextColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569);
+    final inputBg = isDark ? Colors.black.withValues(alpha: 0.35) : Colors.white.withValues(alpha: 0.85);
+    final inputBorder = isDark ? Colors.white.withValues(alpha: 0.15) : const Color(0xFFCBD5E1);
+    final chipBg = isDark ? Colors.black.withValues(alpha: 0.25) : Colors.white.withValues(alpha: 0.8);
+
     final filteredPests = _getFilteredPests();
 
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('Pest & Disease Guide', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: Text(
+          'Pest & Disease Guide',
+          style: TextStyle(fontWeight: FontWeight.bold, color: textColor),
+        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
+        iconTheme: IconThemeData(color: textColor),
         actions: [
           IconButton(
-            icon: const Icon(Icons.auto_awesome, color: Colors.greenAccent),
+            icon: Icon(Icons.auto_awesome, color: isDark ? Colors.greenAccent : Colors.green.shade700),
             tooltip: 'Ask AI Pest Doctor',
             onPressed: () => _openAiPestDoctor(context),
           ),
@@ -405,7 +432,7 @@ class _KnowledgeBaseScreenState extends ConsumerState<KnowledgeBaseScreen> {
                             child: const Icon(Icons.auto_awesome, color: Colors.white, size: 28),
                           ),
                           const SizedBox(width: 14),
-                          const Expanded(
+                          Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -413,25 +440,25 @@ class _KnowledgeBaseScreenState extends ConsumerState<KnowledgeBaseScreen> {
                                   children: [
                                     Text(
                                       'Ask AI Pest Doctor',
-                                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                                      style: TextStyle(color: textColor, fontWeight: FontWeight.bold, fontSize: 16),
                                     ),
-                                    SizedBox(width: 6),
-                                    Badge(
+                                    const SizedBox(width: 6),
+                                    const Badge(
                                       label: Text('AI LIVE', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
                                       backgroundColor: Colors.greenAccent,
                                       textColor: Colors.black,
                                     ),
                                   ],
                                 ),
-                                SizedBox(height: 4),
+                                const SizedBox(height: 4),
                                 Text(
                                   'Generate customized pest & disease advice for ANY crop',
-                                  style: TextStyle(color: Colors.white70, fontSize: 12),
+                                  style: TextStyle(color: subtextColor, fontSize: 12),
                                 ),
                               ],
                             ),
                           ),
-                          const Icon(Icons.arrow_forward_ios, color: Colors.white54, size: 16),
+                          Icon(Icons.arrow_forward_ios, color: subtextColor, size: 16),
                         ],
                       ),
                     ),
@@ -443,17 +470,17 @@ class _KnowledgeBaseScreenState extends ConsumerState<KnowledgeBaseScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6.0),
                   child: TextField(
                     controller: _searchController,
-                    style: const TextStyle(color: Colors.white),
+                    style: TextStyle(color: textColor),
                     onChanged: (_) => setState(() {}),
                     decoration: InputDecoration(
                       hintText: 'Search pest, disease, or crop (e.g. Rice, Blast, මිරිස්)...',
-                      hintStyle: const TextStyle(color: Colors.white38, fontSize: 13),
+                      hintStyle: TextStyle(color: subtextColor.withValues(alpha: 0.7), fontSize: 13),
                       filled: true,
-                      fillColor: Colors.black.withValues(alpha: 0.35),
-                      prefixIcon: const Icon(Icons.search, color: Colors.white54),
+                      fillColor: inputBg,
+                      prefixIcon: Icon(Icons.search, color: subtextColor),
                       suffixIcon: _searchController.text.isNotEmpty
                           ? IconButton(
-                              icon: const Icon(Icons.clear, color: Colors.white54),
+                              icon: Icon(Icons.clear, color: subtextColor),
                               onPressed: () {
                                 _searchController.clear();
                                 setState(() {});
@@ -463,11 +490,15 @@ class _KnowledgeBaseScreenState extends ConsumerState<KnowledgeBaseScreen> {
                       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.15)),
+                        borderSide: BorderSide(color: inputBorder),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.15)),
+                        borderSide: BorderSide(color: inputBorder),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide(color: isDark ? Colors.greenAccent : Colors.green.shade700, width: 1.5),
                       ),
                     ),
                   ),
@@ -489,9 +520,12 @@ class _KnowledgeBaseScreenState extends ConsumerState<KnowledgeBaseScreen> {
                           label: Text(filter),
                           selected: isSelected,
                           selectedColor: Colors.greenAccent.shade700,
-                          backgroundColor: Colors.black.withValues(alpha: 0.25),
+                          backgroundColor: chipBg,
+                          side: BorderSide(
+                            color: isSelected ? Colors.transparent : inputBorder,
+                          ),
                           labelStyle: TextStyle(
-                            color: isSelected ? Colors.white : Colors.white70,
+                            color: isSelected ? Colors.white : (isDark ? Colors.white70 : const Color(0xFF334155)),
                             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                             fontSize: 12,
                           ),
@@ -515,20 +549,20 @@ class _KnowledgeBaseScreenState extends ConsumerState<KnowledgeBaseScreen> {
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(Icons.search_off, color: Colors.white38, size: 54),
+                              Icon(Icons.search_off, color: subtextColor.withValues(alpha: 0.6), size: 54),
                               const SizedBox(height: 12),
                               Text(
                                 'No offline entry found for "${_searchController.text}"',
-                                style: const TextStyle(color: Colors.white70),
+                                style: TextStyle(color: subtextColor),
                               ),
                               const SizedBox(height: 8),
                               OutlinedButton.icon(
                                 onPressed: () => _openAiPestDoctor(context, _searchController.text),
-                                icon: const Icon(Icons.auto_awesome, color: Colors.greenAccent),
+                                icon: Icon(Icons.auto_awesome, color: isDark ? Colors.greenAccent : Colors.green.shade700),
                                 label: Text('Search AI for "${_searchController.text}"'),
                                 style: OutlinedButton.styleFrom(
-                                  foregroundColor: Colors.greenAccent,
-                                  side: const BorderSide(color: Colors.greenAccent),
+                                  foregroundColor: isDark ? Colors.greenAccent : Colors.green.shade700,
+                                  side: BorderSide(color: isDark ? Colors.greenAccent : Colors.green.shade700),
                                 ),
                               ),
                             ],
@@ -552,6 +586,10 @@ class _KnowledgeBaseScreenState extends ConsumerState<KnowledgeBaseScreen> {
   }
 
   Widget _buildPestCard(BuildContext context, PestDisease pest) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
+    final subtextColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569);
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 14),
       child: GlassContainer(
@@ -575,8 +613,8 @@ class _KnowledgeBaseScreenState extends ConsumerState<KnowledgeBaseScreen> {
                     errorBuilder: (c, e, s) => Container(
                       width: 78,
                       height: 78,
-                      color: Colors.grey.withValues(alpha: 0.3),
-                      child: const Icon(Icons.bug_report, color: Colors.greenAccent, size: 38),
+                      color: isDark ? Colors.grey.withValues(alpha: 0.2) : Colors.grey.shade200,
+                      child: Icon(Icons.bug_report, color: isDark ? Colors.greenAccent : Colors.green.shade700, size: 38),
                     ),
                   ),
                 ),
@@ -590,12 +628,16 @@ class _KnowledgeBaseScreenState extends ConsumerState<KnowledgeBaseScreen> {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                             decoration: BoxDecoration(
-                              color: Colors.greenAccent.withValues(alpha: 0.15),
+                              color: Colors.green.withValues(alpha: isDark ? 0.2 : 0.12),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
                               pest.crop,
-                              style: const TextStyle(color: Colors.greenAccent, fontSize: 11, fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                color: isDark ? Colors.greenAccent : Colors.green.shade800,
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -604,7 +646,7 @@ class _KnowledgeBaseScreenState extends ConsumerState<KnowledgeBaseScreen> {
                               pest.category,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(color: Colors.white54, fontSize: 11),
+                              style: TextStyle(color: subtextColor, fontSize: 11),
                             ),
                           ),
                         ],
@@ -612,26 +654,26 @@ class _KnowledgeBaseScreenState extends ConsumerState<KnowledgeBaseScreen> {
                       const SizedBox(height: 6),
                       Text(
                         pest.name,
-                        style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                        style: TextStyle(color: textColor, fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 3),
                       Text(
                         pest.scientificName,
-                        style: const TextStyle(color: Colors.white54, fontStyle: FontStyle.italic, fontSize: 12),
+                        style: TextStyle(color: subtextColor, fontStyle: FontStyle.italic, fontSize: 12),
                       ),
                       const SizedBox(height: 6),
                       Text(
                         pest.symptoms,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(color: Colors.white70, fontSize: 12),
+                        style: TextStyle(color: subtextColor, fontSize: 12),
                       ),
                     ],
                   ),
                 ),
-                const Padding(
-                  padding: EdgeInsets.only(top: 24.0, left: 8.0),
-                  child: Icon(Icons.arrow_forward_ios, color: Colors.white38, size: 14),
+                Padding(
+                  padding: const EdgeInsets.only(top: 24.0, left: 8.0),
+                  child: Icon(Icons.arrow_forward_ios, color: subtextColor, size: 14),
                 ),
               ],
             ),
