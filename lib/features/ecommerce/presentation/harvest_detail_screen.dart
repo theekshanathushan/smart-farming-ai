@@ -86,7 +86,7 @@ class HarvestDetailScreen extends ConsumerWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: isDark
-                      ? [Colors.green.shade900, Colors.teal.shade950]
+                      ? [Colors.green.shade900, const Color(0xFF042F2E)]
                       : [Colors.green.shade800, Colors.teal.shade700],
                 ),
               ),
