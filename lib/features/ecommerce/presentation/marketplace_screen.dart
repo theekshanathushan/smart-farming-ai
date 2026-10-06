@@ -16,6 +16,12 @@ class MarketplaceScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
     final state = ref.watch(marketplaceProvider);
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
+    final subtextColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569);
+    final switchBg = isDark ? Colors.black.withValues(alpha: 0.4) : Colors.white.withValues(alpha: 0.85);
+    final searchBg = isDark ? Colors.white.withValues(alpha: 0.12) : Colors.white.withValues(alpha: 0.85);
+    final borderCol = isDark ? Colors.white.withValues(alpha: 0.15) : const Color(0xFFCBD5E1);
 
     final categories = [
       {'key': 'All', 'label': l10n.allCategories},
@@ -35,14 +41,14 @@ class MarketplaceScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(
           l10n.harvestMarketplace,
-          style: const TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.bold, color: textColor),
         ),
-        backgroundColor: Colors.black.withValues(alpha: 0.35),
-        foregroundColor: Colors.white,
+        backgroundColor: Colors.transparent,
         elevation: 0,
+        iconTheme: IconThemeData(color: textColor),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: Icon(Icons.refresh, color: textColor),
             onPressed: () => ref.read(marketplaceProvider.notifier).loadListings(),
           ),
         ],
@@ -71,8 +77,9 @@ class MarketplaceScreen extends ConsumerWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                   child: Container(
                     decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.4),
+                      color: switchBg,
                       borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: borderCol),
                     ),
                     padding: const EdgeInsets.all(4),
                     child: Row(
@@ -92,10 +99,12 @@ class MarketplaceScreen extends ConsumerWidget {
                               child: Text(
                                 l10n.browseProduce,
                                 style: TextStyle(
-                                  color: Colors.white,
+                                  color: state.currentTab == MarketplaceTab.browse
+                                      ? Colors.white
+                                      : subtextColor,
                                   fontWeight: state.currentTab == MarketplaceTab.browse
                                       ? FontWeight.bold
-                                      : FontWeight.normal,
+                                      : FontWeight.w600,
                                 ),
                               ),
                             ),
@@ -116,10 +125,12 @@ class MarketplaceScreen extends ConsumerWidget {
                               child: Text(
                                 l10n.myListings,
                                 style: TextStyle(
-                                  color: Colors.white,
+                                  color: state.currentTab == MarketplaceTab.myListings
+                                      ? Colors.white
+                                      : subtextColor,
                                   fontWeight: state.currentTab == MarketplaceTab.myListings
                                       ? FontWeight.bold
-                                      : FontWeight.normal,
+                                      : FontWeight.w600,
                                 ),
                               ),
                             ),
@@ -138,14 +149,18 @@ class MarketplaceScreen extends ConsumerWidget {
                     child: BackdropFilter(
                       filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                       child: Container(
-                        color: Colors.white.withValues(alpha: 0.15),
+                        decoration: BoxDecoration(
+                          color: searchBg,
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: borderCol),
+                        ),
                         child: TextField(
                           onChanged: (val) => ref.read(marketplaceProvider.notifier).setSearchQuery(val),
-                          style: const TextStyle(color: Colors.white),
+                          style: TextStyle(color: textColor),
                           decoration: InputDecoration(
                             hintText: l10n.searchProduceHint,
-                            hintStyle: const TextStyle(color: Colors.white70, fontSize: 13),
-                            prefixIcon: const Icon(Icons.search, color: Colors.white70),
+                            hintStyle: TextStyle(color: subtextColor.withValues(alpha: 0.8), fontSize: 13),
+                            prefixIcon: Icon(Icons.search, color: subtextColor),
                             border: InputBorder.none,
                             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                           ),
@@ -172,17 +187,17 @@ class MarketplaceScreen extends ConsumerWidget {
                             label: Text(
                               cat['label']!,
                               style: TextStyle(
-                                color: isSelected ? Colors.white : Colors.white70,
+                                color: isSelected ? Colors.white : (isDark ? Colors.white70 : const Color(0xFF334155)),
                                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                                 fontSize: 12,
                               ),
                             ),
                             selected: isSelected,
                             selectedColor: theme.colorScheme.primary,
-                            backgroundColor: Colors.black.withValues(alpha: 0.3),
+                            backgroundColor: isDark ? Colors.black.withValues(alpha: 0.3) : Colors.white.withValues(alpha: 0.85),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                             side: BorderSide(
-                              color: isSelected ? theme.colorScheme.primary : Colors.white24,
+                              color: isSelected ? theme.colorScheme.primary : borderCol,
                             ),
                             onSelected: (_) => ref.read(marketplaceProvider.notifier).setCategory(cat['key']!),
                           ),
@@ -194,17 +209,17 @@ class MarketplaceScreen extends ConsumerWidget {
                 // Main Listings Grid
                 Expanded(
                   child: state.isLoading
-                      ? const Center(child: CircularProgressIndicator(color: Colors.white))
+                      ? Center(child: CircularProgressIndicator(color: theme.colorScheme.primary))
                       : displayedListings.isEmpty
                           ? Center(
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(Icons.inventory_2_outlined, size: 64, color: Colors.white.withValues(alpha: 0.6)),
+                                  Icon(Icons.inventory_2_outlined, size: 64, color: subtextColor.withValues(alpha: 0.6)),
                                   const SizedBox(height: 16),
                                   Text(
                                     l10n.noProduceFound,
-                                    style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                                    style: TextStyle(color: textColor, fontSize: 16, fontWeight: FontWeight.bold),
                                   ),
                                   const SizedBox(height: 12),
                                   if (state.currentTab == MarketplaceTab.myListings)
@@ -267,6 +282,11 @@ class _HarvestProduceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
+    final subtextColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569);
+    final cardBg = isDark ? Colors.black.withValues(alpha: 0.45) : Colors.white.withValues(alpha: 0.92);
+    final cardBorder = isDark ? Colors.white.withValues(alpha: 0.15) : const Color(0xFFE2E8F0);
 
     return InkWell(
       onTap: onTap,
@@ -277,9 +297,9 @@ class _HarvestProduceCard extends StatelessWidget {
           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.black.withValues(alpha: 0.45),
+              color: cardBg,
               borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
+              border: Border.all(color: cardBorder),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -290,10 +310,15 @@ class _HarvestProduceCard extends StatelessWidget {
                   child: Container(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
-                        colors: [
-                          Colors.green.shade900.withValues(alpha: 0.8),
-                          Colors.teal.shade900.withValues(alpha: 0.6),
-                        ],
+                        colors: isDark
+                            ? [
+                                Colors.green.shade900.withValues(alpha: 0.8),
+                                Colors.teal.shade900.withValues(alpha: 0.6),
+                              ]
+                            : [
+                                Colors.green.shade100,
+                                Colors.teal.shade50,
+                              ],
                       ),
                     ),
                     child: Stack(
@@ -306,7 +331,7 @@ class _HarvestProduceCard extends StatelessWidget {
                                     ? Icons.grain
                                     : Icons.eco,
                             size: 42,
-                            color: Colors.greenAccent,
+                            color: isDark ? Colors.greenAccent : Colors.green.shade800,
                           ),
                         ),
                         // Grade Badge
@@ -316,12 +341,16 @@ class _HarvestProduceCard extends StatelessWidget {
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                             decoration: BoxDecoration(
-                              color: Colors.black.withValues(alpha: 0.6),
+                              color: isDark ? Colors.black.withValues(alpha: 0.6) : Colors.white.withValues(alpha: 0.9),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
                               listing.grade,
-                              style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                color: isDark ? Colors.white : const Color(0xFF0F172A),
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ),
@@ -360,7 +389,7 @@ class _HarvestProduceCard extends StatelessWidget {
                           children: [
                             Text(
                               listing.cropName,
-                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                              style: TextStyle(color: textColor, fontWeight: FontWeight.bold, fontSize: 14),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -368,7 +397,7 @@ class _HarvestProduceCard extends StatelessWidget {
                             Text(
                               l10n.pricePerKg(listing.pricePerUnit.toStringAsFixed(0), listing.unit),
                               style: TextStyle(
-                                color: Colors.greenAccent.shade400,
+                                color: isDark ? Colors.greenAccent.shade400 : Colors.green.shade800,
                                 fontWeight: FontWeight.w900,
                                 fontSize: 14,
                               ),
@@ -380,12 +409,12 @@ class _HarvestProduceCard extends StatelessWidget {
                           children: [
                             Row(
                               children: [
-                                const Icon(Icons.scale, size: 12, color: Colors.white70),
+                                Icon(Icons.scale, size: 12, color: subtextColor),
                                 const SizedBox(width: 4),
                                 Expanded(
                                   child: Text(
                                     '${listing.quantity.toStringAsFixed(0)} ${listing.unit}',
-                                    style: const TextStyle(color: Colors.white70, fontSize: 11),
+                                    style: TextStyle(color: subtextColor, fontSize: 11),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
@@ -400,7 +429,7 @@ class _HarvestProduceCard extends StatelessWidget {
                                 Expanded(
                                   child: Text(
                                     listing.district,
-                                    style: const TextStyle(color: Colors.white70, fontSize: 11),
+                                    style: TextStyle(color: subtextColor, fontSize: 11),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
