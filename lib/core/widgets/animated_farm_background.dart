@@ -55,8 +55,10 @@ class _AnimatedFarmBackgroundState extends State<AnimatedFarmBackground> with Si
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  Colors.black.withValues(alpha: 0.6),
-                  Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.8),
+                  Theme.of(context).brightness == Brightness.dark
+                      ? Colors.black.withValues(alpha: 0.6)
+                      : Colors.white.withValues(alpha: 0.35),
+                  Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.85),
                   Theme.of(context).scaffoldBackgroundColor,
                 ],
                 stops: const [0.0, 0.5, 1.0],

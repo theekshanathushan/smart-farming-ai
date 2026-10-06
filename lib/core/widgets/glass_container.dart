@@ -7,6 +7,7 @@ class GlassContainer extends StatelessWidget {
   final EdgeInsetsGeometry? margin;
   final double borderRadius;
   final Color? backgroundColor;
+  final Color? borderColor;
 
   const GlassContainer({
     super.key,
@@ -15,10 +16,25 @@ class GlassContainer extends StatelessWidget {
     this.margin,
     this.borderRadius = 16.0,
     this.backgroundColor,
+    this.borderColor,
   });
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final defaultBg = isDark
+        ? Colors.black.withValues(alpha: 0.45)
+        : Colors.white.withValues(alpha: 0.82);
+
+    final defaultBorder = isDark
+        ? Colors.white.withValues(alpha: 0.18)
+        : Colors.black.withValues(alpha: 0.08);
+
+    final defaultShadow = isDark
+        ? Colors.black.withValues(alpha: 0.25)
+        : Colors.black.withValues(alpha: 0.05);
+
     return Container(
       margin: margin,
       child: ClipRRect(
@@ -28,13 +44,16 @@ class GlassContainer extends StatelessWidget {
           child: Container(
             padding: padding,
             decoration: BoxDecoration(
-              color: backgroundColor ?? Colors.black.withValues(alpha: 0.5),
+              color: backgroundColor ?? defaultBg,
               borderRadius: BorderRadius.circular(borderRadius),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.2), width: 1.0),
+              border: Border.all(
+                color: borderColor ?? defaultBorder,
+                width: 1.0,
+              ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.1),
-                  blurRadius: 10,
+                  color: defaultShadow,
+                  blurRadius: 12,
                   spreadRadius: 1,
                   offset: const Offset(0, 4),
                 ),

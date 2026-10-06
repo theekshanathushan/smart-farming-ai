@@ -8,6 +8,7 @@ import '../../../core/widgets/glass_container.dart';
 import '../../auth/providers/auth_provider.dart';
 import 'package:agri_ai/l10n/app_localizations.dart';
 import '../../../core/providers/locale_provider.dart';
+import '../../../core/providers/theme_provider.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -38,7 +39,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     }
   }
 
-  void _showImagePickerOptions(AppLocalizations l10n) {
+  void _showImagePickerOptions(AppLocalizations l10n, Color textColor, Color subtextColor, bool isDark) {
     final authState = ref.read(authProvider);
 
     showModalBottomSheet(
@@ -51,21 +52,24 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(l10n.updateProfilePhoto, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+              Text(
+                l10n.updateProfilePhoto,
+                style: TextStyle(color: textColor, fontSize: 18, fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 24),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  _buildOptionButton(Icons.camera_alt, l10n.camera, () {
+                  _buildOptionButton(Icons.camera_alt, l10n.camera, textColor, isDark, () {
                     Navigator.pop(context);
                     _pickImage(ImageSource.camera);
                   }),
-                  _buildOptionButton(Icons.photo_library, l10n.gallery, () {
+                  _buildOptionButton(Icons.photo_library, l10n.gallery, textColor, isDark, () {
                     Navigator.pop(context);
                     _pickImage(ImageSource.gallery);
                   }),
                   if (authState.profileImagePath != null)
-                    _buildOptionButton(Icons.delete, l10n.remove, () {
+                    _buildOptionButton(Icons.delete, l10n.remove, textColor, isDark, () {
                       Navigator.pop(context);
                       ref.read(authProvider.notifier).updateProfileImage(null);
                     }, isDestructive: true),
@@ -78,8 +82,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
   }
 
-  Widget _buildOptionButton(IconData icon, String label, VoidCallback onTap, {bool isDestructive = false}) {
-    final color = isDestructive ? Colors.redAccent : Colors.white;
+  Widget _buildOptionButton(
+    IconData icon,
+    String label,
+    Color textColor,
+    bool isDark,
+    VoidCallback onTap, {
+    bool isDestructive = false,
+  }) {
+    final color = isDestructive ? Colors.redAccent : textColor;
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
@@ -91,9 +102,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: isDestructive ? Colors.red.withValues(alpha: 0.2) : Colors.white24,
+                color: isDestructive
+                    ? Colors.red.withValues(alpha: 0.2)
+                    : (isDark ? Colors.white24 : Colors.black.withValues(alpha: 0.08)),
               ),
-              child: Icon(icon, color: color, size: 32),
+              child: Icon(icon, color: color, size: 30),
             ),
             const SizedBox(height: 8),
             Text(label, style: TextStyle(color: color, fontWeight: FontWeight.bold)),
@@ -108,13 +121,22 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final authState = ref.watch(authProvider);
     final l10n = AppLocalizations.of(context)!;
     final locale = ref.watch(localeProvider);
+    final themeMode = ref.watch(themeModeProvider);
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
+    final subtextColor = isDark ? Colors.white70 : const Color(0xFF64748B);
 
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text(l10n.profileTitle, style: const TextStyle(fontWeight: FontWeight.bold)),
+        title: Text(
+          l10n.profileTitle,
+          style: TextStyle(fontWeight: FontWeight.bold, color: textColor),
+        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
+        iconTheme: IconThemeData(color: textColor),
       ),
       body: Stack(
         children: [
@@ -133,16 +155,19 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           padding: const EdgeInsets.all(4),
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white.withValues(alpha: 0.5), width: 3),
+                            border: Border.all(
+                              color: isDark ? Colors.white38 : Colors.black12,
+                              width: 3,
+                            ),
                           ),
                           child: CircleAvatar(
                             radius: 50,
-                            backgroundColor: Colors.white24,
+                            backgroundColor: isDark ? Colors.white24 : Colors.black12,
                             backgroundImage: authState.profileImagePath != null
                                 ? FileImage(File(authState.profileImagePath!))
                                 : null,
                             child: authState.profileImagePath == null
-                                ? const Icon(Icons.person, size: 50, color: Colors.white)
+                                ? Icon(Icons.person, size: 50, color: textColor)
                                 : null,
                           ),
                         ),
@@ -150,14 +175,20 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           bottom: 0,
                           right: 0,
                           child: InkWell(
-                            onTap: () => _showImagePickerOptions(l10n),
+                            onTap: () => _showImagePickerOptions(l10n, textColor, subtextColor, isDark),
                             child: Container(
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.secondary,
+                                color: Theme.of(context).colorScheme.primary,
                                 shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.2),
+                                    blurRadius: 6,
+                                  ),
+                                ],
                               ),
-                              child: const Icon(Icons.camera_alt, color: Colors.white, size: 20),
+                              child: const Icon(Icons.camera_alt, color: Colors.white, size: 18),
                             ),
                           ),
                         ),
@@ -168,44 +199,95 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   Center(
                     child: Text(
                       authState.name?.isNotEmpty == true ? authState.name! : 'Farmer User',
-                      style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold),
+                      style: TextStyle(color: textColor, fontSize: 26, fontWeight: FontWeight.bold),
                     ),
                   ),
                   const SizedBox(height: 32),
 
                   // Personal Info Section
-                  _buildSectionTitle(l10n.personalDetails),
+                  _buildSectionTitle(l10n.personalDetails, textColor),
                   const SizedBox(height: 12),
                   GlassContainer(
                     borderRadius: 20,
                     padding: const EdgeInsets.all(20),
                     child: Column(
                       children: [
-                        _buildInfoRow(Icons.phone, l10n.phoneNumber, authState.phoneNumber ?? l10n.notProvided),
-                        const Divider(color: Colors.white24, height: 24),
-                        _buildInfoRow(Icons.location_on, l10n.location, 'Dambulla, Sri Lanka'),
+                        _buildInfoRow(
+                          Icons.phone_rounded,
+                          l10n.phoneNumber,
+                          authState.phoneNumber ?? l10n.notProvided,
+                          textColor,
+                          subtextColor,
+                        ),
+                        Divider(color: isDark ? Colors.white12 : Colors.black12, height: 24),
+                        _buildInfoRow(
+                          Icons.location_on_rounded,
+                          l10n.location,
+                          'Dambulla, Sri Lanka',
+                          textColor,
+                          subtextColor,
+                        ),
                       ],
                     ),
                   ),
                   const SizedBox(height: 24),
 
                   // Settings Section
-                  _buildSectionTitle(l10n.appSettings),
+                  _buildSectionTitle(l10n.appSettings, textColor),
                   const SizedBox(height: 12),
                   GlassContainer(
                     borderRadius: 20,
                     padding: const EdgeInsets.all(20),
                     child: Column(
                       children: [
-                        _buildActionRow(context, Icons.language, l10n.language, _getLanguageName(locale.languageCode, l10n), onTap: () {
-                          _showLanguageDialog(context, l10n);
-                        }),
-                        const Divider(color: Colors.white24, height: 24),
-                        _buildActionRow(context, Icons.info_outline, l10n.aboutApp, 'Version 1.0.0'),
+                        // Theme Mode Switcher Row
+                        _buildActionRow(
+                          context,
+                          themeMode == ThemeMode.dark
+                              ? Icons.dark_mode_rounded
+                              : (themeMode == ThemeMode.light
+                                  ? Icons.light_mode_rounded
+                                  : Icons.brightness_auto_rounded),
+                          locale.languageCode == 'si'
+                              ? 'තේමාව (Theme)'
+                              : (locale.languageCode == 'ta' ? 'தீம் (Theme)' : 'Theme Mode'),
+                          _getThemeModeName(themeMode, locale.languageCode),
+                          textColor,
+                          subtextColor,
+                          iconColor: themeMode == ThemeMode.light
+                              ? Colors.amber
+                              : (themeMode == ThemeMode.dark ? Colors.tealAccent : Colors.blueAccent),
+                          onTap: () => _showThemeModeDialog(context, themeMode, locale.languageCode, textColor, subtextColor, isDark),
+                        ),
+                        Divider(color: isDark ? Colors.white12 : Colors.black12, height: 24),
+
+                        // Language Row
+                        _buildActionRow(
+                          context,
+                          Icons.language_rounded,
+                          l10n.language,
+                          _getLanguageName(locale.languageCode, l10n),
+                          textColor,
+                          subtextColor,
+                          iconColor: Theme.of(context).colorScheme.primary,
+                          onTap: () => _showLanguageDialog(context, l10n, locale.languageCode, textColor, subtextColor, isDark),
+                        ),
+                        Divider(color: isDark ? Colors.white12 : Colors.black12, height: 24),
+
+                        // About App Row
+                        _buildActionRow(
+                          context,
+                          Icons.info_outline_rounded,
+                          l10n.aboutApp,
+                          'Version 1.0.0 (Offline-First AI)',
+                          textColor,
+                          subtextColor,
+                          iconColor: Colors.purpleAccent,
+                        ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 28),
 
                   // Logout Button
                   ElevatedButton.icon(
@@ -216,11 +298,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       }
                     },
                     icon: const Icon(Icons.logout, color: Colors.white),
-                    label: Text(l10n.logout, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                    label: Text(
+                      l10n.logout,
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                    ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.error.withValues(alpha: 0.8),
+                      backgroundColor: Colors.redAccent.shade700,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      elevation: 2,
                     ),
                   ),
                   const SizedBox(height: 40),
@@ -233,29 +319,37 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
   }
 
-  Widget _buildSectionTitle(String title) {
+  Widget _buildSectionTitle(String title, Color textColor) {
     return Text(
       title,
-      style: const TextStyle(
-        color: Colors.white,
+      style: TextStyle(
+        color: textColor,
         fontSize: 18,
         fontWeight: FontWeight.bold,
+        letterSpacing: 0.2,
       ),
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String label, String value) {
+  Widget _buildInfoRow(IconData icon, String label, String value, Color textColor, Color subtextColor) {
     return Row(
       children: [
-        Icon(icon, color: Theme.of(context).colorScheme.secondary, size: 24),
-        const SizedBox(width: 16),
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(icon, color: Theme.of(context).colorScheme.primary, size: 22),
+        ),
+        const SizedBox(width: 14),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label, style: const TextStyle(color: Colors.white70, fontSize: 14)),
-              const SizedBox(height: 4),
-              Text(value, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600)),
+              Text(label, style: TextStyle(color: subtextColor, fontSize: 13)),
+              const SizedBox(height: 3),
+              Text(value, style: TextStyle(color: textColor, fontSize: 15.5, fontWeight: FontWeight.w600)),
             ],
           ),
         ),
@@ -263,31 +357,251 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
   }
 
-  Widget _buildActionRow(BuildContext context, IconData icon, String label, String subtitle, {VoidCallback? onTap}) {
+  Widget _buildActionRow(
+    BuildContext context,
+    IconData icon,
+    String label,
+    String subtitle,
+    Color textColor,
+    Color subtextColor, {
+    Color? iconColor,
+    VoidCallback? onTap,
+  }) {
+    final effectiveColor = iconColor ?? Theme.of(context).colorScheme.primary;
+
     return InkWell(
-      onTap: onTap ?? () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('$label settings coming soon')),
+      onTap: onTap ??
+          () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('$label settings coming soon')),
+            );
+          },
+      borderRadius: BorderRadius.circular(12),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4.0),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: effectiveColor.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(icon, color: effectiveColor, size: 22),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(label, style: TextStyle(color: textColor, fontSize: 15.5, fontWeight: FontWeight.w600)),
+                  if (subtitle.isNotEmpty) ...[
+                    const SizedBox(height: 2),
+                    Text(subtitle, style: TextStyle(color: subtextColor, fontSize: 13)),
+                  ],
+                ],
+              ),
+            ),
+            Icon(Icons.arrow_forward_ios_rounded, color: subtextColor.withValues(alpha: 0.6), size: 15),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _getThemeModeName(ThemeMode mode, String lang) {
+    if (lang == 'si') {
+      switch (mode) {
+        case ThemeMode.light:
+          return 'ලා තේමාව (Light Mode)';
+        case ThemeMode.dark:
+          return 'අඳුරු තේමාව (Dark Mode)';
+        case ThemeMode.system:
+          return 'පද්ධතිය අනුව (System Default)';
+      }
+    } else if (lang == 'ta') {
+      switch (mode) {
+        case ThemeMode.light:
+          return 'வெளிச்சம் (Light Mode)';
+        case ThemeMode.dark:
+          return 'இருள் (Dark Mode)';
+        case ThemeMode.system:
+          return 'கணினி இயல்புநிலை (System)';
+      }
+    } else {
+      switch (mode) {
+        case ThemeMode.light:
+          return 'Light Mode';
+        case ThemeMode.dark:
+          return 'Dark Mode';
+        case ThemeMode.system:
+          return 'System Default';
+      }
+    }
+  }
+
+  void _showThemeModeDialog(
+    BuildContext context,
+    ThemeMode currentMode,
+    String lang,
+    Color textColor,
+    Color subtextColor,
+    bool isDark,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) {
+        return GlassContainer(
+          borderRadius: 28,
+          padding: const EdgeInsets.all(22),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.brightness_6_rounded, color: Theme.of(context).colorScheme.primary, size: 24),
+                  const SizedBox(width: 10),
+                  Text(
+                    lang == 'si'
+                        ? 'තේමාව තෝරන්න (Theme Mode)'
+                        : (lang == 'ta' ? 'தீம் அமைப்புகள்' : 'Select Theme Mode'),
+                    style: TextStyle(color: textColor, fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 18),
+
+              // Light Mode Option
+              _buildThemeOptionTile(
+                context,
+                title: lang == 'si' ? 'ලා තේමාව (Light Mode)' : 'Light Mode',
+                subtitle: lang == 'si' ? 'දවල් කාලයට පහසු සුදු/ලා පැහැය' : 'Clean & bright interface for daytime',
+                icon: Icons.light_mode_rounded,
+                iconColor: Colors.amber,
+                isSelected: currentMode == ThemeMode.light,
+                textColor: textColor,
+                subtextColor: subtextColor,
+                isDark: isDark,
+                onTap: () {
+                  ref.read(themeModeProvider.notifier).setThemeMode(ThemeMode.light);
+                  Navigator.pop(context);
+                },
+              ),
+
+              const SizedBox(height: 10),
+
+              // Dark Mode Option
+              _buildThemeOptionTile(
+                context,
+                title: lang == 'si' ? 'අඳුරු තේමාව (Dark Mode)' : 'Dark Mode',
+                subtitle: lang == 'si' ? 'ඇසට පහසු නවීන අඳුරු/Obsidian පැහැය' : 'Sleek dark obsidian look, easy on eyes',
+                icon: Icons.dark_mode_rounded,
+                iconColor: Colors.tealAccent,
+                isSelected: currentMode == ThemeMode.dark,
+                textColor: textColor,
+                subtextColor: subtextColor,
+                isDark: isDark,
+                onTap: () {
+                  ref.read(themeModeProvider.notifier).setThemeMode(ThemeMode.dark);
+                  Navigator.pop(context);
+                },
+              ),
+
+              const SizedBox(height: 10),
+
+              // System Default Option
+              _buildThemeOptionTile(
+                context,
+                title: lang == 'si' ? 'පද්ධතිය අනුව (System Default)' : 'System Default',
+                subtitle: lang == 'si' ? 'දුරකථනයේ තේමාව අනුව ස්වයංක්‍රීයව' : 'Match device OS settings automatically',
+                icon: Icons.brightness_auto_rounded,
+                iconColor: Colors.blueAccent,
+                isSelected: currentMode == ThemeMode.system,
+                textColor: textColor,
+                subtextColor: subtextColor,
+                isDark: isDark,
+                onTap: () {
+                  ref.read(themeModeProvider.notifier).setThemeMode(ThemeMode.system);
+                  Navigator.pop(context);
+                },
+              ),
+              const SizedBox(height: 12),
+            ],
+          ),
         );
       },
-      child: Row(
-        children: [
-          Icon(icon, color: Theme.of(context).colorScheme.tertiary, size: 24),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(label, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600)),
-                if (subtitle.isNotEmpty) ...[
-                  const SizedBox(height: 2),
-                  Text(subtitle, style: const TextStyle(color: Colors.white54, fontSize: 13)),
-                ],
-              ],
-            ),
+    );
+  }
+
+  Widget _buildThemeOptionTile(
+    BuildContext context, {
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required Color iconColor,
+    required bool isSelected,
+    required Color textColor,
+    required Color subtextColor,
+    required bool isDark,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.15)
+              : (isDark ? Colors.white.withValues(alpha: 0.04) : Colors.black.withValues(alpha: 0.03)),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isSelected
+                ? Theme.of(context).colorScheme.primary
+                : (isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.06)),
+            width: isSelected ? 1.5 : 1.0,
           ),
-          const Icon(Icons.arrow_forward_ios, color: Colors.white54, size: 16),
-        ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: iconColor.withValues(alpha: 0.15),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: iconColor, size: 22),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      color: textColor,
+                      fontSize: 15,
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: TextStyle(color: subtextColor, fontSize: 12),
+                  ),
+                ],
+              ),
+            ),
+            if (isSelected)
+              Icon(Icons.check_circle_rounded, color: Theme.of(context).colorScheme.primary, size: 22)
+            else
+              Icon(Icons.circle_outlined, color: subtextColor.withValues(alpha: 0.4), size: 22),
+          ],
+        ),
       ),
     );
   }
@@ -303,7 +617,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     }
   }
 
-  void _showLanguageDialog(BuildContext context, AppLocalizations l10n) {
+  void _showLanguageDialog(
+    BuildContext context,
+    AppLocalizations l10n,
+    String currentCode,
+    Color textColor,
+    Color subtextColor,
+    bool isDark,
+  ) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -313,34 +634,73 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           padding: const EdgeInsets.all(24),
           child: Column(
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(l10n.languageSettings, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+              Text(
+                l10n.languageSettings,
+                style: TextStyle(color: textColor, fontSize: 18, fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 16),
-              ListTile(
-                title: const Text('English', style: TextStyle(color: Colors.white)),
-                onTap: () {
-                  ref.read(localeProvider.notifier).setLocale(const Locale('en'));
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                title: const Text('සිංහල', style: TextStyle(color: Colors.white)),
-                onTap: () {
-                  ref.read(localeProvider.notifier).setLocale(const Locale('si'));
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                title: const Text('தமிழ்', style: TextStyle(color: Colors.white)),
-                onTap: () {
-                  ref.read(localeProvider.notifier).setLocale(const Locale('ta'));
-                  Navigator.pop(context);
-                },
-              ),
+              _buildLanguageTile('English', 'en', currentCode == 'en', textColor, subtextColor, isDark, () {
+                ref.read(localeProvider.notifier).setLocale(const Locale('en'));
+                Navigator.pop(context);
+              }),
+              const SizedBox(height: 8),
+              _buildLanguageTile('සිංහල (Sinhala)', 'si', currentCode == 'si', textColor, subtextColor, isDark, () {
+                ref.read(localeProvider.notifier).setLocale(const Locale('si'));
+                Navigator.pop(context);
+              }),
+              const SizedBox(height: 8),
+              _buildLanguageTile('தமிழ் (Tamil)', 'ta', currentCode == 'ta', textColor, subtextColor, isDark, () {
+                ref.read(localeProvider.notifier).setLocale(const Locale('ta'));
+                Navigator.pop(context);
+              }),
             ],
           ),
         );
       },
+    );
+  }
+
+  Widget _buildLanguageTile(
+    String name,
+    String code,
+    bool isSelected,
+    Color textColor,
+    Color subtextColor,
+    bool isDark,
+    VoidCallback onTap,
+  ) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(14),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.15)
+              : (isDark ? Colors.white.withValues(alpha: 0.04) : Colors.black.withValues(alpha: 0.03)),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: isSelected ? Theme.of(context).colorScheme.primary : Colors.transparent,
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              name,
+              style: TextStyle(
+                color: textColor,
+                fontSize: 15,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+              ),
+            ),
+            if (isSelected)
+              Icon(Icons.check_circle_rounded, color: Theme.of(context).colorScheme.primary, size: 20),
+          ],
+        ),
+      ),
     );
   }
 }

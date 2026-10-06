@@ -12,6 +12,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:agri_ai/l10n/app_localizations.dart';
 import 'core/providers/locale_provider.dart';
+import 'core/providers/theme_provider.dart';
 
 void main() async {
   // Ensure widget binding is initialized
@@ -50,8 +51,6 @@ void main() async {
     ),
   );
 }
-
-import 'core/providers/theme_provider.dart';
 
 class AgriAIApp extends ConsumerWidget {
   const AgriAIApp({super.key});
