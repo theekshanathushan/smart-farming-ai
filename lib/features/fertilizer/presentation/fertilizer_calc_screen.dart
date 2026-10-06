@@ -964,27 +964,28 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
                     child: Text(
                       item.timing,
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.8),
-                        fontSize: 12,
+                        color: Colors.white.withValues(alpha: 0.9),
+                        fontSize: 12.5,
+                        height: 1.35,
                       ),
                     ),
                   ),
                 ],
               ),
             if (item.purpose.isNotEmpty) ...[
-              const SizedBox(height: 4),
+              const SizedBox(height: 5),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.check_circle_outline, size: 13, color: Colors.greenAccent.withValues(alpha: 0.7)),
+                  Icon(Icons.check_circle_outline, size: 14, color: Colors.greenAccent.shade200),
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
                       item.purpose,
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.7),
-                        fontSize: 12,
-                        fontStyle: FontStyle.italic,
+                        color: Colors.white.withValues(alpha: 0.85),
+                        fontSize: 12.5,
+                        height: 1.35,
                       ),
                     ),
                   ),
@@ -998,73 +999,136 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
   }
 
   Widget _buildStageStep(int stepNum, FertilizerStage stage, bool isLast) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Column(
-          children: [
-            CircleAvatar(
-              radius: 12,
-              backgroundColor: Colors.greenAccent,
-              child: Text(
-                '$stepNum',
-                style: const TextStyle(color: Colors.black, fontSize: 12, fontWeight: FontWeight.bold),
-              ),
-            ),
-            if (!isLast)
+    final hasStageName = stage.stageName.trim().isNotEmpty;
+    final hasTiming = stage.timing.trim().isNotEmpty;
+
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Column(
+            children: [
               Container(
-                width: 2,
-                height: 45,
-                color: Colors.greenAccent.withValues(alpha: 0.3),
-              ),
-          ],
-        ),
-        const SizedBox(width: 14),
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: 16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        stage.stageName,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  color: Colors.greenAccent,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.greenAccent.withValues(alpha: 0.35),
+                      blurRadius: 6,
+                      offset: const Offset(0, 1),
                     ),
-                    if (stage.timing.isNotEmpty)
-                      Text(
-                        stage.timing,
-                        style: TextStyle(
-                          color: Colors.greenAccent.withValues(alpha: 0.8),
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
                   ],
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  stage.instructions,
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.8),
-                    fontSize: 13,
-                    height: 1.35,
+                alignment: Alignment.center,
+                child: Text(
+                  '$stepNum',
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-              ],
+              ),
+              if (!isLast)
+                Expanded(
+                  child: Container(
+                    width: 2,
+                    margin: const EdgeInsets.symmetric(vertical: 4),
+                    color: Colors.greenAccent.withValues(alpha: 0.35),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (hasStageName && hasTiming) ...[
+                    // Both stage name and timing
+                    Text(
+                      stage.stageName.trim(),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 14.5,
+                        fontWeight: FontWeight.bold,
+                        height: 1.35,
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: Colors.greenAccent.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: Colors.greenAccent.withValues(alpha: 0.35),
+                          width: 0.8,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.schedule, size: 12, color: Colors.greenAccent.shade400),
+                          const SizedBox(width: 4),
+                          Flexible(
+                            child: Text(
+                              stage.timing.trim(),
+                              style: TextStyle(
+                                color: Colors.greenAccent.shade100,
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.w600,
+                                height: 1.3,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ] else if (hasStageName) ...[
+                    Text(
+                      stage.stageName.trim(),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 14.5,
+                        fontWeight: FontWeight.bold,
+                        height: 1.35,
+                      ),
+                    ),
+                  ] else if (hasTiming) ...[
+                    // Only timing provided (wraps safely without overflow)
+                    Text(
+                      stage.timing.trim(),
+                      style: const TextStyle(
+                        color: Colors.greenAccent,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        height: 1.35,
+                      ),
+                    ),
+                  ],
+                  if (stage.instructions.trim().isNotEmpty) ...[
+                    const SizedBox(height: 6),
+                    Text(
+                      stage.instructions.trim(),
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.92),
+                        fontSize: 13.5,
+                        height: 1.48,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

@@ -277,7 +277,7 @@ class _IrrigationScreenState extends ConsumerState<IrrigationScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text('Land Area', style: TextStyle(color: Colors.white70, fontSize: 13)),
+                                  const Text('Land Area', style: TextStyle(color: Colors.white, fontSize: 13.5, fontWeight: FontWeight.w600)),
                                   const SizedBox(height: 6),
                                   TextFormField(
                                     controller: _areaController,
@@ -303,7 +303,7 @@ class _IrrigationScreenState extends ConsumerState<IrrigationScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text('Unit', style: TextStyle(color: Colors.white70, fontSize: 13)),
+                                  const Text('Unit', style: TextStyle(color: Colors.white, fontSize: 13.5, fontWeight: FontWeight.w600)),
                                   const SizedBox(height: 6),
                                   DropdownButtonFormField<String>(
                                     initialValue: _areaUnit,
@@ -331,7 +331,7 @@ class _IrrigationScreenState extends ConsumerState<IrrigationScreen> {
                         const SizedBox(height: 18),
 
                         // Soil Type
-                        const Text('Soil Type (පස් වර්ගය)', style: TextStyle(color: Colors.white70, fontSize: 13)),
+                        const Text('Soil Type (පස් වර්ගය)', style: TextStyle(color: Colors.white, fontSize: 13.5, fontWeight: FontWeight.w600)),
                         const SizedBox(height: 6),
                         DropdownButtonFormField<String>(
                           initialValue: _selectedSoil,
@@ -355,7 +355,7 @@ class _IrrigationScreenState extends ConsumerState<IrrigationScreen> {
                         const SizedBox(height: 18),
 
                         // Climate Zone
-                        const Text('Climate Zone (කාලගුණ කලාපය)', style: TextStyle(color: Colors.white70, fontSize: 13)),
+                        const Text('Climate Zone (කාලගුණ කලාපය)', style: TextStyle(color: Colors.white, fontSize: 13.5, fontWeight: FontWeight.w600)),
                         const SizedBox(height: 6),
                         DropdownButtonFormField<String>(
                           initialValue: _selectedClimate,
@@ -402,30 +402,49 @@ class _IrrigationScreenState extends ConsumerState<IrrigationScreen> {
 
                   // Results Display
                   if (_results != null) ...[
-                    const SizedBox(height: 28),
+                    const SizedBox(height: 24),
 
-                    // Plan Title & Source Tag
+                    // Plan Title & Source Tag (Responsive row to prevent any overflow)
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Text(
-                          '${_getActiveCropName()} Irrigation Plan',
-                          style: const TextStyle(color: Colors.white, fontSize: 19, fontWeight: FontWeight.bold),
+                        Expanded(
+                          child: Text(
+                            '${_getActiveCropName()} Irrigation Plan',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 0.3,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
-                        const Spacer(),
+                        const SizedBox(width: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                           decoration: BoxDecoration(
-                            color: _results!.isAiGenerated ? Colors.blueAccent.withValues(alpha: 0.25) : Colors.greenAccent.withValues(alpha: 0.25),
+                            color: _results!.isAiGenerated
+                                ? Colors.blueAccent.withValues(alpha: 0.2)
+                                : Colors.greenAccent.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: _results!.isAiGenerated ? Colors.blueAccent : Colors.greenAccent),
+                            border: Border.all(
+                              color: _results!.isAiGenerated ? Colors.blueAccent : Colors.greenAccent,
+                              width: 1,
+                            ),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(_results!.isAiGenerated ? Icons.auto_awesome : Icons.check_circle_outline, size: 14, color: _results!.isAiGenerated ? Colors.blueAccent : Colors.greenAccent),
+                              Icon(
+                                _results!.isAiGenerated ? Icons.auto_awesome : Icons.check_circle_outline,
+                                size: 13,
+                                color: _results!.isAiGenerated ? Colors.blueAccent : Colors.greenAccent,
+                              ),
                               const SizedBox(width: 4),
                               Text(
-                                _results!.isAiGenerated ? 'AI Custom Model' : 'Scientific Baseline',
+                                _results!.isAiGenerated ? 'AI Custom' : 'Scientific',
                                 style: TextStyle(
                                   color: _results!.isAiGenerated ? Colors.blueAccent : Colors.greenAccent,
                                   fontSize: 11,
@@ -441,7 +460,7 @@ class _IrrigationScreenState extends ConsumerState<IrrigationScreen> {
 
                     // Primary Water Requirement Hero Card
                     GlassContainer(
-                      padding: const EdgeInsets.all(22),
+                      padding: const EdgeInsets.all(20),
                       borderRadius: 22,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -454,30 +473,57 @@ class _IrrigationScreenState extends ConsumerState<IrrigationScreen> {
                                   color: Colors.blueAccent.withValues(alpha: 0.2),
                                   shape: BoxShape.circle,
                                 ),
-                                child: const Icon(Icons.water, color: Colors.blueAccent, size: 28),
+                                child: const Icon(Icons.water_drop, color: Colors.blueAccent, size: 26),
                               ),
-                              const SizedBox(width: 14),
-                              const Expanded(
+                              const SizedBox(width: 12),
+                              Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text('Total Daily Water Demand', style: TextStyle(color: Colors.white70, fontSize: 14)),
-                                    Text('දෛනික සමස්ත ජල අවශ්‍යතාවය', style: TextStyle(color: Colors.white38, fontSize: 12)),
+                                    const Text(
+                                      'Total Daily Water Demand',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 14.5,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      'දෛනික සමස්ත ජල අවශ්‍යතාවය',
+                                      style: TextStyle(
+                                        color: Colors.white.withValues(alpha: 0.75),
+                                        fontSize: 12.5,
+                                        height: 1.35,
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),
                             ],
                           ),
                           const SizedBox(height: 16),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.baseline,
-                            textBaseline: TextBaseline.alphabetic,
+                          Wrap(
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            spacing: 6,
                             children: [
                               Text(
                                 '${_results!.dailyWaterLiters.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')} ',
-                                style: const TextStyle(color: Colors.blueAccent, fontSize: 34, fontWeight: FontWeight.bold),
+                                style: const TextStyle(
+                                  color: Colors.blueAccent,
+                                  fontSize: 34,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: -0.5,
+                                ),
                               ),
-                              const Text('Liters / Day (ලීටර)', style: TextStyle(color: Colors.white70, fontSize: 16)),
+                              Text(
+                                'Liters / Day (ලීටර)',
+                                style: TextStyle(
+                                  color: Colors.white.withValues(alpha: 0.85),
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
                             ],
                           ),
                         ],
@@ -485,26 +531,50 @@ class _IrrigationScreenState extends ConsumerState<IrrigationScreen> {
                     ),
 
                     const SizedBox(height: 12),
-                    _buildResultCard('Recommended Method (නිර්දේශිත ක්‍රමය)', _results!.recommendedMethod, Icons.tune_rounded, Colors.tealAccent),
+                    _buildResultCard(
+                      'Recommended Method (නිර්දේශිත ක්‍රමය)',
+                      _results!.recommendedMethod,
+                      Icons.tune_rounded,
+                      Colors.tealAccent,
+                    ),
                     const SizedBox(height: 12),
-                    _buildResultCard('Watering Frequency & Interval (වාර ගණන)', _results!.frequency, Icons.update_rounded, Colors.orangeAccent),
+                    _buildResultCard(
+                      'Watering Frequency & Interval (වාර ගණන)',
+                      _results!.frequency,
+                      Icons.update_rounded,
+                      Colors.orangeAccent,
+                    ),
                     const SizedBox(height: 12),
-                    _buildResultCard('Growth Stage Schedule (අවධි අනුව සැලැස්ම)', _results!.criticalGrowthStages, Icons.eco_rounded, Colors.greenAccent),
+                    _buildResultCard(
+                      'Growth Stage Schedule (අවධි අනුව සැලැස්ම)',
+                      _results!.criticalGrowthStages,
+                      Icons.eco_rounded,
+                      Colors.greenAccent,
+                    ),
                     const SizedBox(height: 12),
-                    _buildResultCard('Water Conservation & Drought Tips (ජල සංරක්ෂණය)', _results!.droughtAndSoilTips, Icons.shield_outlined, Colors.amberAccent),
+                    _buildResultCard(
+                      'Water Conservation & Drought Tips (ජල සංරක්ෂණය)',
+                      _results!.droughtAndSoilTips,
+                      Icons.shield_outlined,
+                      Colors.amberAccent,
+                    ),
 
                     const SizedBox(height: 20),
 
                     // Chat with AI Action
                     FilledButton.icon(
                       onPressed: _chatWithAgriAi,
-                      icon: const Icon(Icons.chat_bubble_outline_rounded),
-                      label: const Text('Chat with AgriAI about this Irrigation Plan', style: TextStyle(fontWeight: FontWeight.bold)),
+                      icon: const Icon(Icons.chat_bubble_outline_rounded, size: 20),
+                      label: const Text(
+                        'Chat with AgriAI about this Irrigation Plan',
+                        style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.bold),
+                      ),
                       style: FilledButton.styleFrom(
                         backgroundColor: Colors.blueAccent.shade700,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        elevation: 3,
                       ),
                     ),
                     const SizedBox(height: 30),
@@ -527,17 +597,37 @@ class _IrrigationScreenState extends ConsumerState<IrrigationScreen> {
         children: [
           Row(
             children: [
-              Icon(icon, color: iconColor, size: 20),
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: iconColor.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(icon, color: iconColor, size: 18),
+              ),
               const SizedBox(width: 10),
               Expanded(
-                child: Text(title, style: const TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.bold)),
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14.5,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.2,
+                  ),
+                ),
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           Text(
             value,
-            style: const TextStyle(color: Colors.white, fontSize: 15, height: 1.45),
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.95),
+              fontSize: 14.5,
+              height: 1.55,
+              letterSpacing: 0.2,
+            ),
           ),
         ],
       ),
