@@ -1143,6 +1143,7 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
                         height: 1.48,
                       ),
                     ),
+                  ],
                 ],
               ),
             ),
