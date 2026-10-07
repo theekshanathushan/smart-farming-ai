@@ -30,7 +30,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
       ref.read(authProvider.notifier).resetState();
       
       final phone = _phoneController.text.trim();
-      final name = _isLogin ? null : _nameController.text.trim();
+      final name = _nameController.text.trim().isNotEmpty ? _nameController.text.trim() : null;
       
       ref.read(authProvider.notifier).sendOTP(phone, name: name);
     }
@@ -166,22 +166,24 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                 ),
                 const SizedBox(height: 28),
 
-                // Name field (Only for registration)
-                if (!_isLogin) ...[
-                  TextFormField(
-                    controller: _nameController,
-                    decoration: _inputDecoration(context, l10n.fullNameOrFarmName, Icons.person_outline),
-                    style: TextStyle(fontSize: 16, color: textColor, fontWeight: FontWeight.w500),
-                    textInputAction: TextInputAction.next,
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return l10n.enterNameValidation;
-                      }
-                      return null;
-                    },
+                // Name field
+                TextFormField(
+                  controller: _nameController,
+                  decoration: _inputDecoration(
+                    context,
+                    _isLogin ? '${l10n.fullNameOrFarmName} (ඔබගේ නම)' : l10n.fullNameOrFarmName,
+                    Icons.person_outline,
                   ),
-                  const SizedBox(height: 20),
-                ],
+                  style: TextStyle(fontSize: 16, color: textColor, fontWeight: FontWeight.w500),
+                  textInputAction: TextInputAction.next,
+                  validator: (value) {
+                    if (!_isLogin && (value == null || value.trim().isEmpty)) {
+                      return l10n.enterNameValidation;
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 20),
 
                 // Phone number field
                 TextFormField(

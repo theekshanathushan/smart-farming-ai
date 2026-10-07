@@ -14,33 +14,31 @@ String _getWeatherDescription(int code) {
 }
 
 final weatherProvider = FutureProvider<Map<String, dynamic>>((ref) async {
-  final locationService = ref.watch(locationServiceProvider);
-  
-  double lat = 7.8592; // Dambulla fallback
-  double lon = 80.6517;
+  // Watch real-time location resolution
+  final locationAsync = ref.watch(userLocationProvider);
+  final userLocation = locationAsync.value ?? UserLocation.fallback();
 
-  try {
-    final position = await locationService.getCurrentLocation();
-    if (position != null) {
-      lat = position.latitude;
-      lon = position.longitude;
-    }
-  } catch (e) {
-    // Ignore and use fallback
-  }
+  final lat = userLocation.latitude;
+  final lon = userLocation.longitude;
 
   final url = Uri.parse('https://api.open-meteo.com/v1/forecast?latitude=$lat&longitude=$lon&current_weather=true');
   final response = await http.get(url).timeout(
     const Duration(seconds: 10),
     onTimeout: () => throw Exception('Connection timeout. Unable to fetch weather data.'),
   );
-  
+
   if (response.statusCode == 200) {
     final data = jsonDecode(response.body);
     final current = data['current_weather'];
     return {
       'temperature': current['temperature'].round(),
       'description': _getWeatherDescription(current['weathercode']),
+      'city': userLocation.city,
+      'district': userLocation.district,
+      'location': userLocation.displayName,
+      'latitude': lat,
+      'longitude': lon,
+      'isAccurate': userLocation.isAccurate,
     };
   } else {
     throw Exception('Failed to load weather data');

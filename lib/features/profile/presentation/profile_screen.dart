@@ -9,6 +9,7 @@ import '../../auth/providers/auth_provider.dart';
 import 'package:agri_ai/l10n/app_localizations.dart';
 import '../../../core/providers/locale_provider.dart';
 import '../../../core/providers/theme_provider.dart';
+import '../../../core/utils/location_service.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -116,9 +117,44 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
   }
 
+  void _showEditNameDialog(BuildContext context, String? currentName) {
+    final controller = TextEditingController(text: currentName ?? '');
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Edit Name / නම වෙනස් කරන්න'),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          decoration: const InputDecoration(
+            labelText: 'Your Name (ඔබගේ නම)',
+            hintText: 'e.g. Theekshana Thushan',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () {
+              final newName = controller.text.trim();
+              if (newName.isNotEmpty) {
+                ref.read(authProvider.notifier).updateName(newName);
+                Navigator.pop(ctx);
+              }
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
+    final userLocationAsync = ref.watch(userLocationProvider);
     final l10n = AppLocalizations.of(context)!;
     final locale = ref.watch(localeProvider);
     final themeMode = ref.watch(themeModeProvider);
@@ -197,9 +233,20 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   ),
                   const SizedBox(height: 16),
                   Center(
-                    child: Text(
-                      authState.name?.isNotEmpty == true ? authState.name! : 'Farmer User',
-                      style: TextStyle(color: textColor, fontSize: 26, fontWeight: FontWeight.bold),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          authState.name?.isNotEmpty == true ? authState.name! : 'Farmer User',
+                          style: TextStyle(color: textColor, fontSize: 26, fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(width: 8),
+                        IconButton(
+                          icon: Icon(Icons.edit_outlined, color: textColor.withValues(alpha: 0.7), size: 20),
+                          tooltip: 'Edit Name / නම වෙනස් කරන්න',
+                          onPressed: () => _showEditNameDialog(context, authState.name),
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(height: 32),
@@ -223,9 +270,21 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         _buildInfoRow(
                           Icons.location_on_rounded,
                           l10n.location,
-                          'Dambulla, Sri Lanka',
+                          userLocationAsync.value?.displayName ?? 'Detecting location...',
                           textColor,
                           subtextColor,
+                          trailing: IconButton(
+                            icon: const Icon(Icons.my_location_rounded, size: 20),
+                            tooltip: 'Detect Location / ස්ථානය සොයන්න',
+                            onPressed: () async {
+                              await ref.read(userLocationProvider.notifier).refreshLocation();
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Location updated successfully!')),
+                                );
+                              }
+                            },
+                          ),
                         ),
                       ],
                     ),
@@ -331,7 +390,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String label, String value, Color textColor, Color subtextColor) {
+  Widget _buildInfoRow(
+    IconData icon,
+    String label,
+    String value,
+    Color textColor,
+    Color subtextColor, {
+    Widget? trailing,
+  }) {
     return Row(
       children: [
         Container(
@@ -353,6 +419,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             ],
           ),
         ),
+        if (trailing != null) trailing,
       ],
     );
   }

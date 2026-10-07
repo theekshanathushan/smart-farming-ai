@@ -6,10 +6,30 @@ import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../data/weather_provider.dart';
+import '../../../core/utils/location_service.dart';
+import '../../../core/providers/locale_provider.dart';
 import 'package:agri_ai/l10n/app_localizations.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
+
+  String _getFirstName(String? fullName) {
+    if (fullName == null || fullName.trim().isEmpty) return '';
+    final parts = fullName.trim().split(RegExp(r'\s+'));
+    return parts.isNotEmpty ? parts.first : fullName.trim();
+  }
+
+  String _getTimeBasedGreeting(WidgetRef ref) {
+    final hour = DateTime.now().hour;
+    final lang = ref.watch(localeProvider).languageCode;
+    if (hour >= 5 && hour < 12) {
+      return lang == 'si' ? 'සුභ උදෑසනක්,' : (lang == 'ta' ? 'காலை வணக்கம்,' : 'Good Morning,');
+    } else if (hour >= 12 && hour < 17) {
+      return lang == 'si' ? 'සුභ දහවලක්,' : (lang == 'ta' ? 'மதிய வணக்கம்,' : 'Good Afternoon,');
+    } else {
+      return lang == 'si' ? 'සුභ සන්ධ්‍යාවක්,' : (lang == 'ta' ? 'மாலை வணக்கம்,' : 'Good Evening,');
+    }
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -69,14 +89,17 @@ class HomeScreen extends ConsumerWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                l10n.goodMorning,
+                                _getTimeBasedGreeting(ref),
                                 style: const TextStyle(
                                   fontSize: 18,
                                   color: Colors.white70,
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
                               Text(
-                                authState.name?.isNotEmpty == true ? authState.name! : l10n.farmer,
+                                _getFirstName(authState.name).isNotEmpty
+                                    ? _getFirstName(authState.name)
+                                    : (authState.name?.isNotEmpty == true ? authState.name! : l10n.farmer),
                                 style: const TextStyle(
                                   fontSize: 32,
                                   fontWeight: FontWeight.bold,
@@ -281,12 +304,41 @@ class _WeatherDashboard extends ConsumerWidget {
             data: (weather) {
               final temp = weather['temperature'] ?? '--';
               final desc = weather['description'] ?? l10n.currentWeather;
+              final location = weather['city'] ?? weather['location'] ?? 'Current Location';
+
               return Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.location_on_rounded, color: Colors.white.withValues(alpha: 0.9), size: 15),
+                          const SizedBox(width: 4),
+                          Text(
+                            location,
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.95),
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          InkWell(
+                            onTap: () {
+                              ref.read(userLocationProvider.notifier).refreshLocation();
+                            },
+                            borderRadius: BorderRadius.circular(12),
+                            child: Padding(
+                              padding: const EdgeInsets.all(2.0),
+                              child: Icon(Icons.refresh_rounded, color: Colors.white.withValues(alpha: 0.8), size: 14),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
                       Text(
                         desc,
                         style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500),

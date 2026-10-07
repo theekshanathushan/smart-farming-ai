@@ -90,7 +90,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = state.copyWith(
       status: AuthStateStatus.loading,
       phoneNumber: formattedPhone,
-      name: name,
+      name: (name != null && name.trim().isNotEmpty) ? name.trim() : state.name,
     );
 
     // MOCK OTP FLOW TO BYPASS FIREBASE ERRORS DURING UI TESTING
@@ -118,12 +118,22 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
+  Future<void> updateName(String newName) async {
+    final trimmed = newName.trim();
+    if (trimmed.isNotEmpty) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('userName', trimmed);
+      state = state.copyWith(name: trimmed);
+    }
+  }
+
   Future<void> _saveSession(String phone, String? name) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isLoggedIn', true);
     await prefs.setString('userPhone', phone);
-    if (name != null) {
-      await prefs.setString('userName', name);
+    if (name != null && name.trim().isNotEmpty) {
+      await prefs.setString('userName', name.trim());
+      state = state.copyWith(name: name.trim());
     }
   }
 
