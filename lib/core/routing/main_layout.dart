@@ -115,9 +115,18 @@ class MainLayout extends ConsumerWidget {
                 prompt = 'I scanned my crop leaf and it was identified as healthy (${result.label}). Please provide point-by-point advice on optimal fertilizers, irrigation schedule, and preventive care to maximize healthy yield.';
               }
             }
+            final condition = result.diseaseName.isNotEmpty ? result.diseaseName : result.label;
+            final plantTitle = result.label.contains('Unrecognized')
+                ? 'Plant Diagnostic Scan'
+                : (result.diseaseName.isNotEmpty && !result.label.toLowerCase().contains(result.diseaseName.toLowerCase())
+                    ? '${result.label} ($condition)'
+                    : result.label);
+
             context.push('/chat', extra: {
               'prompt': prompt,
               'imagePath': scanState.imagePath,
+              'title': plantTitle,
+              'cropType': plantTitle,
             });
           } else {
             context.push('/chat');

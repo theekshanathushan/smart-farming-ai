@@ -157,20 +157,30 @@ class AppDatabase extends _$AppDatabase {
       final msgs = entry.value;
       if (msgs.isEmpty) continue;
 
-      final firstUserMsg = msgs.firstWhere(
-        (m) => m.isUser && m.message.trim().isNotEmpty,
+      final cropMsg = msgs.firstWhere(
+        (m) => m.cropType != null && m.cropType!.trim().isNotEmpty,
         orElse: () => msgs.first,
       );
 
-      String title = firstUserMsg.message.trim();
-      if (title.startsWith('[Farmer Context:') && title.contains('Question:')) {
-        title = title.split('Question:').last.trim();
-      }
-      if (title.contains('\n')) {
-        title = title.split('\n').first.trim();
-      }
-      if (title.length > 40) {
-        title = '${title.substring(0, 38)}...';
+      String title;
+      if (cropMsg.cropType != null && cropMsg.cropType!.trim().isNotEmpty) {
+        title = cropMsg.cropType!.trim();
+      } else {
+        final firstUserMsg = msgs.firstWhere(
+          (m) => m.isUser && m.message.trim().isNotEmpty,
+          orElse: () => msgs.first,
+        );
+
+        title = firstUserMsg.message.trim();
+        if (title.startsWith('[Farmer Context:') && title.contains('Question:')) {
+          title = title.split('Question:').last.trim();
+        }
+        if (title.contains('\n')) {
+          title = title.split('\n').first.trim();
+        }
+        if (title.length > 40) {
+          title = '${title.substring(0, 38)}...';
+        }
       }
 
       final lastMsg = msgs.last;

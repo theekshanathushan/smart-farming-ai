@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:uuid/uuid.dart';
 import '../../features/auth/providers/auth_provider.dart';
 import '../../features/ai_agent/presentation/chat_screen.dart';
 
@@ -122,6 +123,8 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           String? initialMessage;
           String? initialImagePath;
           String? sessionId;
+          String? sessionTitle;
+          String? cropType;
 
           if (state.extra is String) {
             initialMessage = state.extra as String;
@@ -130,13 +133,19 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             initialMessage = map['prompt'] as String? ?? map['message'] as String?;
             initialImagePath = map['imagePath'] as String?;
             sessionId = map['sessionId'] as String?;
+            sessionTitle = map['title'] as String? ?? map['sessionTitle'] as String? ?? map['plantName'] as String?;
+            cropType = map['cropType'] as String? ?? sessionTitle;
           }
 
+          final effectiveSessionId = sessionId ?? (initialMessage != null ? const Uuid().v4() : null);
+
           return AiChatScreen(
-            key: ValueKey(sessionId ?? initialMessage ?? 'chat_${DateTime.now().millisecondsSinceEpoch}'),
+            key: ValueKey(effectiveSessionId ?? initialMessage ?? 'chat_${DateTime.now().millisecondsSinceEpoch}'),
             initialMessage: initialMessage,
             initialImagePath: initialImagePath,
-            initialSessionId: sessionId,
+            initialSessionId: effectiveSessionId,
+            initialSessionTitle: sessionTitle,
+            initialCropType: cropType,
           );
         },
       ),

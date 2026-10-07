@@ -238,9 +238,12 @@ class ScanHistoryScreen extends ConsumerWidget {
                               '• Confidence: ${(item.confidence * 100).toStringAsFixed(1)}%\n\n'
                               'Please provide a detailed, point-by-point guide on treatment, care routine, and prevention tips for this diagnosis.';
                         }
+                        final plantTitle = item.predictedLabel.trim();
                         context.push('/chat', extra: {
                           'prompt': prompt,
                           'imagePath': item.imagePath,
+                          'title': plantTitle,
+                          'cropType': plantTitle,
                         });
                       },
                       icon: const Icon(Icons.psychology, size: 20),

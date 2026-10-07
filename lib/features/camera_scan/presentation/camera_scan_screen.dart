@@ -59,9 +59,18 @@ class CameraScanScreen extends ConsumerWidget {
       prompt = 'I scanned a plant leaf but the result was unrecognized. What are the best guidelines for taking clear diagnostic leaf photos and identifying plant issues accurately?';
     }
 
+    final condition = result.diseaseName.isNotEmpty ? result.diseaseName : result.label;
+    final plantTitle = result.label.contains('Unrecognized')
+        ? 'Plant Diagnostic Scan'
+        : (result.diseaseName.isNotEmpty && !result.label.toLowerCase().contains(result.diseaseName.toLowerCase())
+            ? '${result.label} ($condition)'
+            : result.label);
+
     context.push('/chat', extra: {
       'prompt': prompt,
       'imagePath': imagePath,
+      'title': plantTitle,
+      'cropType': plantTitle,
     });
   }
 
