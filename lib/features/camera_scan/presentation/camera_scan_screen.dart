@@ -161,7 +161,7 @@ class CameraScanScreen extends ConsumerWidget {
             Positioned.fill(
               child: ColorFiltered(
                 colorFilter: ColorFilter.mode(
-                  Colors.black.withOpacity(0.6),
+                  Colors.black.withValues(alpha: 0.6),
                   BlendMode.srcOut,
                 ),
                 child: Stack(
@@ -194,7 +194,7 @@ class CameraScanScreen extends ConsumerWidget {
                 height: 300,
                 width: 300,
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.white.withOpacity(0.5), width: 2),
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.5), width: 2),
                   borderRadius: BorderRadius.circular(24),
                 ),
               ),
@@ -248,7 +248,7 @@ class CameraScanScreen extends ConsumerWidget {
           margin: const EdgeInsets.only(top: 2),
           padding: const EdgeInsets.all(6),
           decoration: BoxDecoration(
-            color: iconColor.withOpacity(0.12),
+            color: iconColor.withValues(alpha: 0.12),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(icon, size: 16, color: iconColor),
@@ -267,7 +267,7 @@ class CameraScanScreen extends ConsumerWidget {
                 desc,
                 style: TextStyle(
                   fontSize: 12,
-                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85),
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.85),
                   height: 1.3,
                 ),
               ),
@@ -342,12 +342,12 @@ class CameraScanScreen extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.35),
+              color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
               borderRadius: BorderRadius.circular(18),
               border: Border.all(
                 color: isDiseased
-                    ? Colors.redAccent.withOpacity(0.35)
-                    : (isHealthy ? Theme.of(context).colorScheme.primary.withOpacity(0.35) : Colors.orange.withOpacity(0.35)),
+                    ? Colors.redAccent.withValues(alpha: 0.35)
+                    : (isHealthy ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.35) : Colors.orange.withValues(alpha: 0.35)),
               ),
             ),
             child: Row(
@@ -391,8 +391,8 @@ class CameraScanScreen extends ConsumerWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
                           color: isDiseased
-                              ? Colors.redAccent.withOpacity(0.15)
-                              : (isHealthy ? Colors.green.withOpacity(0.15) : Colors.orange.withOpacity(0.15)),
+                              ? Colors.redAccent.withValues(alpha: 0.15)
+                              : (isHealthy ? Colors.green.withValues(alpha: 0.15) : Colors.orange.withValues(alpha: 0.15)),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -428,7 +428,7 @@ class CameraScanScreen extends ConsumerWidget {
                           Container(
                             padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
                             decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.surfaceVariant,
+                              color: Theme.of(context).colorScheme.surfaceContainerHighest,
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: Text(
@@ -440,7 +440,7 @@ class CameraScanScreen extends ConsumerWidget {
                             Container(
                               padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
                               decoration: BoxDecoration(
-                                color: Colors.orange.withOpacity(0.2),
+                                color: Colors.orange.withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: Text(
@@ -463,9 +463,9 @@ class CameraScanScreen extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: Colors.redAccent.withOpacity(0.06),
+                color: Colors.redAccent.withValues(alpha: 0.06),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.redAccent.withOpacity(0.25)),
+                border: Border.all(color: Colors.redAccent.withValues(alpha: 0.25)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -555,9 +555,9 @@ class CameraScanScreen extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary.withOpacity(0.06),
+                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.06),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Theme.of(context).colorScheme.primary.withOpacity(0.25)),
+                border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.25)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -762,7 +762,7 @@ class _ScanningAnimationOverlayState extends State<_ScanningAnimationOverlay> wi
       builder: (context, child) {
         return Stack(
           children: [
-            Container(color: Colors.black.withOpacity(0.3)),
+            Container(color: Colors.black.withValues(alpha: 0.3)),
             Positioned(
               top: MediaQuery.of(context).size.height * _animation.value,
               left: 0,
