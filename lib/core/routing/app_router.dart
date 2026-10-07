@@ -121,6 +121,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           String? initialMessage;
           String? initialImagePath;
+          String? sessionId;
 
           if (state.extra is String) {
             initialMessage = state.extra as String;
@@ -128,12 +129,14 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             final map = state.extra as Map<String, dynamic>;
             initialMessage = map['prompt'] as String? ?? map['message'] as String?;
             initialImagePath = map['imagePath'] as String?;
+            sessionId = map['sessionId'] as String?;
           }
 
           return AiChatScreen(
-            key: ValueKey(initialMessage ?? 'chat_${DateTime.now().millisecondsSinceEpoch}'),
+            key: ValueKey(sessionId ?? initialMessage ?? 'chat_${DateTime.now().millisecondsSinceEpoch}'),
             initialMessage: initialMessage,
             initialImagePath: initialImagePath,
+            initialSessionId: sessionId,
           );
         },
       ),

@@ -1,6 +1,13 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 
+class AgentChatTurn {
+  final String text;
+  final bool isUser;
+
+  const AgentChatTurn({required this.text, required this.isUser});
+}
+
 class AgentApiClient {
   GenerativeModel _getModel(String language, {String modelName = 'gemini-flash-latest'}) {
     final apiKey = dotenv.env['GEMINI_API_KEY'] ?? '';
@@ -16,14 +23,14 @@ class AgentApiClient {
       model: modelName,
       apiKey: apiKey,
       systemInstruction: Content.system(
-        'You are AgriAI, a specialized agricultural and farming AI assistant.\n'
-        'CRITICAL POLICY / MANDATORY REQUIREMENT:\n'
-        '1. You MUST ONLY answer questions directly related to agriculture, farming, crops, plant diseases, pest management, soil health, fertilizers, irrigation, harvesting, farm machinery, weather impact on farming, agricultural economics, and farm livestock.\n'
-        '2. If the user asks about ANYTHING ELSE that is NOT related to agriculture (such as politics, movies, entertainment, sports, computer programming, games, non-agricultural history, celebrities, relationships, general trivia, greetings without agriculture context, etc.), you MUST POLITELY REFUSE to answer.\n'
-        '   - Refusal in English: "I am AgriAI, specialized only in agriculture and farming advice. Please ask me questions regarding crops, pests, soil, fertilizers, or farming practices."\n'
-        '   - Refusal in Sinhala: "මම කෘෂිකාර්මික හා ගොවිතැන් උපදෙස් සඳහා පමණක් වෙන්වූ AgriAI වේ. කරුණාකර ඔබගේ වගාවන්, පළිබෝධ, පස, පොහොර හෝ ගොවිතැන් කටයුතු පිළිබඳ ප්‍රශ්න අසන්න."\n'
-        '   - Refusal in Tamil: "நான் விவசாயம் மற்றும் பண்ணை சார்ந்த ஆலோசனைகளுக்கான AgriAI ஆவேன். தயவுசெய்து பயிர்கள், பூச்சிகள், மண், உரங்கள் அல்லது விவசாயம் பற்றிய கேள்விகளைக் கேளுங்கள்."\n'
-        '3. Language Rule: $languageInstruction If the user speaks in Sinhala, reply in Sinhala script. If in Tamil, reply in Tamil script. If in English, reply in English.\n'
+        'You are AgriAI (කෘෂි AI), a specialized and strictly dedicated agricultural, farming, and plant health AI assistant.\n\n'
+        '🛑 CRITICAL MANDATORY TOPIC RESTRICTION RULE (ABSOLUTE POLICY - ZERO EXCEPTIONS):\n'
+        '1. You MUST ONLY and EXCLUSIVELY answer questions directly related to agriculture, farming, crops, plant diseases, pest management, soil health, fertilizers (chemical and organic), irrigation techniques, harvesting, farm machinery, livestock, weather/climate impact on farming, agricultural economics, and market yields.\n'
+        '2. If the user asks about ANYTHING ELSE that is NOT related to agriculture (such as politics, movies, entertainment, sports, computer programming, games, non-agricultural history, celebrities, relationships, general trivia, mathematics, general science, greetings without agricultural context, etc.), you MUST POLITELY REFUSE to answer under all circumstances.\n'
+        '   - Refusal in Sinhala (Mandatory): "මම කෘෂිකාර්මික හා ගොවිතැන් උපදෙස් සඳහා පමණක් වෙන්වූ AgriAI වේ. කරුණාකර ඔබගේ වගාවන්, පළිබෝධ, පස, පොහොර හෝ ගොවිතැන් කටයුතු පිළිබඳ ප්‍රශ්න පමණක් අසන්න."\n'
+        '   - Refusal in English: "I am AgriAI, specialized strictly in agriculture and farming advice. I cannot answer non-agricultural questions. Please ask me questions regarding crops, pests, soil, fertilizers, or farming practices."\n'
+        '   - Refusal in Tamil: "நான் விவசாயம் மற்றும் பண்ணை சார்ந்த ஆலோசனைகளுக்கான AgriAI ஆவேன். தயவுசெய்து பயிர்கள், பூச்சிகள், மண், உரங்கள் அல்லது விவசாயம் பற்றிய கேள்விகளை மட்டும் கேளுங்கள்."\n\n'
+        '3. Language Rule: $languageInstruction If the user speaks in Sinhala or Singlish, reply ONLY in Sinhala script (සිංහල). If in Tamil or Tanglish, reply ONLY in Tamil script. If in English, reply in English.\n\n'
         '4. CLARITY & POINT-BY-POINT STRUCTURE (MANDATORY):\n'
         '   - ALWAYS organize your explanation clearly POINT BY POINT using bold numbers (1., 2., 3.) or bullet points (•).\n'
         '   - Do NOT write dense or cluttered walls of paragraphs.\n'
@@ -42,6 +49,7 @@ class AgentApiClient {
   Stream<String> streamChatAdvice({
     required String message,
     required String language,
+    List<AgentChatTurn>? conversationHistory,
     String? cropType,
     String? gpsZone,
     double? latitude,
@@ -63,13 +71,35 @@ class AgentApiClient {
       promptWithContext = '[Farmer Context: ${contextParts.join(', ')}]\n\nQuestion: $message';
     }
 
+    // Build multi-turn context contents
+    final contents = <Content>[];
+    if (conversationHistory != null && conversationHistory.isNotEmpty) {
+      final validTurns = conversationHistory
+          .where((t) => t.text.trim().isNotEmpty)
+          .toList();
+      
+      // Include up to recent 10 messages for context continuity
+      final turnsToInclude = validTurns.length > 10
+          ? validTurns.sublist(validTurns.length - 10)
+          : validTurns;
+
+      for (final turn in turnsToInclude) {
+        if (turn.isUser) {
+          contents.add(Content.text(turn.text));
+        } else {
+          contents.add(Content.model([TextPart(turn.text)]));
+        }
+      }
+    }
+
+    // Append current prompt
+    contents.add(Content.text(promptWithContext));
+
     // Try primary model: gemini-flash-latest
     bool streamStarted = false;
     try {
       final primaryModel = _getModel(language, modelName: 'gemini-flash-latest');
-      final responseStream = primaryModel.generateContentStream([
-        Content.text(promptWithContext),
-      ]);
+      final responseStream = primaryModel.generateContentStream(contents);
 
       await for (final chunk in responseStream) {
         if (chunk.text != null && chunk.text!.isNotEmpty) {
@@ -82,9 +112,7 @@ class AgentApiClient {
       if (!streamStarted) {
         try {
           final fallbackModel = _getModel(language, modelName: 'gemini-flash-lite-latest');
-          final fallbackStream = fallbackModel.generateContentStream([
-            Content.text(promptWithContext),
-          ]);
+          final fallbackStream = fallbackModel.generateContentStream(contents);
           await for (final chunk in fallbackStream) {
             if (chunk.text != null && chunk.text!.isNotEmpty) {
               yield chunk.text!;

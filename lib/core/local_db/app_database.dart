@@ -13,6 +13,7 @@ import 'tables/tasks.dart';
 import 'tables/ledger_entries.dart';
 import 'tables/harvest_listings.dart';
 import 'tables/chat_messages.dart';
+import '../../features/ai_agent/domain/chat_session.dart';
 
 part 'app_database.g.dart';
 
@@ -108,6 +109,84 @@ class AppDatabase extends _$AppDatabase {
       (select(chatMessages)..orderBy([(t) => OrderingTerm.asc(t.timestamp)])).get();
   Stream<List<ChatMessageEntry>> watchAllChatMessages() =>
       (select(chatMessages)..orderBy([(t) => OrderingTerm.asc(t.timestamp)])).watch();
+
+  Future<List<ChatMessageEntry>> getChatMessagesForSession(String sessionId) {
+    if (sessionId == 'legacy_session') {
+      return (select(chatMessages)
+        ..where((t) => t.sessionId.isNull() | t.sessionId.equals('legacy_session'))
+        ..orderBy([(t) => OrderingTerm.asc(t.timestamp)]))
+        .get();
+    }
+    return (select(chatMessages)
+      ..where((t) => t.sessionId.equals(sessionId))
+      ..orderBy([(t) => OrderingTerm.asc(t.timestamp)]))
+      .get();
+  }
+
+  Future<int> deleteChatSession(String sessionId) {
+    if (sessionId == 'legacy_session') {
+      return (delete(chatMessages)
+        ..where((t) => t.sessionId.isNull() | t.sessionId.equals('legacy_session')))
+        .go();
+    }
+    return (delete(chatMessages)..where((t) => t.sessionId.equals(sessionId))).go();
+  }
+
+  Future<List<ChatSessionSummary>> getChatSessionSummaries() async {
+    final allMessages = await (select(chatMessages)
+      ..orderBy([(t) => OrderingTerm.asc(t.timestamp)]))
+      .get();
+    return _summarizeMessages(allMessages);
+  }
+
+  Stream<List<ChatSessionSummary>> watchChatSessionSummaries() {
+    return watchAllChatMessages().map(_summarizeMessages);
+  }
+
+  List<ChatSessionSummary> _summarizeMessages(List<ChatMessageEntry> allMessages) {
+    final Map<String, List<ChatMessageEntry>> grouped = {};
+    for (final msg in allMessages) {
+      final sId = (msg.sessionId == null || msg.sessionId!.trim().isEmpty)
+          ? 'legacy_session'
+          : msg.sessionId!;
+      grouped.putIfAbsent(sId, () => []).add(msg);
+    }
+
+    final List<ChatSessionSummary> summaries = [];
+    for (final entry in grouped.entries) {
+      final msgs = entry.value;
+      if (msgs.isEmpty) continue;
+
+      final firstUserMsg = msgs.firstWhere(
+        (m) => m.isUser && m.message.trim().isNotEmpty,
+        orElse: () => msgs.first,
+      );
+
+      String title = firstUserMsg.message.trim();
+      if (title.startsWith('[Farmer Context:') && title.contains('Question:')) {
+        title = title.split('Question:').last.trim();
+      }
+      if (title.contains('\n')) {
+        title = title.split('\n').first.trim();
+      }
+      if (title.length > 40) {
+        title = '${title.substring(0, 38)}...';
+      }
+
+      final lastMsg = msgs.last;
+      summaries.add(ChatSessionSummary(
+        sessionId: entry.key,
+        title: title.isEmpty ? 'Farming Chat' : title,
+        lastTimestamp: lastMsg.timestamp,
+        messageCount: msgs.length,
+        preview: lastMsg.message,
+      ));
+    }
+
+    summaries.sort((a, b) => b.lastTimestamp.compareTo(a.lastTimestamp));
+    return summaries;
+  }
+
   Future<int> clearChatHistory() => delete(chatMessages).go();
 }
 
