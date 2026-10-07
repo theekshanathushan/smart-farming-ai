@@ -36,7 +36,7 @@ class HybridCropDiseaseClassifier implements ICropDiseaseClassifier {
     }
 
     // 2. Offline Fallback (TFLite)
-    return await _tfliteClassifier.classifyImage(imagePath);
+    return await _tfliteClassifier.classifyImage(imagePath, language: language);
   }
 
   @override
@@ -70,8 +70,11 @@ class TFLiteCropDiseaseClassifier implements ICropDiseaseClassifier {
   @override
   Future<List<ClassifierResult>> classifyImage(String imagePath, {String language = 'en'}) async {
     if (_interpreter == null || _labels == null) {
+      final notLoadedLabel = language == 'si'
+          ? 'නොබැඳි ආකෘතිය සූදානම් නැත'
+          : (language == 'ta' ? 'மாதிரி ஏற்றப்படவில்லை' : 'Model not loaded (Please add model.tflite to assets/models)');
       return [
-        ClassifierResult(label: 'Model not loaded (Please add model.tflite to assets/models)', confidence: 0.0)
+        ClassifierResult(label: notLoadedLabel, confidence: 0.0)
       ];
     }
 
@@ -133,29 +136,60 @@ class TFLiteCropDiseaseClassifier implements ICropDiseaseClassifier {
     if (totalPlantPixels > 100) {
       final diseaseRatio = diseasedCount / totalPlantPixels;
       if (diseaseRatio > 0.04) {
+        final diseasedLabel = language == 'si'
+            ? 'රෝගී ශාක පත්‍රය (නොබැඳි මාදිලිය)'
+            : (language == 'ta' ? 'பாதிக்கப்பட்ட இலை (ஆஃப்லைன்)' : 'Diseased Leaf (Offline Mode)');
+        final diseaseName = language == 'si'
+            ? 'හඳුනා නොගත් ශාක රෝගය'
+            : (language == 'ta' ? 'தெரியாத பயிர் நோய்' : 'Unknown Disease');
+        final treatment = language == 'si'
+            ? '1. ආසාදිත ශාකය වෙන් කරන්න.\n2. රෝගී කොළ කපා ඉවත් කර විනාශ කරන්න.\n3. කාබනික කොහොඹ තෙල් හෝ දිලීර නාශකයක් යොදන්න.\n4. මුල් පාමුලට පමණක් ජලය සපයන්න.'
+            : (language == 'ta'
+                ? '1. பாதிக்கப்பட்ட பயிரைத் தனியாகப் பிரிக்கவும்.\n2. பாதிக்கப்பட்ட இலைகளை வெட்டி அகற்றவும்.\n3. தகுந்த பூஞ்சைக் கொல்லி அல்லது வேப்பெண்ணெய் தெளிக்கவும்.'
+                : '1. Isolate plant.\n2. Remove affected leaves.\n3. Apply appropriate fungicide or pesticide.');
+        final severity = language == 'si'
+            ? 'මධ්‍යම'
+            : (language == 'ta' ? 'நடுத்தரம்' : 'Moderate');
+
         return [ClassifierResult(
-          label: 'Diseased Leaf (Offline Mode)',
+          label: diseasedLabel,
           confidence: 0.95 + (diseaseRatio * 0.04).clamp(0.0, 0.04),
           isHealthy: false,
-          diseaseName: 'Unknown Disease',
-          treatmentPlan: '1. Isolate plant.\n2. Remove affected leaves.\n3. Apply appropriate fungicide or pesticide.',
-          severity: 'Moderate',
+          diseaseName: diseaseName,
+          treatmentPlan: treatment,
+          severity: severity,
         )];
       } else {
+        final healthyLabel = language == 'si'
+            ? 'නිරෝගී ශාක පත්‍රය (නොබැඳි මාදිලිය)'
+            : (language == 'ta' ? 'ஆரோக்கியமான இலை (ஆஃப்லைன்)' : 'Healthy Leaf (Offline Mode)');
+        final treatment = language == 'si'
+            ? 'ශාකය ඉතා නිරෝගී තත්ත්වයේ පවතී. සාමාන්‍ය ජල සම්පාදනය සහ පොහොර යෙදීම ක්‍රමවත්ව පවත්වා ගන්න.'
+            : (language == 'ta'
+                ? 'பயிர் ஆரோக்கியமாக உள்ளது. வழக்கமான நீர்ப்பாசனம் மற்றும் உரமிடலைத் தொடரவும்.'
+                : 'Continue normal care.');
+        final severity = language == 'si'
+            ? 'නැත'
+            : (language == 'ta' ? 'இல்லை' : 'None');
+
         return [ClassifierResult(
-          label: 'Healthy Leaf (Offline Mode)',
+          label: healthyLabel,
           confidence: 0.95 + ((1.0 - diseaseRatio) * 0.04).clamp(0.0, 0.04),
           isHealthy: true,
           diseaseName: '',
-          treatmentPlan: 'Continue normal care.',
-          severity: 'None',
+          treatmentPlan: treatment,
+          severity: severity,
         )];
       }
     }
 
+    final unrecognizedLabel = language == 'si'
+        ? 'හඳුනාගත නොහැක / ශාක පත්‍රයක් නොවේ'
+        : (language == 'ta' ? 'அடையாளம் காண முடியவில்லை' : 'Unrecognized / Not a clear plant');
+
     return [
       ClassifierResult(
-        label: 'Unrecognized / Not a clear plant',
+        label: unrecognizedLabel,
         confidence: 0.0
       )
     ];

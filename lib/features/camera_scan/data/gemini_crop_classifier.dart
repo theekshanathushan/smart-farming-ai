@@ -85,22 +85,22 @@ Return a JSON object with the exact following structure without markdown blocks:
         final isPlant = jsonResult['isPlant'] ?? true;
         if (!isPlant) {
            return ClassifierResult(
-             label: 'Unrecognized / Not a clear plant',
+             label: unrecognizedLabel,
              confidence: 0.98,
              isHealthy: false,
              diseaseName: '',
              treatmentPlan: '',
-             severity: 'None'
+             severity: language == 'si' ? 'නැත' : (language == 'ta' ? 'இல்லை' : 'None')
            );
         }
 
         return ClassifierResult(
-          label: jsonResult['label'] ?? 'Unknown',
+          label: jsonResult['label'] ?? (language == 'si' ? 'නොදන්නා බෝගය' : (language == 'ta' ? 'தெரியாத பயிர்' : 'Unknown Crop')),
           confidence: 0.98, // High confidence for Generative AI result
           isHealthy: jsonResult['isHealthy'] ?? false,
           diseaseName: jsonResult['diseaseName'] ?? '',
           treatmentPlan: jsonResult['treatmentPlan'] ?? '',
-          severity: jsonResult['severity'] ?? 'Unknown',
+          severity: jsonResult['severity'] ?? (language == 'si' ? 'සාමාන්‍ය' : (language == 'ta' ? 'சாதாரண' : 'Moderate')),
         );
       } else {
         return ClassifierResult(

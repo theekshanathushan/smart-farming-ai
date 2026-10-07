@@ -14,8 +14,12 @@ class CameraScanScreen extends ConsumerWidget {
 
   void _askAiAboutScan(BuildContext context, WidgetRef ref, ClassifierResult result, [String? imagePath]) {
     final currentLang = ref.read(localeProvider).languageCode;
-    final isDiseased = !result.isHealthy && !result.label.contains('Unrecognized');
-    final isHealthy = result.isHealthy && !result.label.contains('Unrecognized');
+    final isUnrecognized = result.confidence == 0 ||
+        result.label.contains('Unrecognized') ||
+        result.label.contains('හඳුනාගත නොහැක') ||
+        result.label.contains('அடையாளம்');
+    final isDiseased = !result.isHealthy && !isUnrecognized;
+    final isHealthy = result.isHealthy && !isUnrecognized;
     
     String prompt;
     if (isDiseased) {
@@ -56,15 +60,26 @@ class CameraScanScreen extends ConsumerWidget {
         prompt = 'I scanned my crop leaf and it was identified as healthy (${result.label}). Please provide point-by-point advice on optimal fertilizers, irrigation schedule, and preventive care to maximize healthy yield.';
       }
     } else {
-      prompt = 'I scanned a plant leaf but the result was unrecognized. What are the best guidelines for taking clear diagnostic leaf photos and identifying plant issues accurately?';
+      if (currentLang == 'si') {
+        prompt = 'මම ශාක පත්‍රයක් ස්කෑන් කළ නමුත් එය නිවැරදිව හඳුනාගැනීමට අපොහොසත් විය. පැහැදිලි ඡායාරූපයක් ගෙන ශාක රෝග හඳුනාගැනීමට උපදෙස් ලබා දෙන්න.';
+      } else if (currentLang == 'ta') {
+        prompt = 'நான் ஒரு தாவர இலையை ஸ்கேன் செய்தேன், ஆனால் அதை சரியாக அடையாளம் காண முடியவில்லை. துல்லியமான நோய் கண்டறிதலுக்கு தெளிவான படம் எடுக்க சிறந்த வழிகள் யாவை?';
+      } else {
+        prompt = 'I scanned a plant leaf but the result was unrecognized. What are the best guidelines for taking clear diagnostic leaf photos and identifying plant issues accurately?';
+      }
     }
 
     final condition = result.diseaseName.isNotEmpty ? result.diseaseName : result.label;
-    final plantTitle = result.label.contains('Unrecognized')
-        ? 'Plant Diagnostic Scan'
-        : (result.diseaseName.isNotEmpty && !result.label.toLowerCase().contains(result.diseaseName.toLowerCase())
-            ? '${result.label} ($condition)'
-            : result.label);
+    final String plantTitle;
+    if (isUnrecognized) {
+      plantTitle = currentLang == 'si'
+          ? 'ශාක පරීක්ෂාව'
+          : (currentLang == 'ta' ? 'பயிர் ஆய்வு' : 'Plant Diagnostic Scan');
+    } else {
+      plantTitle = currentLang == 'si'
+          ? 'රෝග විනිශ්චය: $condition'
+          : (currentLang == 'ta' ? 'நோய் ஆய்வு: $condition' : condition);
+    }
 
     context.push('/chat', extra: {
       'prompt': prompt,
@@ -79,9 +94,13 @@ class CameraScanScreen extends ConsumerWidget {
       final status = await Permission.camera.request();
       if (!status.isGranted) {
         if (context.mounted) {
+          final currentLang = ref.read(localeProvider).languageCode;
+          final permMsg = currentLang == 'si'
+              ? 'කැමරාව භාවිතා කිරීමට අවසර අවශ්‍යයි.'
+              : (currentLang == 'ta' ? 'கேமரா அனுமதி தேவை.' : 'Camera permission is required.');
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: const Text('Camera permission is required.'),
+              content: Text(permMsg),
               backgroundColor: Theme.of(context).colorScheme.tertiary,
               behavior: SnackBarBehavior.floating,
             ),
@@ -191,16 +210,22 @@ class CameraScanScreen extends ConsumerWidget {
           Align(
             alignment: Alignment.bottomCenter,
             child: Container(
-              padding: const EdgeInsets.only(top: 32, left: 24, right: 24, bottom: 48),
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.76,
+              ),
+              padding: const EdgeInsets.only(top: 24, left: 20, right: 20, bottom: 32),
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surface,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-                boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 20)],
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+                boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 20)],
               ),
-              child: AnimatedSize(
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeInOut,
-                child: _buildBottomPanel(context, ref, state),
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: AnimatedSize(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                  child: _buildBottomPanel(context, ref, state),
+                ),
               ),
             ),
           ),
@@ -209,8 +234,54 @@ class CameraScanScreen extends ConsumerWidget {
     );
   }
 
+  Widget _buildPracticalStepTile(
+    BuildContext context, {
+    required IconData icon,
+    required Color iconColor,
+    required String title,
+    required String desc,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          margin: const EdgeInsets.only(top: 2),
+          padding: const EdgeInsets.all(6),
+          decoration: BoxDecoration(
+            color: iconColor.withOpacity(0.12),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, size: 16, color: iconColor),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                desc,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85),
+                  height: 1.3,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildBottomPanel(BuildContext context, WidgetRef ref, ScanState state) {
     final l10n = AppLocalizations.of(context)!;
+    final currentLang = ref.watch(localeProvider).languageCode;
+
     if (state.isLoading) {
       return Column(
         mainAxisSize: MainAxisSize.min,
@@ -256,7 +327,10 @@ class CameraScanScreen extends ConsumerWidget {
     }
 
     if (state.imagePath != null && state.result != null) {
-      final isUnrecognized = state.result!.label.contains('Unrecognized');
+      final isUnrecognized = state.result!.confidence == 0 ||
+          state.result!.label.contains('Unrecognized') ||
+          state.result!.label.contains('හඳුනාගත නොහැක') ||
+          state.result!.label.contains('அடையாளம்');
       final isDiseased = !state.result!.isHealthy && !isUnrecognized;
       final isHealthy = state.result!.isHealthy && !isUnrecognized;
 
@@ -264,85 +338,205 @@ class CameraScanScreen extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            isUnrecognized ? l10n.scanResult : (isDiseased ? l10n.attentionNeeded : l10n.greatNews),
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(color: Colors.grey),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            isDiseased ? (state.result!.diseaseName.isNotEmpty ? state.result!.diseaseName : state.result!.label) : state.result!.label,
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: isUnrecognized ? Colors.orange : (isDiseased ? Colors.redAccent : Theme.of(context).colorScheme.primary),
-              fontSize: isUnrecognized ? 20 : null,
+          // Visual Scanned Photo & Diagnosis Hero Card
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.35),
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(
+                color: isDiseased
+                    ? Colors.redAccent.withOpacity(0.35)
+                    : (isHealthy ? Theme.of(context).colorScheme.primary.withOpacity(0.35) : Colors.orange.withOpacity(0.35)),
+              ),
             ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 16),
-          Center(
-            child: Wrap(
-              alignment: WrapAlignment.center,
-              spacing: 8,
-              runSpacing: 8,
+            child: Row(
               children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.tertiary.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(16),
+                if (state.imagePath != null && File(state.imagePath!).existsSync())
+                  Stack(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.file(
+                          File(state.imagePath!),
+                          width: 80,
+                          height: 80,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 4,
+                        right: 4,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: isDiseased ? Colors.redAccent : (isHealthy ? Colors.green : Colors.orange),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            isDiseased ? Icons.warning_rounded : (isHealthy ? Icons.eco : Icons.help_outline),
+                            size: 14,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  child: Text(
-                    l10n.confidence((state.result!.confidence * 100).toStringAsFixed(1)),
-                    style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: isDiseased
+                              ? Colors.redAccent.withOpacity(0.15)
+                              : (isHealthy ? Colors.green.withOpacity(0.15) : Colors.orange.withOpacity(0.15)),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          isUnrecognized
+                              ? (currentLang == 'si' ? 'අවධානය: ශාක පත්‍රයක් නොවේ' : (currentLang == 'ta' ? 'அடையாளம் காணப்படவில்லை' : 'Unrecognized Image'))
+                              : (isDiseased
+                                  ? (currentLang == 'si' ? '⚠️ රෝගී තත්ත්වයක් හඳුනාගෙන ඇත' : (currentLang == 'ta' ? '⚠️ நோய் கண்டறியப்பட்டது' : '⚠️ Disease Detected'))
+                                  : (currentLang == 'si' ? '🌿 නිරෝගී ශාක පත්‍රයකි' : (currentLang == 'ta' ? '🌿 ஆரோக்கியமான பயிர்' : '🌿 Healthy Crop'))),
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: isDiseased ? Colors.redAccent : (isHealthy ? Colors.green : Colors.orange),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        isDiseased
+                            ? (state.result!.diseaseName.isNotEmpty ? state.result!.diseaseName : state.result!.label)
+                            : state.result!.label,
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: isUnrecognized ? Colors.orange : (isDiseased ? Colors.redAccent : Theme.of(context).colorScheme.primary),
+                            ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 6),
+                      Wrap(
+                        spacing: 6,
+                        runSpacing: 4,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.surfaceVariant,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Text(
+                              l10n.confidence((state.result!.confidence * 100).toStringAsFixed(1)),
+                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
+                            ),
+                          ),
+                          if (isDiseased && state.result!.severity.isNotEmpty)
+                            Container(
+                              padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
+                              decoration: BoxDecoration(
+                                color: Colors.orange.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Text(
+                                l10n.severity(state.result!.severity),
+                                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.orange),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
-                if (isDiseased && state.result!.severity.isNotEmpty)
-                  Container(
-                    padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: Colors.orange.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Text(
-                      l10n.severity(state.result!.severity),
-                      style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.orange),
-                    ),
-                  ),
               ],
             ),
           ),
+
+          // Practical Action Guide when Diseased
           if (isDiseased) ...[
-            const SizedBox(height: 24),
+            const SizedBox(height: 18),
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: Colors.redAccent.withValues(alpha: 0.1),
+                color: Colors.redAccent.withOpacity(0.06),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.redAccent.withValues(alpha: 0.3)),
+                border: Border.all(color: Colors.redAccent.withOpacity(0.25)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.warning_amber_rounded, color: Colors.redAccent),
+                      const Icon(Icons.assignment_outlined, color: Colors.redAccent, size: 20),
                       const SizedBox(width: 8),
-                      Text('Treatment Plan', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: Colors.redAccent)),
+                      Text(
+                        currentLang == 'si'
+                            ? 'ප්‍රායෝගික ක්ෂේත්‍ර ප්‍රතිකාර සැලැස්ම'
+                            : (currentLang == 'ta' ? 'நடைமுறை கள சிகிச்சை திட்டம்' : 'Practical Field Treatment Plan'),
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.redAccent,
+                            ),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 12),
-                  Text(
-                    state.result!.treatmentPlan.isNotEmpty 
-                      ? state.result!.treatmentPlan 
-                      : 'Please consult with a local agricultural expert for specific treatments.', 
-                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface)
+                  _buildPracticalStepTile(
+                    context,
+                    icon: Icons.content_cut,
+                    iconColor: Colors.orange,
+                    title: currentLang == 'si' ? '1. කප්පාදු කිරීම සහ හුදකලා කිරීම' : (currentLang == 'ta' ? '1. கவாத்து மற்றும் தனிமைப்படுத்தல்' : '1. Prune & Isolate'),
+                    desc: currentLang == 'si'
+                        ? 'ආසාදිත කොළ සහ අතු වහාම කපා ඉවත් කර වගා බිමෙන් ඉවතට ගෙන විනාශ කරන්න.'
+                        : (currentLang == 'ta' ? 'பாதிக்கப்பட்ட இலைகளை வெட்டி அகற்றி தோட்டத்திலிருந்து வெளியேற்றவும்.' : 'Prune affected leaves immediately and dispose of them far from the field.'),
+                  ),
+                  const SizedBox(height: 8),
+                  _buildPracticalStepTile(
+                    context,
+                    icon: Icons.eco,
+                    iconColor: Colors.green,
+                    title: currentLang == 'si' ? '2. කාබනික කොහොඹ තෙල් සත්කාරය' : (currentLang == 'ta' ? '2. இயற்கை வேப்பெண்ணெய் சிகிச்சை' : '2. Organic Neem Treatment'),
+                    desc: currentLang == 'si'
+                        ? 'කොහොඹ තෙල් මිලිලීටර් 5ක් සබන් වතුර ලීටරයකට මිශ්‍ර කර දින 5-7 කට වරක් කොළ වලට ඉසින්න.'
+                        : (currentLang == 'ta' ? 'வேப்பெண்ணெய் 5ml-ஐ சோப்பு கலந்த தண்ணீரில் கலந்து 5-7 நாட்களுக்கு ஒருமுறை தெளிக்கவும்.' : 'Mix 5ml neem oil with a drop of liquid soap per liter of water and spray every 5-7 days.'),
+                  ),
+                  const SizedBox(height: 8),
+                  _buildPracticalStepTile(
+                    context,
+                    icon: Icons.science,
+                    iconColor: Colors.blueAccent,
+                    title: currentLang == 'si' ? '3. විශේෂිත රෝග ප්‍රතිකාරය' : (currentLang == 'ta' ? '3. குறிப்பிட்ட நோய் சிகிச்சை' : '3. Targeted Disease Control'),
+                    desc: state.result!.treatmentPlan.isNotEmpty
+                        ? state.result!.treatmentPlan
+                        : (currentLang == 'si'
+                            ? 'ප්‍රාදේශීය කෘෂිකර්ම උපදෙස් අනුව නිර්දේශිත දිලීර හෝ කෘමි නාශක යොදන්න.'
+                            : (currentLang == 'ta' ? 'பரிந்துரைக்கப்பட்ட பூஞ்சைக் கொல்லி அல்லது மருந்தைப் பயன்படுத்தவும்.' : 'Apply recommended fungicide or pesticide according to local guidance.')),
+                  ),
+                  const SizedBox(height: 8),
+                  _buildPracticalStepTile(
+                    context,
+                    icon: Icons.water_drop,
+                    iconColor: Colors.lightBlue,
+                    title: currentLang == 'si' ? '4. මුල් පාමුලට ජල සම්පාදනය' : (currentLang == 'ta' ? '4. வேருக்கு நீர் பாய்ச்சுதல்' : '4. Root-Zone Watering'),
+                    desc: currentLang == 'si'
+                        ? 'කොළ මතට ජලය නොවැටෙන සේ ශාකයේ මුල් පාමුලට පමණක් උදෑසන කාලයේ ජලය සපයන්න.'
+                        : (currentLang == 'ta' ? 'இலைகள் நனையாமல் காலையில் வேருக்கு மட்டும் தண்ணீர் பாய்ச்சவும்.' : 'Avoid wetting foliage; water strictly at root level during early morning.'),
                   ),
                   const SizedBox(height: 14),
                   FilledButton.icon(
                     onPressed: () => _askAiAboutScan(context, ref, state.result!, state.imagePath),
                     icon: const Icon(Icons.psychology, size: 20),
-                    label: const Text('Ask AI for In-Depth Details (Point-by-Point)', style: TextStyle(fontWeight: FontWeight.bold)),
+                    label: Text(
+                      currentLang == 'si'
+                          ? 'සවිස්තර ප්‍රතිකාර සැලැස්ම AI වෙතින් විමසන්න'
+                          : (currentLang == 'ta' ? 'முழு சிகிச்சை திட்டத்தை AI-யிடம் கேட்கவும்' : 'Ask AI for In-Depth Details (Point-by-Point)'),
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
                     style: FilledButton.styleFrom(
                       backgroundColor: Colors.redAccent,
                       foregroundColor: Colors.white,
@@ -354,37 +548,77 @@ class CameraScanScreen extends ConsumerWidget {
               ),
             ),
           ],
+
+          // Practical Maintenance Guide when Healthy
           if (isHealthy) ...[
-             const SizedBox(height: 24),
-             Container(
-              padding: const EdgeInsets.all(16),
+            const SizedBox(height: 18),
+            Container(
+              padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                color: Theme.of(context).colorScheme.primary.withOpacity(0.06),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3)),
+                border: Border.all(color: Theme.of(context).colorScheme.primary.withOpacity(0.25)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.verified, color: Theme.of(context).colorScheme.primary),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          state.result!.treatmentPlan.isNotEmpty 
-                          ? state.result!.treatmentPlan 
-                          : 'Your crop looks perfectly healthy! Keep up the good irrigation and fertilizer routine.', 
-                          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
-                        ),
+                      Icon(Icons.verified, color: Theme.of(context).colorScheme.primary, size: 20),
+                      const SizedBox(width: 8),
+                      Text(
+                        currentLang == 'si'
+                            ? 'නිරෝගී අස්වැන්නක් සඳහා ප්‍රායෝගික පියවර'
+                            : (currentLang == 'ta' ? 'ஆரோக்கியமான விளைச்சலுக்கான நடைமுறை வழிகள்' : 'Practical Maintenance & Care Guide'),
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 12),
+                  _buildPracticalStepTile(
+                    context,
+                    icon: Icons.water_drop,
+                    iconColor: Colors.blueAccent,
+                    title: currentLang == 'si' ? '1. ක්‍රමවත් ජල සම්පාදනය' : (currentLang == 'ta' ? '1. சரியான நீர்ப்பாசனம்' : '1. Regular Irrigation'),
+                    desc: currentLang == 'si'
+                        ? 'පසෙහි තෙතමනය පරීක්ෂා කර නියමිත වේලාවට මුල් පාමුලට ජලය සපයන්න.'
+                        : (currentLang == 'ta' ? 'மண்ணின் ஈரப்பதத்தைப் பார்த்து வேருக்கு மட்டும் தண்ணீர் பாய்ச்சவும்.' : 'Check soil moisture and irrigate regularly at root level.'),
+                  ),
+                  const SizedBox(height: 8),
+                  _buildPracticalStepTile(
+                    context,
+                    icon: Icons.eco,
+                    iconColor: Colors.green,
+                    title: currentLang == 'si' ? '2. කාබනික පෝෂණය හා පොහොර' : (currentLang == 'ta' ? '2. இயற்கை ஊட்டச்சத்து மற்றும் உரம்' : '2. Organic Nutrition'),
+                    desc: currentLang == 'si'
+                        ? 'කොම්පෝස්ට් හෝ කාබනික දියර පොහොර ක්‍රමානුකූලව යොදා පෝෂණය සුරකින්න.'
+                        : (currentLang == 'ta' ? 'கம்போஸ்ட் அல்லது இயற்கை உரங்களை சரியான இடைவெளியில் இடவும்.' : 'Apply balanced compost or organic liquid fertilizer regularly.'),
+                  ),
+                  const SizedBox(height: 8),
+                  _buildPracticalStepTile(
+                    context,
+                    icon: Icons.shield_outlined,
+                    iconColor: Colors.amber,
+                    title: currentLang == 'si' ? '3. රෝග නිවාරණ පරීක්ෂාව' : (currentLang == 'ta' ? '3. தடுப்பு கண்காணிப்பு' : '3. Preventive Monitoring'),
+                    desc: state.result!.treatmentPlan.isNotEmpty
+                        ? state.result!.treatmentPlan
+                        : (currentLang == 'si'
+                            ? 'සතියකට වරක් කොළ යටි පැත්ත පරීක්ෂා කර පළිබෝධ අවදානම් වළක්වා ගන්න.'
+                            : (currentLang == 'ta' ? 'வாரத்திற்கு ஒருமுறை இலையின் அடிப்பகுதியை ஆய்வு செய்யவும்.' : 'Inspect undersides of leaves weekly to prevent pest attacks early.')),
+                  ),
+                  const SizedBox(height: 14),
                   OutlinedButton.icon(
                     onPressed: () => _askAiAboutScan(context, ref, state.result!, state.imagePath),
                     icon: const Icon(Icons.smart_toy_outlined, size: 18),
-                    label: const Text('Ask AI for Care & Yield Tips'),
+                    label: Text(
+                      currentLang == 'si'
+                          ? 'අස්වැන්න වැඩි කරගැනීමේ උපදෙස් AI වෙතින් විමසන්න'
+                          : (currentLang == 'ta' ? 'விளைச்சல் பெருக்க ஆலோசனைகளை AI-யிடம் கேட்கவும்' : 'Ask AI for Care & Yield Tips'),
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: Theme.of(context).colorScheme.primary,
                       side: BorderSide(color: Theme.of(context).colorScheme.primary),
@@ -397,7 +631,7 @@ class CameraScanScreen extends ConsumerWidget {
             ),
           ],
 
-          const SizedBox(height: 24),
+          const SizedBox(height: 20),
           if (isUnrecognized)
             ElevatedButton(
               onPressed: () => ref.read(scanControllerProvider.notifier).reset(),
@@ -424,14 +658,19 @@ class CameraScanScreen extends ConsumerWidget {
               label: Text(state.isSaved ? l10n.saved : l10n.saveResult),
               style: ElevatedButton.styleFrom(
                 backgroundColor: state.isSaved ? Colors.grey : Theme.of(context).colorScheme.secondary,
-                minimumSize: const Size(double.infinity, 56),
+                minimumSize: const Size(double.infinity, 54),
               ),
             ),
             const SizedBox(height: 12),
             OutlinedButton.icon(
               onPressed: () => _askAiAboutScan(context, ref, state.result!, state.imagePath),
               icon: const Icon(Icons.forum_outlined),
-              label: const Text('Chat with AgriAI about this scan', style: TextStyle(fontWeight: FontWeight.bold)),
+              label: Text(
+                currentLang == 'si'
+                    ? 'මෙම ස්කෑන් පරීක්ෂාව ගැන AgriAI සමග කතාබස් කරන්න'
+                    : (currentLang == 'ta' ? 'இந்த ஆய்வு பற்றி AgriAI உடன் பேசவும்' : 'Chat with AgriAI about this scan'),
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
               style: OutlinedButton.styleFrom(
                 minimumSize: const Size(double.infinity, 50),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
