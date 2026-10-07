@@ -329,13 +329,20 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
         } catch (e) {
           debugPrint('Failed to persist AI chat response: $e');
         }
+      } else {
+        setState(() {
+          _messages[lastIndex] = ChatMessage(
+            text: '⚠️ AI මගින් ප්‍රතිචාරයක් නොලැබුණි (Empty response received). කරුණාකර ප්‍රශ්නය නැවත යොමු කරන්න.',
+            isUser: false,
+          );
+        });
       }
     } catch (e) {
       if (!mounted) return;
       setState(() {
         final lastIndex = _messages.length - 1;
         _messages[lastIndex] = ChatMessage(
-          text: 'Error: Failed to fetch response. Please check connection and try again.',
+          text: '⚠️ AI ප්‍රතිචාර ලබාගැනීමේදී දෝෂයක් සිදුවිය (Error):\n\n$e\n\nකරුණාකර ඔබගේ අන්තර්ජාල සම්බන්ධතාවය හෝ API Key එක පරීක්ෂා කර නැවත උත්සාහ කරන්න.',
           isUser: false,
         );
       });

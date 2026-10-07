@@ -9,8 +9,11 @@ class AgentChatTurn {
 }
 
 class AgentApiClient {
-  GenerativeModel _getModel(String language, {String modelName = 'gemini-flash-latest'}) {
+  GenerativeModel _getModel(String language, {String modelName = 'gemini-3.1-flash-lite'}) {
     final apiKey = dotenv.env['GEMINI_API_KEY'] ?? '';
+    if (apiKey.isEmpty || apiKey == 'YOUR_GEMINI_API_KEY') {
+      throw Exception('Gemini API Key is missing. Please set GEMINI_API_KEY in .env file.');
+    }
 
     String languageInstruction = 'Respond in English.';
     if (language == 'si') {
@@ -95,10 +98,10 @@ class AgentApiClient {
     // Append current prompt
     contents.add(Content.text(promptWithContext));
 
-    // Try primary model: gemini-flash-latest
+    // Try primary model: gemini-3.1-flash-lite
     bool streamStarted = false;
     try {
-      final primaryModel = _getModel(language, modelName: 'gemini-flash-latest');
+      final primaryModel = _getModel(language, modelName: 'gemini-3.1-flash-lite');
       final responseStream = primaryModel.generateContentStream(contents);
 
       await for (final chunk in responseStream) {
@@ -108,10 +111,10 @@ class AgentApiClient {
         }
       }
     } catch (e) {
-      // If primary model has 503 high demand or fails before streaming, fallback to gemini-flash-lite-latest
+      // If primary model fails before streaming, fallback to gemini-3-flash-preview
       if (!streamStarted) {
         try {
-          final fallbackModel = _getModel(language, modelName: 'gemini-flash-lite-latest');
+          final fallbackModel = _getModel(language, modelName: 'gemini-3-flash-preview');
           final fallbackStream = fallbackModel.generateContentStream(contents);
           await for (final chunk in fallbackStream) {
             if (chunk.text != null && chunk.text!.isNotEmpty) {

@@ -44,7 +44,7 @@ Return a JSON object with the exact following structure without markdown blocks:
       GenerateContentResponse response;
       try {
         final model = GenerativeModel(
-          model: 'gemini-flash-latest',
+          model: 'gemini-3.1-flash-lite',
           apiKey: _apiKey,
           generationConfig: GenerationConfig(
             responseMimeType: 'application/json',
@@ -52,9 +52,9 @@ Return a JSON object with the exact following structure without markdown blocks:
         );
         response = await model.generateContent(content);
       } catch (e) {
-        // Fallback to flash-lite if primary model has temporary 503 high demand
+        // Fallback to gemini-3-flash-preview if primary model fails
         final fallbackModel = GenerativeModel(
-          model: 'gemini-flash-lite-latest',
+          model: 'gemini-3-flash-preview',
           apiKey: _apiKey,
           generationConfig: GenerationConfig(
             responseMimeType: 'application/json',
