@@ -8,7 +8,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 class GeminiCropClassifier {
   static String get _apiKey => dotenv.env['GEMINI_API_KEY'] ?? 'YOUR_GEMINI_API_KEY';
   
-  Future<ClassifierResult?> analyzeImage(String imagePath) async {
+  Future<ClassifierResult?> analyzeImage(String imagePath, {String language = 'en'}) async {
     if (_apiKey == 'YOUR_GEMINI_API_KEY') {
        print('Gemini API key not configured. Falling back to offline model.');
        return null; // Return null so the hybrid model falls back to offline
@@ -17,11 +17,23 @@ class GeminiCropClassifier {
     try {
       final file = File(imagePath);
       final bytes = await file.readAsBytes();
-      
+
+      String langInstruction = 'Provide all text values in English.';
+      if (language == 'si') {
+        langInstruction = 'Provide all text fields ("label", "diseaseName", "treatmentPlan", "severity") 100% EXCLUSIVELY in pure Sinhala script (සිංහල). Zero English words. Zero Singlish.';
+      } else if (language == 'ta') {
+        langInstruction = 'Provide all text fields ("label", "diseaseName", "treatmentPlan", "severity") 100% EXCLUSIVELY in pure Tamil script (தமிழ்). Zero English words. Zero Tanglish.';
+      }
+
+      final unrecognizedLabel = language == 'si'
+          ? 'හඳුනාගත නොහැක / ශාක පත්‍රයක් නොවේ'
+          : (language == 'ta' ? 'அடையாளம் காண முடியவில்லை' : 'Unrecognized / Not a plant');
+
       final prompt = '''
 You are an expert agricultural botanist and plant pathologist. 
 Analyze the provided image. 
-1. If the image is NOT a plant or leaf (e.g. it's a bottle, person, car, etc.), you MUST set "isPlant" to false, "label" to "Unrecognized / Not a plant", and keep the rest empty.
+Language Policy: $langInstruction
+1. If the image is NOT a plant or leaf (e.g. it's a bottle, person, car, etc.), you MUST set "isPlant" to false, "label" to "$unrecognizedLabel", and keep the rest empty.
 2. If it IS a plant, determine if it is perfectly healthy or diseased.
 Return a JSON object with the exact following structure without markdown blocks:
 {
@@ -29,8 +41,8 @@ Return a JSON object with the exact following structure without markdown blocks:
   "isHealthy": boolean (true if the plant looks perfectly healthy, false if diseased. Ignored if not a plant),
   "diseaseName": string (if diseased, the precise name of the disease. If healthy or not a plant, leave empty),
   "treatmentPlan": string (a step-by-step treatment plan if diseased. If healthy, provide general care tips. If not a plant, leave empty),
-  "severity": string (e.g. "None", "Low", "Medium", "High"),
-  "label": string (a short display title like "Healthy Tomato Leaf", "Tomato Early Blight", or "Unrecognized / Not a plant")
+  "severity": string (e.g. ${language == 'si' ? '"නැත", "අඩු", "මධ්‍යම", "ඉහළ"' : (language == 'ta' ? '"இல்லை", "குறைவு", "நடுத்தரம்", "அதிகம்"' : '"None", "Low", "Medium", "High"')}),
+  "label": string (a short display title like ${language == 'si' ? '"නිරෝගී තක්කාලි කොළය", "තක්කාලි අකල් අංගමාරය"' : (language == 'ta' ? '"ஆரோக்கியமான தக்காளி இலை", "தக்காளி கருகல் நோய்"' : '"Healthy Tomato Leaf", "Tomato Early Blight"')})
 }
 ''';
 

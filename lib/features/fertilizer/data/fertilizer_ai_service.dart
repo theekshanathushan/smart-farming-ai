@@ -251,9 +251,9 @@ class FertilizerAiService {
 
     String langInstruction = 'Respond in English.';
     if (language == 'si') {
-      langInstruction = 'Respond in fluent, natural Sinhala script (සිංහල). Keep scientific nutrient names like Urea, TSP, MOP followed by Sinhala translations.';
+      langInstruction = 'Provide ALL text fields ("timing", "instructions", "organicAlternative", "practicalTips", "stageName", "purpose") 100% EXCLUSIVELY in pure Sinhala script (සිංහල). Zero English words. Zero Singlish.';
     } else if (language == 'ta') {
-      langInstruction = 'Respond in clear Tamil script (தமிழ்).';
+      langInstruction = 'Provide ALL text fields 100% EXCLUSIVELY in pure Tamil script (தமிழ்). Zero English words. Zero Tanglish.';
     }
 
     final prompt = '''

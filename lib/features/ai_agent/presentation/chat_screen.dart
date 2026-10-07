@@ -156,7 +156,10 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
             }
           } else {
             _currentCropType = null;
-            _currentSessionTitle = 'New Chat';
+            final currentLang = ref.read(localeProvider).languageCode;
+            _currentSessionTitle = currentLang == 'si'
+                ? 'අලුත් සාකච්ඡාවක්'
+                : (currentLang == 'ta' ? 'புதிய அரட்டை' : 'New Chat');
           }
         });
         _scrollToBottom();
@@ -167,9 +170,12 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
   }
 
   void _startNewChat() {
+    final currentLang = ref.read(localeProvider).languageCode;
     setState(() {
       _currentSessionId = const Uuid().v4();
-      _currentSessionTitle = 'New Chat';
+      _currentSessionTitle = currentLang == 'si'
+          ? 'අලුත් සාකච්ඡාවක්'
+          : (currentLang == 'ta' ? 'புதிய அரட்டை' : 'New Chat');
       _currentCropType = null;
       _messages.clear();
       _initialSent = false;
@@ -371,6 +377,7 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final currentLang = ref.watch(localeProvider).languageCode;
 
     return Scaffold(
       key: _scaffoldKey,
@@ -379,7 +386,9 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.menu_rounded),
-          tooltip: 'Chat History',
+          tooltip: currentLang == 'si'
+              ? 'සාකච්ඡා ඉතිහාසය'
+              : (currentLang == 'ta' ? 'அரட்டை வரலாறு' : 'Chat History'),
           onPressed: () => _scaffoldKey.currentState?.openDrawer(),
         ),
         title: Column(
@@ -411,7 +420,11 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
               ],
             ),
             Text(
-              'AgriAI • Agriculture Only',
+              currentLang == 'si'
+                  ? 'AgriAI • කෘෂිකාර්මික උපදෙස් පමණි'
+                  : (currentLang == 'ta'
+                      ? 'AgriAI • விவசாயம் மட்டுமே'
+                      : 'AgriAI • Agriculture Only'),
               style: TextStyle(
                 fontSize: 11,
                 color: colorScheme.onSurface.withValues(alpha: 0.6),
@@ -423,12 +436,16 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.add_comment_outlined),
-            tooltip: 'New Chat',
+            tooltip: currentLang == 'si'
+                ? 'අලුත් සාකච්ඡාවක්'
+                : (currentLang == 'ta' ? 'புதிய அரட்டை' : 'New Chat'),
             onPressed: _startNewChat,
           ),
           IconButton(
             icon: const Icon(Icons.history_rounded),
-            tooltip: 'View History',
+            tooltip: currentLang == 'si'
+                ? 'සාකච්ඡා ඉතිහාසය'
+                : (currentLang == 'ta' ? 'வரலாற்றைக் காண்க' : 'View History'),
             onPressed: () => _scaffoldKey.currentState?.openDrawer(),
           ),
         ],
@@ -607,7 +624,11 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
                 children: [
                   IconButton(
                     icon: Icon(Icons.camera_alt_outlined, color: colorScheme.primary),
-                    tooltip: 'Scan Leaf & Ask AI',
+                    tooltip: currentLang == 'si'
+                        ? 'කොළයක් ස්කෑන් කර අසන්න'
+                        : (currentLang == 'ta'
+                            ? 'இலையை ஸ்கேன் செய்து கேளுங்கள்'
+                            : 'Scan Leaf & Ask AI'),
                     onPressed: _isLoading ? null : _scanLeafFromChat,
                   ),
                   const SizedBox(width: 4.0),
@@ -616,7 +637,11 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
                       controller: _controller,
                       style: TextStyle(color: colorScheme.onSurface),
                       decoration: InputDecoration(
-                        hintText: 'Ask about crops, pests, fertilizers...',
+                        hintText: currentLang == 'si'
+                            ? 'වගාවන්, පොහොර, රෝග ගැන අසන්න...'
+                            : (currentLang == 'ta'
+                                ? 'பயிர்கள், பூச்சிகள், உரங்கள் பற்றி கேளுங்கள்...'
+                                : 'Ask about crops, pests, fertilizers...'),
                         hintStyle: TextStyle(color: colorScheme.primary.withValues(alpha: 0.5)),
                         filled: true,
                         fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
@@ -1114,6 +1139,7 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
   Widget _buildRecentScanBanner(BuildContext context, ScanState scanState) {
     final result = scanState.result!;
     final condition = result.diseaseName.isNotEmpty ? result.diseaseName : result.label;
+    final currentLang = ref.watch(localeProvider).languageCode;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -1152,7 +1178,9 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Recent Scan Detected',
+                  currentLang == 'si'
+                      ? 'මෑතකදී ස්කෑන් කළ බෝගයක් හඳුනාගැනිණි'
+                      : (currentLang == 'ta' ? 'சமீபத்திய ஸ்கேன் கண்டறியப்பட்டது' : 'Recent Scan Detected'),
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
@@ -1220,7 +1248,11 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
             ),
-            child: const Text('Send to AI'),
+            child: Text(
+              currentLang == 'si'
+                  ? 'AI වෙත යවන්න'
+                  : (currentLang == 'ta' ? 'AI க்கு அனுப்பு' : 'Send to AI'),
+            ),
           ),
           IconButton(
             icon: const Icon(Icons.close, size: 16),

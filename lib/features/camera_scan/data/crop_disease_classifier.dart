@@ -8,7 +8,7 @@ import 'gemini_crop_classifier.dart';
 
 abstract class ICropDiseaseClassifier {
   Future<void> initialize();
-  Future<List<ClassifierResult>> classifyImage(String imagePath);
+  Future<List<ClassifierResult>> classifyImage(String imagePath, {String language = 'en'});
   void dispose();
 }
 
@@ -22,10 +22,10 @@ class HybridCropDiseaseClassifier implements ICropDiseaseClassifier {
   }
 
   @override
-  Future<List<ClassifierResult>> classifyImage(String imagePath) async {
+  Future<List<ClassifierResult>> classifyImage(String imagePath, {String language = 'en'}) async {
     // 1. Try Online Advanced AI (Gemini)
     try {
-      final geminiResult = await _geminiClassifier.analyzeImage(imagePath).timeout(const Duration(seconds: 12));
+      final geminiResult = await _geminiClassifier.analyzeImage(imagePath, language: language).timeout(const Duration(seconds: 12));
       if (geminiResult != null &&
           !geminiResult.label.contains('API/Network Error') &&
           !geminiResult.label.contains('API Blocked Response')) {
@@ -68,7 +68,7 @@ class TFLiteCropDiseaseClassifier implements ICropDiseaseClassifier {
   }
 
   @override
-  Future<List<ClassifierResult>> classifyImage(String imagePath) async {
+  Future<List<ClassifierResult>> classifyImage(String imagePath, {String language = 'en'}) async {
     if (_interpreter == null || _labels == null) {
       return [
         ClassifierResult(label: 'Model not loaded (Please add model.tflite to assets/models)', confidence: 0.0)

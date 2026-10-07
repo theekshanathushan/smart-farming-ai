@@ -170,9 +170,9 @@ class IrrigationAiService {
 
     String langInstruction = 'Respond in English.';
     if (language == 'si') {
-      langInstruction = 'Provide description and tips in natural Sinhala script (සිංහල).';
+      langInstruction = 'Provide ALL text fields ("recommendedMethod", "frequency", "scheduleAndTips", "criticalGrowthStages", "droughtAndSoilTips") 100% EXCLUSIVELY in pure Sinhala script (සිංහල). Zero English words. Zero Singlish.';
     } else if (language == 'ta') {
-      langInstruction = 'Provide description and tips in Tamil script (தமிழ்).';
+      langInstruction = 'Provide ALL text fields ("recommendedMethod", "frequency", "scheduleAndTips", "criticalGrowthStages", "droughtAndSoilTips") 100% EXCLUSIVELY in pure Tamil script (தமிழ்). Zero English words. Zero Tanglish.';
     }
 
     final prompt = '''

@@ -5,6 +5,7 @@ import '../data/crop_disease_classifier.dart';
 import '../domain/classifier_result.dart';
 import '../../../core/local_db/app_database.dart';
 import '../../../core/services/firebase_sync_service.dart';
+import '../../../core/providers/locale_provider.dart';
 
 class ScanState {
   final bool isLoading;
@@ -42,9 +43,10 @@ class ScanController extends StateNotifier<ScanState> {
   final ICropDiseaseClassifier _classifier;
   final AppDatabase _db;
   final FirebaseSyncService _syncService;
+  final Ref _ref;
   final ImagePicker _picker = ImagePicker();
 
-  ScanController(this._classifier, this._db, this._syncService) : super(ScanState());
+  ScanController(this._classifier, this._db, this._syncService, this._ref) : super(ScanState());
 
   Future<void> captureAndClassify(ImageSource source) async {
     try {
@@ -58,7 +60,8 @@ class ScanController extends StateNotifier<ScanState> {
 
       state = state.copyWith(isLoading: true, imagePath: image.path, error: null, isSaved: false);
 
-      final results = await _classifier.classifyImage(image.path);
+      final currentLang = _ref.read(localeProvider).languageCode;
+      final results = await _classifier.classifyImage(image.path, language: currentLang);
       
       state = state.copyWith(
         isLoading: false,
@@ -105,5 +108,5 @@ final scanControllerProvider = StateNotifierProvider<ScanController, ScanState>(
   final classifier = ref.watch(cropDiseaseClassifierProvider);
   final db = ref.watch(databaseProvider);
   final syncService = ref.watch(firebaseSyncServiceProvider);
-  return ScanController(classifier, db, syncService);
+  return ScanController(classifier, db, syncService, ref);
 });

@@ -8,11 +8,37 @@ class PestAiService {
   String get _apiKey => dotenv.env['GEMINI_API_KEY'] ?? '';
 
   GenerativeModel _getModel(String language, {String modelName = 'gemini-3.1-flash-lite'}) {
-    String languageInstruction = 'Respond in English.';
+    String languagePolicy;
+    String headers;
+
     if (language == 'si') {
-      languageInstruction = 'Respond ONLY in Sinhala script (සිංහල). Never use Romanized Singlish.';
+      languagePolicy =
+          '🛑 අනිවාර්ය භාෂා ප්‍රතිපත්තිය (100% සිංහල පමණි - ZERO ENGLISH & ZERO SINGLISH):\n'
+          'ඔබගේ සමස්ත ප්‍රතිචාරයම, මාතෘකා, විස්තර, රෝග නම් සහ රසායනික නිර්දේශ 100% ක් පිරිසිදු සිංහල අක්ෂරවලින් පමණක්ම ලිවිය යුතුය. කිසිදු ඉංග්‍රීසි වචනයක් හෝ සිංග්ලිෂ් භාවිත නොකරන්න.';
+      headers =
+          '   ### 🐛 1. ප්‍රධාන කෘමි හානි සහ හානි ලක්ෂණ\n'
+          '   ### 🍄 2. දිලීර, බැක්ටීරියා සහ වෛරස් රෝග\n'
+          '   ### 🌿 3. ක්ෂණික කාබනික හා ස්වාභාවික පිළියම්\n'
+          '   ### 🧪 4. රසායනික පාලනය සහ නිර්දේශිත මාත්‍රා\n'
+          '   ### 🛡️ 5. දීර්ඝකාලීන ක්ෂේත්‍ර රැකවරණය සහ වැළැක්වීමේ පියවර';
     } else if (language == 'ta') {
-      languageInstruction = 'Respond ONLY in Tamil script (தமிழ்). Never use Romanized Tanglish.';
+      languagePolicy =
+          '🛑 கட்டாய மொழி விதி (100% தமிழ் மட்டுமே - ZERO ENGLISH & ZERO TANGLISH):\n'
+          'உங்கள் பதில் முழுவதும் 100% தூய தமிழ் எழுத்துக்களில் மட்டுமே இருக்க வேண்டும். ஆங்கில வார்த்தைகளைத் தவிர்க்கவும்.';
+      headers =
+          '   ### 🐛 1. முக்கிய பூச்சித் தாக்குதல்கள் மற்றும் அறிகுறிகள்\n'
+          '   ### 🍄 2. பூஞ்சை, பாக்டீரியா மற்றும் வைரஸ் நோய்கள்\n'
+          '   ### 🌿 3. உடனடி இயற்கை மற்றும் உயிரியல் தீர்வுகள்\n'
+          '   ### 🧪 4. இரசாயனக் கட்டுப்பாடு மற்றும் பரிந்துரைக்கப்பட்ட அளவுகள்\n'
+          '   ### 🛡️ 5. நீண்ட கால களப் பராமரிப்பு மற்றும் தடுப்பு முறைகள்';
+    } else {
+      languagePolicy = 'Respond 100% in English. Do not mix other languages.';
+      headers =
+          '   ### 🐛 1. Major Insect Pests & Damage Symptoms\n'
+          '   ### 🍄 2. Fungal, Bacterial & Viral Diseases\n'
+          '   ### 🌿 3. Immediate Organic & Biological Remedies\n'
+          '   ### 🧪 4. Recommended Chemical Controls & Dosages\n'
+          '   ### 🛡️ 5. Long-term Field Care & Preventive Practices';
     }
 
     return GenerativeModel(
@@ -21,13 +47,9 @@ class PestAiService {
       systemInstruction: Content.system(
         'You are an expert Senior Agricultural Entomologist and Plant Pathologist specializing in tropical and Sri Lankan agriculture.\n'
         'When asked about pests, diseases, or crop protection for ANY crop:\n'
-        '1. Language Policy: $languageInstruction\n'
+        '$languagePolicy\n'
         '2. Provide an exhaustive, highly structured, point-by-point guide with clear markdown headings and emojis:\n'
-        '   ### 🐛 1. Major Insect Pests & Damage Symptoms (ප්‍රධාන කෘමි හානි හා ලක්ෂණ)\n'
-        '   ### 🍄 2. Fungal, Bacterial & Viral Diseases (දිලීර, බැක්ටීරියා සහ වෛරස් රෝග)\n'
-        '   ### 🌿 3. Immediate Organic & Biological Remedies (ස්වාභාවික හා කාබනික ප්‍රතිකාර)\n'
-        '   ### 🧪 4. Recommended Chemical Controls & Dosages (රසායනික පාලනය හා නිර්දේශිත මාත්‍රා)\n'
-        '   ### 🛡️ 5. Long-term Field Care & Preventive Practices (නැවත බෝවීම වැළැක්වීමේ උපදෙස්)\n'
+        '$headers\n'
         '3. Under each section, use clear bold bullet points (•) and highlight active ingredients, application times, and exact measurements.\n'
         '4. Keep advice highly practical, actionable, and tailored for farmers in the field.'
       ),
