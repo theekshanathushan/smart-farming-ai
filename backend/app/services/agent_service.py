@@ -57,7 +57,7 @@ class AgriAgentService:
 
         # Make the streaming request to OpenAI compatible Gemini endpoint
         response = await self.client.chat.completions.create(
-            model="gemini-3.8-flash",
+            model="gemini-3.1-flash-lite",
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": request.message}

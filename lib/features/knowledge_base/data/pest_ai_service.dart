@@ -7,7 +7,7 @@ final pestAiServiceProvider = Provider((ref) => PestAiService());
 class PestAiService {
   String get _apiKey => dotenv.env['GEMINI_API_KEY'] ?? '';
 
-  GenerativeModel _getModel(String language, {String modelName = 'gemini-flash-latest'}) {
+  GenerativeModel _getModel(String language, {String modelName = 'gemini-3.1-flash-lite'}) {
     String languageInstruction = 'Respond in English.';
     if (language == 'si') {
       languageInstruction = 'Respond ONLY in Sinhala script (සිංහල). Never use Romanized Singlish.';
@@ -46,7 +46,7 @@ class PestAiService {
 
     // Try primary model
     try {
-      final model = _getModel(language, modelName: 'gemini-flash-latest');
+      final model = _getModel(language, modelName: 'gemini-3.1-flash-lite');
       final response = await model.generateContent([Content.text(prompt)]);
       if (response.text != null && response.text!.isNotEmpty) {
         return response.text!;
@@ -54,7 +54,7 @@ class PestAiService {
     } catch (e) {
       // Fallback model
       try {
-        final fallbackModel = _getModel(language, modelName: 'gemini-flash-lite-latest');
+        final fallbackModel = _getModel(language, modelName: 'gemini-3-flash-preview');
         final fallbackResponse = await fallbackModel.generateContent([Content.text(prompt)]);
         if (fallbackResponse.text != null && fallbackResponse.text!.isNotEmpty) {
           return fallbackResponse.text!;

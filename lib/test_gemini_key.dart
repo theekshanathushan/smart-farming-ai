@@ -19,7 +19,7 @@ void main() async {
   
   try {
     final model = GenerativeModel(
-      model: 'gemini-flash-lite-latest',
+      model: 'gemini-3.1-flash-lite',
       apiKey: apiKey,
     );
 
