@@ -4,14 +4,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
+import 'package:uuid/uuid.dart';
+import 'package:geolocator/geolocator.dart';
+
 import '../data/agent_api_client.dart';
+import '../domain/chat_session.dart';
 import '../../../core/utils/location_service.dart';
 import '../../../core/local_db/app_database.dart';
 import '../../../core/services/firebase_sync_service.dart';
 import '../../../core/providers/locale_provider.dart';
 import '../../camera_scan/presentation/scan_controller.dart';
 import '../../camera_scan/data/crop_disease_classifier.dart';
-import 'package:geolocator/geolocator.dart';
 
 final agentApiClientProvider = Provider((ref) => AgentApiClient());
 
@@ -26,8 +30,14 @@ class ChatMessage {
 class AiChatScreen extends ConsumerStatefulWidget {
   final String? initialMessage;
   final String? initialImagePath;
+  final String? initialSessionId;
 
-  const AiChatScreen({super.key, this.initialMessage, this.initialImagePath});
+  const AiChatScreen({
+    super.key,
+    this.initialMessage,
+    this.initialImagePath,
+    this.initialSessionId,
+  });
 
   @override
   ConsumerState<AiChatScreen> createState() => _AiChatScreenState();
@@ -36,30 +46,55 @@ class AiChatScreen extends ConsumerStatefulWidget {
 class _AiChatScreenState extends ConsumerState<AiChatScreen> {
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   final List<ChatMessage> _messages = [];
   bool _isLoading = false;
   Position? _currentPosition;
   bool _isFetchingLocation = true;
   bool _initialSent = false;
   bool _recentScanDismissed = false;
-  
+
+  late String _currentSessionId;
+  String _currentSessionTitle = 'Ask AgriAI';
+
   @override
   void initState() {
     super.initState();
+    _currentSessionId = widget.initialSessionId ?? const Uuid().v4();
     _fetchLocation();
     _initChat();
   }
 
   Future<void> _initChat() async {
-    try {
-      await _loadSavedMessages();
-    } catch (e) {
-      debugPrint('Error loading chat history: $e');
-    }
-    if (!_initialSent && widget.initialMessage != null && widget.initialMessage!.trim().isNotEmpty) {
-      _initialSent = true;
-      _sendMessage(widget.initialMessage!.trim(), widget.initialImagePath);
+    final db = ref.read(databaseProvider);
+
+    if (widget.initialMessage != null && widget.initialMessage!.trim().isNotEmpty) {
+      _currentSessionId = widget.initialSessionId ?? const Uuid().v4();
+      _currentSessionTitle = _truncateTitle(widget.initialMessage!.trim());
+      if (!_initialSent) {
+        _initialSent = true;
+        _sendMessage(widget.initialMessage!.trim(), widget.initialImagePath);
+      }
+    } else if (widget.initialSessionId != null) {
+      _currentSessionId = widget.initialSessionId!;
+      await _loadMessagesForSession(_currentSessionId);
+    } else {
+      // Load recent session if available, or start fresh
+      try {
+        final sessions = await db.getChatSessionSummaries();
+        if (sessions.isNotEmpty) {
+          final latest = sessions.first;
+          _currentSessionId = latest.sessionId;
+          _currentSessionTitle = latest.title;
+          await _loadMessagesForSession(latest.sessionId);
+        } else {
+          _currentSessionId = const Uuid().v4();
+          _currentSessionTitle = 'Ask AgriAI';
+        }
+      } catch (e) {
+        debugPrint('Error loading initial session: $e');
+      }
     }
   }
 
@@ -73,19 +108,76 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
     }
   }
 
-  Future<void> _loadSavedMessages() async {
+  Future<void> _loadMessagesForSession(String sessionId) async {
     final db = ref.read(databaseProvider);
-    final savedMessages = await db.getAllChatMessages();
-    if (mounted && savedMessages.isNotEmpty) {
-      setState(() {
-        _messages.addAll(
-          savedMessages.map(
-            (entry) => ChatMessage(text: entry.message, isUser: entry.isUser),
-          ),
-        );
-      });
-      _scrollToBottom();
+    try {
+      final savedMessages = await db.getChatMessagesForSession(sessionId);
+      if (mounted) {
+        setState(() {
+          _messages.clear();
+          _messages.addAll(
+            savedMessages.map(
+              (entry) => ChatMessage(text: entry.message, isUser: entry.isUser),
+            ),
+          );
+          if (savedMessages.isNotEmpty) {
+            final firstUser = savedMessages.firstWhere(
+              (m) => m.isUser && m.message.trim().isNotEmpty,
+              orElse: () => savedMessages.first,
+            );
+            _currentSessionTitle = _truncateTitle(firstUser.message);
+          } else {
+            _currentSessionTitle = 'New Chat';
+          }
+        });
+        _scrollToBottom();
+      }
+    } catch (e) {
+      debugPrint('Error loading chat session messages: $e');
     }
+  }
+
+  void _startNewChat() {
+    setState(() {
+      _currentSessionId = const Uuid().v4();
+      _currentSessionTitle = 'New Chat';
+      _messages.clear();
+      _initialSent = false;
+      _isLoading = false;
+    });
+    if (_scaffoldKey.currentState?.isDrawerOpen ?? false) {
+      Navigator.of(context).pop();
+    }
+  }
+
+  Future<void> _switchSession(ChatSessionSummary session) async {
+    if (_scaffoldKey.currentState?.isDrawerOpen ?? false) {
+      Navigator.of(context).pop();
+    }
+    if (_currentSessionId == session.sessionId) return;
+
+    setState(() {
+      _currentSessionId = session.sessionId;
+      _currentSessionTitle = session.title;
+      _messages.clear();
+      _isLoading = false;
+    });
+
+    await _loadMessagesForSession(session.sessionId);
+  }
+
+  String _truncateTitle(String text) {
+    String clean = text.trim();
+    if (clean.startsWith('[Farmer Context:') && clean.contains('Question:')) {
+      clean = clean.split('Question:').last.trim();
+    }
+    if (clean.contains('\n')) {
+      clean = clean.split('\n').first.trim();
+    }
+    if (clean.length > 34) {
+      return '${clean.substring(0, 32)}...';
+    }
+    return clean.isEmpty ? 'Farming Chat' : clean;
   }
 
   Future<void> _fetchLocation() async {
@@ -98,18 +190,25 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
       });
     }
   }
-  
+
   void _sendMessage([String? promptText, String? imagePath]) async {
     final text = (promptText ?? _controller.text).trim();
     if (text.isEmpty) return;
-    
+
+    // Update title if this is the first message in this session
+    if (_messages.isEmpty) {
+      setState(() {
+        _currentSessionTitle = _truncateTitle(text);
+      });
+    }
+
     setState(() {
       _messages.add(ChatMessage(text: text, isUser: true, imagePath: imagePath));
       _isLoading = true;
-      // Add a placeholder for the AI response
+      // Placeholder for AI response
       _messages.add(ChatMessage(text: '', isUser: false));
     });
-    
+
     if (promptText == null) {
       _controller.clear();
     }
@@ -125,37 +224,47 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
           message: Value(text),
           isUser: const Value(true),
           timestamp: Value(DateTime.now()),
+          sessionId: Value(_currentSessionId),
         ),
       );
       firebaseSync.syncChatMessage(
         message: text,
         isUser: true,
         timestamp: DateTime.now(),
+        sessionId: _currentSessionId,
       );
     } catch (e) {
       debugPrint('Failed to persist user chat message: $e');
     }
-    
+
     final apiClient = ref.read(agentApiClientProvider);
-    
+
     try {
       final currentLang = ref.read(localeProvider).languageCode;
+
+      // Extract preceding conversation turns for multi-turn conversational context
+      final historyTurns = _messages
+          .take(_messages.length - 2)
+          .where((m) => m.text.trim().isNotEmpty)
+          .map((m) => AgentChatTurn(text: m.text, isUser: m.isUser))
+          .toList();
+
       final stream = apiClient.streamChatAdvice(
         message: text,
         language: currentLang,
+        conversationHistory: historyTurns,
         latitude: _currentPosition?.latitude,
         longitude: _currentPosition?.longitude,
       );
-      
+
       await for (final chunk in stream) {
         if (!mounted) return;
         setState(() {
-          // Append the chunk to the last message
           final lastIndex = _messages.length - 1;
           final currentText = _messages[lastIndex].text;
           _messages[lastIndex] = ChatMessage(
-            text: currentText + chunk, 
-            isUser: false
+            text: currentText + chunk,
+            isUser: false,
           );
         });
         _scrollToBottom();
@@ -171,12 +280,14 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
               message: Value(responseText),
               isUser: const Value(false),
               timestamp: Value(DateTime.now()),
+              sessionId: Value(_currentSessionId),
             ),
           );
           firebaseSync.syncChatMessage(
             message: responseText,
             isUser: false,
             timestamp: DateTime.now(),
+            sessionId: _currentSessionId,
           );
         } catch (e) {
           debugPrint('Failed to persist AI chat response: $e');
@@ -187,8 +298,8 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
       setState(() {
         final lastIndex = _messages.length - 1;
         _messages[lastIndex] = ChatMessage(
-          text: 'Error: Failed to fetch response. Please try again.', 
-          isUser: false
+          text: 'Error: Failed to fetch response. Please check connection and try again.',
+          isUser: false,
         );
       });
     } finally {
@@ -214,57 +325,68 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      key: _scaffoldKey,
+      backgroundColor: colorScheme.surface,
+      drawer: _buildChatGPTDrawer(context),
       appBar: AppBar(
-        title: Row(
+        leading: IconButton(
+          icon: const Icon(Icons.menu_rounded),
+          tooltip: 'Chat History',
+          onPressed: () => _scaffoldKey.currentState?.openDrawer(),
+        ),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Ask AgriAI'),
-            if (_isFetchingLocation) ...[
-              const SizedBox(width: 8),
-              const SizedBox(
-                width: 12,
-                height: 12,
-                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Flexible(
+                  child: Text(
+                    _currentSessionTitle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                if (_isFetchingLocation) ...[
+                  const SizedBox(width: 8),
+                  const SizedBox(
+                    width: 12,
+                    height: 12,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                  ),
+                ] else if (_currentPosition != null) ...[
+                  const SizedBox(width: 6),
+                  Icon(Icons.location_on, size: 14, color: colorScheme.secondary),
+                ],
+              ],
+            ),
+            Text(
+              'AgriAI • Agriculture Only',
+              style: TextStyle(
+                fontSize: 11,
+                color: colorScheme.onSurface.withValues(alpha: 0.6),
+                fontWeight: FontWeight.w500,
               ),
-            ] else if (_currentPosition != null) ...[
-              const SizedBox(width: 8),
-              Icon(Icons.location_on, size: 16, color: Theme.of(context).colorScheme.secondary),
-            ],
+            ),
           ],
         ),
         actions: [
-          if (_messages.isNotEmpty)
-            IconButton(
-              icon: const Icon(Icons.delete_sweep_outlined),
-              tooltip: 'Clear Chat History',
-              onPressed: () async {
-                final confirmed = await showDialog<bool>(
-                  context: context,
-                  builder: (ctx) => AlertDialog(
-                    title: const Text('Clear Chat History'),
-                    content: const Text('Are you sure you want to delete all saved conversations?'),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(ctx, false),
-                        child: const Text('Cancel'),
-                      ),
-                      TextButton(
-                        onPressed: () => Navigator.pop(ctx, true),
-                        child: const Text('Clear', style: TextStyle(color: Colors.red)),
-                      ),
-                    ],
-                  ),
-                );
-                if (confirmed == true && mounted) {
-                  await ref.read(databaseProvider).clearChatHistory();
-                  setState(() {
-                    _messages.clear();
-                  });
-                }
-              },
-            ),
+          IconButton(
+            icon: const Icon(Icons.add_comment_outlined),
+            tooltip: 'New Chat',
+            onPressed: _startNewChat,
+          ),
+          IconButton(
+            icon: const Icon(Icons.history_rounded),
+            tooltip: 'View History',
+            onPressed: () => _scaffoldKey.currentState?.openDrawer(),
+          ),
         ],
       ),
       body: Column(
@@ -281,154 +403,156 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
             },
           ),
           Expanded(
-            child: ListView.builder(
-              controller: _scrollController,
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
-              itemCount: _messages.length,
-              itemBuilder: (context, index) {
-                final message = _messages[index];
-                
-                // Show loading indicator if it's the last message and empty
-                if (!message.isUser && message.text.isEmpty && _isLoading && index == _messages.length - 1) {
-                  return Align(
-                    alignment: Alignment.centerLeft,
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
-                      child: _BreathingSproutIndicator(),
-                    ),
-                  );
-                }
+            child: _messages.isEmpty
+                ? _buildEmptyWelcomeState(context)
+                : ListView.builder(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+                    itemCount: _messages.length,
+                    itemBuilder: (context, index) {
+                      final message = _messages[index];
 
-                if (!message.isUser && message.text.isEmpty) {
-                  return const SizedBox.shrink();
-                }
+                      // Show loading indicator if it's the last message and empty
+                      if (!message.isUser && message.text.isEmpty && _isLoading && index == _messages.length - 1) {
+                        return Align(
+                          alignment: Alignment.centerLeft,
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                            child: _BreathingSproutIndicator(),
+                          ),
+                        );
+                      }
 
-                final isUser = message.isUser;
-                return Align(
-                  alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(vertical: 6.0),
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
-                    constraints: BoxConstraints(
-                      maxWidth: MediaQuery.of(context).size.width * (isUser ? 0.82 : 0.88),
-                    ),
-                    decoration: BoxDecoration(
-                      color: isUser 
-                          ? Theme.of(context).colorScheme.primary 
-                          : Theme.of(context).colorScheme.surface,
-                      borderRadius: BorderRadius.only(
-                        topLeft: const Radius.circular(20),
-                        topRight: const Radius.circular(20),
-                        bottomLeft: Radius.circular(isUser ? 20 : 4),
-                        bottomRight: Radius.circular(isUser ? 4 : 20),
-                      ),
-                      border: isUser
-                          ? null
-                          : Border.all(
-                              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
-                              width: 1,
+                      if (!message.isUser && message.text.isEmpty) {
+                        return const SizedBox.shrink();
+                      }
+
+                      final isUser = message.isUser;
+                      return Align(
+                        alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(vertical: 6.0),
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
+                          constraints: BoxConstraints(
+                            maxWidth: MediaQuery.of(context).size.width * (isUser ? 0.82 : 0.88),
+                          ),
+                          decoration: BoxDecoration(
+                            color: isUser
+                                ? colorScheme.primary
+                                : colorScheme.surface,
+                            borderRadius: BorderRadius.only(
+                              topLeft: const Radius.circular(20),
+                              topRight: const Radius.circular(20),
+                              bottomLeft: Radius.circular(isUser ? 20 : 4),
+                              bottomRight: Radius.circular(isUser ? 4 : 20),
                             ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.04),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-                      children: [
-                        if (message.imagePath != null && File(message.imagePath!).existsSync()) ...[
-                          GestureDetector(
-                            onTap: () {
-                              showDialog(
-                                context: context,
-                                builder: (_) => Dialog(
-                                  backgroundColor: Colors.transparent,
+                            border: isUser
+                                ? null
+                                : Border.all(
+                                    color: colorScheme.primary.withValues(alpha: 0.15),
+                                    width: 1,
+                                  ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.04),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                            children: [
+                              if (message.imagePath != null && File(message.imagePath!).existsSync()) ...[
+                                GestureDetector(
+                                  onTap: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (_) => Dialog(
+                                        backgroundColor: Colors.transparent,
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(16),
+                                          child: InteractiveViewer(
+                                            child: Image.file(File(message.imagePath!)),
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
                                   child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(16),
-                                    child: InteractiveViewer(
-                                      child: Image.file(File(message.imagePath!)),
+                                    borderRadius: BorderRadius.circular(12),
+                                    child: Image.file(
+                                      File(message.imagePath!),
+                                      height: 180,
+                                      width: double.infinity,
+                                      fit: BoxFit.cover,
                                     ),
                                   ),
                                 ),
-                              );
-                            },
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(12),
-                              child: Image.file(
-                                File(message.imagePath!),
-                                height: 180,
-                                width: double.infinity,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
+                                const SizedBox(height: 10),
+                              ],
+                              isUser
+                                  ? Text(
+                                      message.text,
+                                      style: theme.textTheme.bodyLarge?.copyWith(
+                                        color: colorScheme.onPrimary,
+                                        height: 1.4,
+                                      ),
+                                    )
+                                  : MarkdownBody(
+                                      data: message.text,
+                                      selectable: true,
+                                      styleSheet: MarkdownStyleSheet(
+                                        p: theme.textTheme.bodyMedium?.copyWith(
+                                          color: colorScheme.onSurface,
+                                          height: 1.6,
+                                          fontSize: 15,
+                                        ),
+                                        h1: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                          color: colorScheme.primary,
+                                          height: 1.4,
+                                        ),
+                                        h2: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: colorScheme.primary,
+                                          height: 1.4,
+                                        ),
+                                        h3: TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold,
+                                          color: colorScheme.primary,
+                                          height: 1.4,
+                                        ),
+                                        strong: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: colorScheme.onSurface,
+                                        ),
+                                        listBullet: TextStyle(
+                                          color: colorScheme.primary,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 15,
+                                        ),
+                                        listBulletPadding: const EdgeInsets.only(right: 6),
+                                        blockSpacing: 10.0,
+                                      ),
+                                    ),
+                            ],
                           ),
-                          const SizedBox(height: 10),
-                        ],
-                        isUser
-                            ? Text(
-                                message.text,
-                                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                  color: Theme.of(context).colorScheme.onPrimary,
-                                  height: 1.4,
-                                ),
-                              )
-                            : MarkdownBody(
-                                data: message.text,
-                                selectable: true,
-                                styleSheet: MarkdownStyleSheet(
-                                  p: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: Theme.of(context).colorScheme.onSurface,
-                                    height: 1.6,
-                                    fontSize: 15,
-                                  ),
-                                  h1: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Theme.of(context).colorScheme.primary,
-                                    height: 1.4,
-                                  ),
-                                  h2: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Theme.of(context).colorScheme.primary,
-                                    height: 1.4,
-                                  ),
-                                  h3: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold,
-                                    color: Theme.of(context).colorScheme.primary,
-                                    height: 1.4,
-                                  ),
-                                  strong: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Theme.of(context).colorScheme.onSurface,
-                                  ),
-                                  listBullet: TextStyle(
-                                    color: Theme.of(context).colorScheme.primary,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 15,
-                                  ),
-                                  listBulletPadding: const EdgeInsets.only(right: 6),
-                                  blockSpacing: 10.0,
-                                ),
-                              ),
-                      ],
-                    ),
+                        ),
+                      );
+                    },
                   ),
-                );
-              },
-            ),
           ),
           Container(
             padding: const EdgeInsets.all(16.0),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
+              color: colorScheme.surface,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 10,
                   offset: const Offset(0, -4),
                 )
@@ -438,7 +562,7 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
               child: Row(
                 children: [
                   IconButton(
-                    icon: Icon(Icons.camera_alt_outlined, color: Theme.of(context).colorScheme.primary),
+                    icon: Icon(Icons.camera_alt_outlined, color: colorScheme.primary),
                     tooltip: 'Scan Leaf & Ask AI',
                     onPressed: _isLoading ? null : _scanLeafFromChat,
                   ),
@@ -446,12 +570,12 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
                   Expanded(
                     child: TextField(
                       controller: _controller,
-                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                      style: TextStyle(color: colorScheme.onSurface),
                       decoration: InputDecoration(
-                        hintText: 'Ask about your crops...',
-                        hintStyle: TextStyle(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5)),
+                        hintText: 'Ask about crops, pests, fertilizers...',
+                        hintStyle: TextStyle(color: colorScheme.primary.withValues(alpha: 0.5)),
                         filled: true,
-                        fillColor: Theme.of(context).colorScheme.surface,
+                        fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(32.0),
                           borderSide: BorderSide.none,
@@ -464,7 +588,7 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
                   const SizedBox(width: 8.0),
                   CircleAvatar(
                     radius: 22,
-                    backgroundColor: Theme.of(context).colorScheme.secondary,
+                    backgroundColor: colorScheme.secondary,
                     child: IconButton(
                       icon: const Icon(Icons.send_rounded, color: Colors.white, size: 20),
                       onPressed: _isLoading ? null : () => _sendMessage(),
@@ -479,10 +603,474 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
     );
   }
 
+  /// ChatGPT style Drawer with session history & New Chat button
+  Widget _buildChatGPTDrawer(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final db = ref.read(databaseProvider);
+    final currentLang = ref.watch(localeProvider).languageCode;
+
+    return Drawer(
+      backgroundColor: colorScheme.surface,
+      child: SafeArea(
+        child: Column(
+          children: [
+            // Header
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: colorScheme.primary.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(Icons.eco_rounded, color: colorScheme.primary, size: 22),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          currentLang == 'si' ? 'AgriAI සාකච්ඡා' : 'AgriAI Conversations',
+                          style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          currentLang == 'si' ? 'කෘෂිකාර්මික උපදේශක' : 'Smart Farming AI',
+                          style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Prominent "+ New Chat" Button
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              child: SizedBox(
+                width: double.infinity,
+                child: FilledButton.tonalIcon(
+                  onPressed: _startNewChat,
+                  icon: const Icon(Icons.add_rounded, size: 20),
+                  label: Text(
+                    currentLang == 'si' ? '+ අලුත් සාකච්ඡාවක්' : '+ New Conversation',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: colorScheme.primary.withValues(alpha: 0.14),
+                    foregroundColor: colorScheme.primary,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      side: BorderSide(color: colorScheme.primary.withValues(alpha: 0.3)),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            const Divider(height: 16),
+
+            // History Header
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              child: Row(
+                children: [
+                  Icon(Icons.history_rounded, size: 16, color: Colors.grey.shade600),
+                  const SizedBox(width: 6),
+                  Text(
+                    currentLang == 'si' ? 'පෙර සාකච්ඡා (History)' : 'Recent Chats',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.5,
+                      color: Colors.grey.shade600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Sessions List Stream
+            Expanded(
+              child: StreamBuilder<List<ChatSessionSummary>>(
+                stream: db.watchChatSessionSummaries(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting && !snapshot.hasData) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  final sessions = snapshot.data ?? [];
+                  if (sessions.isEmpty) {
+                    return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(24.0),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.chat_bubble_outline_rounded, size: 40, color: Colors.grey.shade400),
+                            const SizedBox(height: 12),
+                            Text(
+                              currentLang == 'si'
+                                  ? 'තවමත් සාකච්ඡා නොමැත.\nනව සාකච්ඡාවක් ආරම්භ කරන්න.'
+                                  : 'No conversations yet.\nStart asking your farming queries!',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }
+
+                  return ListView.separated(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    itemCount: sessions.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 4),
+                    itemBuilder: (context, index) {
+                      final session = sessions[index];
+                      final isSelected = session.sessionId == _currentSessionId;
+
+                      return Container(
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? colorScheme.primary.withValues(alpha: 0.12)
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.circular(12),
+                          border: isSelected
+                              ? Border.all(color: colorScheme.primary.withValues(alpha: 0.4))
+                              : null,
+                        ),
+                        child: ListTile(
+                          dense: true,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          leading: Icon(
+                            isSelected ? Icons.chat_bubble_rounded : Icons.chat_bubble_outline_rounded,
+                            size: 18,
+                            color: isSelected ? colorScheme.primary : Colors.grey.shade600,
+                          ),
+                          title: Text(
+                            session.title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                              fontSize: 13,
+                              color: isSelected ? colorScheme.primary : colorScheme.onSurface,
+                            ),
+                          ),
+                          subtitle: Text(
+                            _formatTimestamp(session.lastTimestamp),
+                            style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
+                          ),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.delete_outline_rounded, size: 18),
+                            color: Colors.grey.shade500,
+                            tooltip: 'Delete Chat',
+                            onPressed: () => _confirmDeleteSession(session),
+                          ),
+                          onTap: () => _switchSession(session),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+
+            const Divider(height: 1),
+
+            // Footer / Clear all option
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+              child: ListTile(
+                dense: true,
+                leading: const Icon(Icons.delete_sweep_outlined, color: Colors.redAccent, size: 20),
+                title: Text(
+                  currentLang == 'si' ? 'සියලු සාකච්ඡා මකන්න' : 'Clear All Conversations',
+                  style: const TextStyle(color: Colors.redAccent, fontSize: 13, fontWeight: FontWeight.w600),
+                ),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                onTap: _confirmClearAllHistory,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _formatTimestamp(DateTime time) {
+    final now = DateTime.now();
+    final diff = now.difference(time);
+    if (diff.inMinutes < 1) {
+      return 'Just now';
+    } else if (diff.inHours < 1) {
+      return '${diff.inMinutes}m ago';
+    } else if (now.year == time.year && now.month == time.month && now.day == time.day) {
+      return DateFormat('h:mm a').format(time);
+    } else if (now.year == time.year && now.month == time.month && now.day - time.day == 1) {
+      return 'Yesterday';
+    } else if (diff.inDays < 7) {
+      return DateFormat('EEE, h:mm a').format(time);
+    } else {
+      return DateFormat('MMM d, yyyy').format(time);
+    }
+  }
+
+  Future<void> _confirmDeleteSession(ChatSessionSummary session) async {
+    final currentLang = ref.read(localeProvider).languageCode;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(currentLang == 'si' ? 'සාකච්ඡාව මකන්නද?' : 'Delete Conversation?'),
+        content: Text(
+          currentLang == 'si'
+              ? '"${session.title}" සාකච්ඡාව සම්පූර්ණයෙන්ම මකා දැමීමට ඔබට අවශ්‍යද?'
+              : 'Are you sure you want to delete "${session.title}"? This cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(currentLang == 'si' ? 'අවලංගු කරන්න' : 'Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(
+              currentLang == 'si' ? 'මකන්න' : 'Delete',
+              style: const TextStyle(color: Colors.red),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      final db = ref.read(databaseProvider);
+      await db.deleteChatSession(session.sessionId);
+
+      // If the deleted session is the currently active one, start a fresh new chat
+      if (_currentSessionId == session.sessionId) {
+        _startNewChat();
+      }
+    }
+  }
+
+  Future<void> _confirmClearAllHistory() async {
+    final currentLang = ref.read(localeProvider).languageCode;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(currentLang == 'si' ? 'සියලු සාකච්ඡා මකන්නද?' : 'Clear All Conversations?'),
+        content: Text(
+          currentLang == 'si'
+              ? 'ඔබගේ සියලුම පැරණි කෘෂි සාකච්ඡා ඉතිහාසය මකා දැමීමට ඔබට සහතිකද?'
+              : 'Are you sure you want to delete all saved conversations? This cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(currentLang == 'si' ? 'අවලංගු කරන්න' : 'Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(
+              currentLang == 'si' ? 'ඔව්, මකන්න' : 'Clear All',
+              style: const TextStyle(color: Colors.red),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      await ref.read(databaseProvider).clearChatHistory();
+      _startNewChat();
+    }
+  }
+
+  /// ChatGPT-style Welcome view when in a new chat with 0 messages
+  Widget _buildEmptyWelcomeState(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final currentLang = ref.watch(localeProvider).languageCode;
+
+    final suggestions = currentLang == 'si'
+        ? [
+            (
+              icon: Icons.pest_control_rounded,
+              title: 'වගාවේ රෝග සහ පළිබෝධ',
+              desc: 'මගේ වගාවේ කොළ කහ පැහැ ගැන්වී ඇත, හේතුව කුමක්ද?',
+              prompt: 'මගේ වගාවේ කොළ කහ පැහැ ගැන්වී ඇත. එයට හේතු සහ ස්වාභාවික පිළියම් කරුණු වශයෙන් පැහැදිලි කරන්න.',
+            ),
+            (
+              icon: Icons.compost_rounded,
+              title: 'කාබනික පොහොර වට්ටෝරු',
+              desc: 'නිවසේදීම සාදාගත හැකි ස්වාභාවික දියර පොහොර මොනවාද?',
+              prompt: 'ගෙවත්තේදීම සාදාගත හැකි කාබනික කොම්පෝස්ට් සහ දියර පොහොර වට්ටෝරු පියවරෙන් පියවර විස්තර කරන්න.',
+            ),
+            (
+              icon: Icons.water_drop_rounded,
+              title: 'ජල සම්පාදන උපදෙස්',
+              desc: 'වියළි කාලගුණයේදී එළවළු සඳහා හොඳම ජල ක්‍රමය',
+              prompt: 'වියළි කාලගුණය තුළ එළවළු බෝග සඳහා ප්‍රශස්ත ජල සම්පාදන කාලසටහන සහ උපදෙස් ලබා දෙන්න.',
+            ),
+            (
+              icon: Icons.camera_alt_rounded,
+              title: 'කොළයක් ස්කෑන් කර අසන්න',
+              desc: 'කැමරාවෙන් කොළයේ ඡායාරූපයක් ගෙන රෝගය සොයාගන්න',
+              prompt: '__SCAN__',
+            ),
+          ]
+        : [
+            (
+              icon: Icons.pest_control_rounded,
+              title: 'Pest & Disease Diagnosis',
+              desc: 'Why are my crop leaves turning yellow?',
+              prompt: 'My crop leaves are turning yellow with brown spots. What are the causes, remedies, and prevention steps point-by-point?',
+            ),
+            (
+              icon: Icons.compost_rounded,
+              title: 'Organic Fertilizer Recipes',
+              desc: 'Best natural homemade fertilizers for high yield',
+              prompt: 'Explain how to prepare effective organic liquid fertilizer and compost step-by-step.',
+            ),
+            (
+              icon: Icons.water_drop_rounded,
+              title: 'Irrigation & Watering',
+              desc: 'Optimal watering schedule in dry weather',
+              prompt: 'What is the optimal irrigation schedule and water conservation method for vegetable cultivation?',
+            ),
+            (
+              icon: Icons.camera_alt_rounded,
+              title: 'Scan Leaf with Camera',
+              desc: 'Take a leaf photo for instant AI diagnosis',
+              prompt: '__SCAN__',
+            ),
+          ];
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
+      child: Column(
+        children: [
+          const SizedBox(height: 12),
+          // AI Sprout Emblem
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: colorScheme.primary.withValues(alpha: 0.12),
+              boxShadow: [
+                BoxShadow(
+                  color: colorScheme.primary.withValues(alpha: 0.15),
+                  blurRadius: 24,
+                  spreadRadius: 2,
+                ),
+              ],
+            ),
+            child: Icon(Icons.eco_rounded, size: 48, color: colorScheme.primary),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            currentLang == 'si' ? 'AgriAI කෘෂි සහායක' : 'AgriAI Smart Assistant',
+            style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 6),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Text(
+              currentLang == 'si'
+                  ? 'වගාවන්, පළිබෝධ, පස, පොහොර සහ ගොවිතැන් කටයුතු පිළිබඳ ඕනෑම ගැටලුවක් විමසන්න. (කෘෂිකාර්මික උපදෙස් සඳහා පමණි)'
+                  : 'Your dedicated 24/7 farming companion. Ask anything about crops, plant diseases, soil, fertilizers, and irrigation.',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey.shade600, fontSize: 13, height: 1.4),
+            ),
+          ),
+          const SizedBox(height: 28),
+
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              currentLang == 'si' ? 'ජනප්‍රිය කෘෂි මාතෘකා' : 'Popular Inquiries',
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, letterSpacing: 0.5),
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          // Suggestion Cards Grid
+          ...suggestions.map((item) {
+            return Container(
+              margin: const EdgeInsets.only(bottom: 10),
+              decoration: BoxDecoration(
+                color: colorScheme.surface,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: colorScheme.primary.withValues(alpha: 0.18)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.02),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(16),
+                onTap: () {
+                  if (item.prompt == '__SCAN__') {
+                    _scanLeafFromChat();
+                  } else {
+                    _sendMessage(item.prompt);
+                  }
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(14.0),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: colorScheme.primary.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(item.icon, color: colorScheme.primary, size: 22),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              item.title,
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              item.desc,
+                              style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Colors.grey.shade400),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
   Widget _buildRecentScanBanner(BuildContext context, ScanState scanState) {
     final result = scanState.result!;
     final condition = result.diseaseName.isNotEmpty ? result.diseaseName : result.label;
-    
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       padding: const EdgeInsets.all(12.0),
@@ -767,7 +1355,7 @@ class _BreathingSproutIndicatorState extends State<_BreathingSproutIndicator> wi
       vsync: this,
       duration: const Duration(milliseconds: 1000),
     )..repeat(reverse: true);
-    
+
     _scaleAnimation = Tween<double>(begin: 0.8, end: 1.2).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOutSine),
     );
@@ -786,7 +1374,7 @@ class _BreathingSproutIndicatorState extends State<_BreathingSproutIndicator> wi
       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.only(
+        borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(24),
           topRight: Radius.circular(24),
           bottomLeft: Radius.circular(4),
