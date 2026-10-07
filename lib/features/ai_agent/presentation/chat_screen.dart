@@ -31,12 +31,16 @@ class AiChatScreen extends ConsumerStatefulWidget {
   final String? initialMessage;
   final String? initialImagePath;
   final String? initialSessionId;
+  final String? initialSessionTitle;
+  final String? initialCropType;
 
   const AiChatScreen({
     super.key,
     this.initialMessage,
     this.initialImagePath,
     this.initialSessionId,
+    this.initialSessionTitle,
+    this.initialCropType,
   });
 
   @override
@@ -56,12 +60,15 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
   bool _recentScanDismissed = false;
 
   late String _currentSessionId;
+  String? _currentCropType;
   String _currentSessionTitle = 'Ask AgriAI';
 
   @override
   void initState() {
     super.initState();
     _currentSessionId = widget.initialSessionId ?? const Uuid().v4();
+    _currentCropType = widget.initialCropType ?? widget.initialSessionTitle;
+    _currentSessionTitle = widget.initialSessionTitle ?? 'Ask AgriAI';
     _fetchLocation();
     _initChat();
   }
@@ -71,13 +78,16 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
 
     if (widget.initialMessage != null && widget.initialMessage!.trim().isNotEmpty) {
       _currentSessionId = widget.initialSessionId ?? const Uuid().v4();
-      _currentSessionTitle = _truncateTitle(widget.initialMessage!.trim());
+      _currentCropType = widget.initialCropType ?? widget.initialSessionTitle;
+      _currentSessionTitle = widget.initialSessionTitle ?? _truncateTitle(widget.initialMessage!.trim());
       if (!_initialSent) {
         _initialSent = true;
         _sendMessage(widget.initialMessage!.trim(), widget.initialImagePath);
       }
     } else if (widget.initialSessionId != null) {
       _currentSessionId = widget.initialSessionId!;
+      _currentCropType = widget.initialCropType ?? widget.initialSessionTitle;
+      _currentSessionTitle = widget.initialSessionTitle ?? 'Ask AgriAI';
       await _loadMessagesForSession(_currentSessionId);
     } else {
       // Load recent session if available, or start fresh
@@ -86,10 +96,12 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
         if (sessions.isNotEmpty) {
           final latest = sessions.first;
           _currentSessionId = latest.sessionId;
+          _currentCropType = latest.title;
           _currentSessionTitle = latest.title;
           await _loadMessagesForSession(latest.sessionId);
         } else {
           _currentSessionId = const Uuid().v4();
+          _currentCropType = null;
           _currentSessionTitle = 'Ask AgriAI';
         }
       } catch (e) {
@@ -104,6 +116,12 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
     if (widget.initialMessage != null &&
         widget.initialMessage!.trim().isNotEmpty &&
         widget.initialMessage != oldWidget.initialMessage) {
+      if (widget.initialSessionId != null && widget.initialSessionId != _currentSessionId) {
+        _currentSessionId = widget.initialSessionId!;
+        _currentCropType = widget.initialCropType ?? widget.initialSessionTitle;
+        _currentSessionTitle = widget.initialSessionTitle ?? _truncateTitle(widget.initialMessage!.trim());
+        _messages.clear();
+      }
       _sendMessage(widget.initialMessage!.trim(), widget.initialImagePath);
     }
   }
@@ -121,12 +139,23 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
             ),
           );
           if (savedMessages.isNotEmpty) {
-            final firstUser = savedMessages.firstWhere(
-              (m) => m.isUser && m.message.trim().isNotEmpty,
+            final cropEntry = savedMessages.firstWhere(
+              (m) => m.cropType != null && m.cropType!.trim().isNotEmpty,
               orElse: () => savedMessages.first,
             );
-            _currentSessionTitle = _truncateTitle(firstUser.message);
+            if (cropEntry.cropType != null && cropEntry.cropType!.trim().isNotEmpty) {
+              _currentCropType = cropEntry.cropType;
+              _currentSessionTitle = cropEntry.cropType!;
+            } else {
+              _currentCropType = null;
+              final firstUser = savedMessages.firstWhere(
+                (m) => m.isUser && m.message.trim().isNotEmpty,
+                orElse: () => savedMessages.first,
+              );
+              _currentSessionTitle = _truncateTitle(firstUser.message);
+            }
           } else {
+            _currentCropType = null;
             _currentSessionTitle = 'New Chat';
           }
         });
@@ -141,6 +170,7 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
     setState(() {
       _currentSessionId = const Uuid().v4();
       _currentSessionTitle = 'New Chat';
+      _currentCropType = null;
       _messages.clear();
       _initialSent = false;
       _isLoading = false;
@@ -159,6 +189,7 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
     setState(() {
       _currentSessionId = session.sessionId;
       _currentSessionTitle = session.title;
+      _currentCropType = null;
       _messages.clear();
       _isLoading = false;
     });
@@ -198,7 +229,11 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
     // Update title if this is the first message in this session
     if (_messages.isEmpty) {
       setState(() {
-        _currentSessionTitle = _truncateTitle(text);
+        if (_currentCropType != null && _currentCropType!.trim().isNotEmpty) {
+          _currentSessionTitle = _currentCropType!;
+        } else {
+          _currentSessionTitle = _truncateTitle(text);
+        }
       });
     }
 
@@ -225,6 +260,7 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
           isUser: const Value(true),
           timestamp: Value(DateTime.now()),
           sessionId: Value(_currentSessionId),
+          cropType: Value(_currentCropType),
         ),
       );
       firebaseSync.syncChatMessage(
@@ -281,6 +317,7 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
               isUser: const Value(false),
               timestamp: Value(DateTime.now()),
               sessionId: Value(_currentSessionId),
+              cropType: Value(_currentCropType),
             ),
           );
           firebaseSync.syncChatMessage(
@@ -1126,8 +1163,18 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
           ),
           FilledButton(
             onPressed: () {
+              final plantTitle = result.label.contains('Unrecognized')
+                  ? 'Plant Diagnostic Scan'
+                  : (result.diseaseName.isNotEmpty && !result.label.toLowerCase().contains(result.diseaseName.toLowerCase())
+                      ? '${result.label} ($condition)'
+                      : result.label);
+
               setState(() {
                 _recentScanDismissed = true;
+                _currentSessionId = const Uuid().v4();
+                _currentCropType = plantTitle;
+                _currentSessionTitle = plantTitle;
+                _messages.clear();
               });
               final currentLang = ref.read(localeProvider).languageCode;
               final isDiseased = !result.isHealthy && !result.label.contains('Unrecognized');
@@ -1320,6 +1367,19 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
           prompt = 'I scanned my crop leaf and it was identified as healthy (${result.label}). Please provide point-by-point advice on optimal fertilizers, irrigation schedule, and preventive care to maximize healthy yield.';
         }
       }
+
+      final plantTitle = result.label.contains('Unrecognized')
+          ? 'Plant Diagnostic Scan'
+          : (result.diseaseName.isNotEmpty && !result.label.toLowerCase().contains(result.diseaseName.toLowerCase())
+              ? '${result.label} ($condition)'
+              : result.label);
+
+      setState(() {
+        _currentSessionId = const Uuid().v4();
+        _currentCropType = plantTitle;
+        _currentSessionTitle = plantTitle;
+        _messages.clear();
+      });
 
       _sendMessage(prompt, image.path);
     } catch (e) {
