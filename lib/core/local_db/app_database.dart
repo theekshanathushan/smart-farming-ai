@@ -6,6 +6,7 @@ import 'package:path/path.dart' as p;
 // ignore: depend_on_referenced_packages
 import 'package:sqlite3/sqlite3.dart';
 import 'package:sqlite3_flutter_libs/sqlite3_flutter_libs.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'tables/scan_results.dart';
 import 'tables/crops.dart';
@@ -14,17 +15,34 @@ import 'tables/ledger_entries.dart';
 import 'tables/harvest_listings.dart';
 import 'tables/chat_messages.dart';
 import '../../features/ai_agent/domain/chat_session.dart';
+import '../../features/auth/providers/auth_provider.dart';
 
 part 'app_database.g.dart';
 
-// Provide the database globally
+// Provide the database dynamically scoped to the logged-in user
 final databaseProvider = Provider<AppDatabase>((ref) {
-  return AppDatabase();
+  final authState = ref.watch(authProvider);
+  final userPhone = authState.phoneNumber;
+
+  final String dbName;
+  if (userPhone != null && userPhone.trim().isNotEmpty) {
+    final sanitized = userPhone.trim().replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_');
+    dbName = 'db_$sanitized.sqlite';
+  } else {
+    dbName = 'db_guest.sqlite';
+  }
+
+  final db = AppDatabase(dbName);
+  ref.onDispose(() {
+    db.close();
+  });
+  return db;
 });
 
 @DriftDatabase(tables: [ScanResults, Crops, Tasks, LedgerEntries, HarvestListings, ChatMessages])
 class AppDatabase extends _$AppDatabase {
-  AppDatabase() : super(_openConnection());
+  final String dbName;
+  AppDatabase([this.dbName = 'db.sqlite']) : super(_openConnection(dbName));
 
   @override
   int get schemaVersion => 6;
@@ -200,10 +218,27 @@ class AppDatabase extends _$AppDatabase {
   Future<int> clearChatHistory() => delete(chatMessages).go();
 }
 
-LazyDatabase _openConnection() {
+LazyDatabase _openConnection([String dbName = 'db.sqlite']) {
   return LazyDatabase(() async {
     final dbFolder = await getApplicationDocumentsDirectory();
-    final file = File(p.join(dbFolder.path, 'db.sqlite'));
+    final targetFile = File(p.join(dbFolder.path, dbName));
+
+    // Privacy & legacy database migration:
+    if (!targetFile.existsSync() && dbName != 'db_guest.sqlite') {
+      final legacyFile = File(p.join(dbFolder.path, 'db.sqlite'));
+      if (legacyFile.existsSync()) {
+        final prefs = await SharedPreferences.getInstance();
+        final legacyOwner = prefs.getString('legacy_db_owner');
+        if (legacyOwner == null) {
+          // Assign legacy data exclusively to the first user
+          await prefs.setString('legacy_db_owner', dbName);
+          await legacyFile.copy(targetFile.path);
+        } else if (legacyOwner == dbName) {
+          await legacyFile.copy(targetFile.path);
+        }
+        // If legacyOwner != dbName, DO NOT copy! New user gets an isolated empty DB!
+      }
+    }
 
     if (Platform.isAndroid) {
       await applyWorkaroundToOpenSqlite3OnOldAndroidVersions();
@@ -212,6 +247,6 @@ LazyDatabase _openConnection() {
     final cachebase = (await getTemporaryDirectory()).path;
     sqlite3.tempDirectory = cachebase;
 
-    return NativeDatabase.createInBackground(file);
+    return NativeDatabase.createInBackground(targetFile);
   });
 }

@@ -2,16 +2,29 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../features/auth/providers/auth_provider.dart';
 
 final firebaseSyncServiceProvider = Provider<FirebaseSyncService>((ref) {
-  return FirebaseSyncService();
+  final authState = ref.watch(authProvider);
+  return FirebaseSyncService(authState.phoneNumber);
 });
 
 class FirebaseSyncService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final String? _userPhone;
 
-  String get _userId => _auth.currentUser?.uid ?? 'guest_user';
+  FirebaseSyncService([this._userPhone]);
+
+  String get _userId {
+    if (_auth.currentUser?.uid != null) {
+      return _auth.currentUser!.uid;
+    }
+    if (_userPhone != null && _userPhone!.trim().isNotEmpty) {
+      return _userPhone!.trim().replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_');
+    }
+    return 'guest_user';
+  }
 
   /// Automatically stores an AI chat message into Firebase Firestore
   Future<void> syncChatMessage({

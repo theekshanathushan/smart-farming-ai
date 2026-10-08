@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:agri_ai/l10n/app_localizations.dart';
+import '../../../core/providers/locale_provider.dart';
 import '../providers/auth_provider.dart';
 
 class AuthScreen extends ConsumerStatefulWidget {
@@ -31,8 +32,14 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
       
       final phone = _phoneController.text.trim();
       final name = _nameController.text.trim().isNotEmpty ? _nameController.text.trim() : null;
+      final currentLang = ref.read(localeProvider).languageCode;
       
-      ref.read(authProvider.notifier).sendOTP(phone, name: name);
+      ref.read(authProvider.notifier).sendOTP(
+        phone,
+        name: name,
+        isLogin: _isLogin,
+        language: currentLang,
+      );
     }
   }
 
@@ -119,7 +126,10 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                     children: [
                       Expanded(
                         child: GestureDetector(
-                          onTap: () => setState(() => _isLogin = true),
+                          onTap: () {
+                            setState(() => _isLogin = true);
+                            ref.read(authProvider.notifier).resetState();
+                          },
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 200),
                             padding: const EdgeInsets.symmetric(vertical: 14),
@@ -141,7 +151,10 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                       ),
                       Expanded(
                         child: GestureDetector(
-                          onTap: () => setState(() => _isLogin = false),
+                          onTap: () {
+                            setState(() => _isLogin = false);
+                            ref.read(authProvider.notifier).resetState();
+                          },
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 200),
                             padding: const EdgeInsets.symmetric(vertical: 14),
@@ -166,24 +179,26 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                 ),
                 const SizedBox(height: 28),
 
-                // Name field
-                TextFormField(
-                  controller: _nameController,
-                  decoration: _inputDecoration(
-                    context,
-                    _isLogin ? '${l10n.fullNameOrFarmName} (ඔබගේ නම)' : l10n.fullNameOrFarmName,
-                    Icons.person_outline,
+                // Name field (Required only during registration)
+                if (!_isLogin) ...[
+                  TextFormField(
+                    controller: _nameController,
+                    decoration: _inputDecoration(
+                      context,
+                      l10n.fullNameOrFarmName,
+                      Icons.person_outline,
+                    ),
+                    style: TextStyle(fontSize: 16, color: textColor, fontWeight: FontWeight.w500),
+                    textInputAction: TextInputAction.next,
+                    validator: (value) {
+                      if (!_isLogin && (value == null || value.trim().isEmpty)) {
+                        return l10n.enterNameValidation;
+                      }
+                      return null;
+                    },
                   ),
-                  style: TextStyle(fontSize: 16, color: textColor, fontWeight: FontWeight.w500),
-                  textInputAction: TextInputAction.next,
-                  validator: (value) {
-                    if (!_isLogin && (value == null || value.trim().isEmpty)) {
-                      return l10n.enterNameValidation;
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 20),
+                  const SizedBox(height: 20),
+                ],
 
                 // Phone number field
                 TextFormField(

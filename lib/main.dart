@@ -5,7 +5,6 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'firebase_options.dart';
 
 import 'core/routing/app_router.dart';
-import 'core/local_db/app_database.dart';
 import 'core/theme/app_theme.dart';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -33,21 +32,9 @@ void main() async {
     debugPrint("Warning: Firebase initialization error: $e");
   }
 
-  // Initialize the local Drift database instance
-  AppDatabase? database;
-  try {
-    database = AppDatabase();
-  } catch (e) {
-    debugPrint("Warning: Database initialization error: $e");
-  }
-
   runApp(
-    ProviderScope(
-      overrides: [
-        if (database != null)
-          databaseProvider.overrideWithValue(database),
-      ],
-      child: const AgriAIApp(),
+    const ProviderScope(
+      child: AgriAIApp(),
     ),
   );
 }

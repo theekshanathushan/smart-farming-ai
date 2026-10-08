@@ -14,6 +14,7 @@ import '../../../core/utils/location_service.dart';
 import '../../../core/local_db/app_database.dart';
 import '../../../core/services/firebase_sync_service.dart';
 import '../../../core/providers/locale_provider.dart';
+import '../../auth/providers/auth_provider.dart';
 import '../../camera_scan/presentation/scan_controller.dart';
 import '../../camera_scan/data/crop_disease_classifier.dart';
 
@@ -103,9 +104,19 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
           _currentSessionId = const Uuid().v4();
           _currentCropType = null;
           _currentSessionTitle = 'Ask AgriAI';
+          if (mounted) {
+            setState(() {
+              _messages.clear();
+            });
+          }
         }
       } catch (e) {
         debugPrint('Error loading initial session: $e');
+        if (mounted) {
+          setState(() {
+            _messages.clear();
+          });
+        }
       }
     }
   }
@@ -375,6 +386,12 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(authProvider, (previous, next) {
+      if (previous?.phoneNumber != next.phoneNumber) {
+        _initChat();
+      }
+    });
+
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final currentLang = ref.watch(localeProvider).languageCode;
