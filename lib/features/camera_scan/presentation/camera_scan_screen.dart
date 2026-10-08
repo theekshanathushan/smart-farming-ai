@@ -21,43 +21,53 @@ class CameraScanScreen extends ConsumerWidget {
     final isDiseased = !result.isHealthy && !isUnrecognized;
     final isHealthy = result.isHealthy && !isUnrecognized;
     
+    final condition = result.diseaseName.isNotEmpty ? result.diseaseName : result.label;
+    final plant = result.plantName.isNotEmpty ? result.plantName : (isDiseased ? condition : 'Plant');
+
     String prompt;
     if (isDiseased) {
-      final condition = result.diseaseName.isNotEmpty ? result.diseaseName : result.label;
       if (currentLang == 'si') {
-        prompt = 'මගේ බෝගයේ කොළ ස්කෑන් කළ විට හඳුනාගත් රෝග විස්තර පහත දැක්වේ:\n\n'
+        prompt = 'මගේ බෝගයේ කොළ ස්කෑන් කළ විට හඳුනාගත් විස්තර පහත දැක්වේ:\n\n'
+            '• ශාකයේ නම: $plant\n'
+            '${result.cropType.isNotEmpty ? '• බෝග වර්ගය: ${result.cropType}\n' : ''}'
+            '${result.botanicalName.isNotEmpty ? '• උද්භිද විද්‍යාත්මක නම: ${result.botanicalName}\n' : ''}'
             '• හඳුනාගත් රෝගය: $condition\n'
             '• බරපතලකම (Severity): ${result.severity}\n'
+            '${result.symptoms.isNotEmpty ? '• ප්‍රධාන රෝග ලක්ෂණ: ${result.symptoms}\n' : ''}'
             '• ආකෘති විශ්වාසනීයත්වය: ${(result.confidence * 100).toStringAsFixed(1)}%\n'
-            '${result.treatmentPlan.isNotEmpty ? '• මූලික උපදෙස්: ${result.treatmentPlan}\n' : ''}\n'
-            'කරුණාකර මෙම රෝගය සුව කිරීමට අවශ්‍ය සවිස්තරාත්මක ප්‍රතිකාර, ස්වාභාවික හා කාබනික ක්‍රම, සහ නැවත බෝවීම වැළැක්වීමේ පියවර කරුණු වශයෙන් (Point by point) පැහැදිලිව ලබා දෙන්න.';
+            '${result.treatmentPlan.isNotEmpty ? '• මූලික සැලැස්ම: ${result.treatmentPlan}\n' : ''}\n'
+            'කරුණාකර මෙම රෝගය සුව කිරීමට අවශ්‍ය සවිස්තරාත්මක ප්‍රතිකාර, ස්වාභාවික හා කාබනික ක්‍රම, රසායනික මාත්‍රා, සහ නැවත බෝවීම වැළැක්වීමේ පියවර කරුණු වශයෙන් (Point by point) පැහැදිලිව ලබා දෙන්න.';
       } else if (currentLang == 'ta') {
         prompt = 'எனது பயிரின் இலை ஸ்கேன் செய்யப்பட்டதன் முடிவுகள்:\n\n'
+            '• பயிர் பெயர்: $plant\n'
+            '${result.cropType.isNotEmpty ? '• பயிர் வகை: ${result.cropType}\n' : ''}'
             '• கண்டறியப்பட்ட நோய்: $condition\n'
             '• தீவிரம்: ${result.severity}\n'
             '• மாதிரி துல்லியம்: ${(result.confidence * 100).toStringAsFixed(1)}%\n'
-            '${result.treatmentPlan.isNotEmpty ? '• முதற்கட்ட சிகிச்சை: ${result.treatmentPlan}\n' : ''}\n'
             'தயவுசெய்து இந்த நோயைக் கட்டுப்படுத்த இயற்கை முறைகள், மருந்து பரிந்துரைகள் மற்றும் தடுப்பு வழிகளை குறிப்புகளாக (Point by point) தெளிவாக விளக்குங்கள்.';
       } else {
         prompt = 'I scanned a crop leaf and the diagnosis returned the following details:\n\n'
-            '• Crop Condition / Disease: $condition\n'
+            '• Plant Name: $plant\n'
+            '${result.cropType.isNotEmpty ? '• Crop Category: ${result.cropType}\n' : ''}'
+            '${result.botanicalName.isNotEmpty ? '• Botanical Name: ${result.botanicalName}\n' : ''}'
+            '• Condition / Disease: $condition\n'
             '• Severity: ${result.severity}\n'
-            '• Model Confidence: ${(result.confidence * 100).toStringAsFixed(1)}%\n'
-            '${result.treatmentPlan.isNotEmpty ? '• Preliminary Treatment: ${result.treatmentPlan}\n' : ''}\n'
+            '${result.symptoms.isNotEmpty ? '• Visible Symptoms: ${result.symptoms}\n' : ''}'
+            '• Model Confidence: ${(result.confidence * 100).toStringAsFixed(1)}%\n\n'
             'Please provide comprehensive, point-by-point advice covering:\n'
-            '1. Diagnosis & Key Symptoms\n'
-            '2. Causes & Environmental Factors\n'
-            '3. Immediate Organic & Natural Remedies\n'
-            '4. Chemical Controls or Fertilizer Adjustments with recommended dosages\n'
-            '5. Long-term Prevention & Field Care';
+            '1. Diagnosis & Pathology\n'
+            '2. Immediate Field Actions (Pruning & Isolation)\n'
+            '3. Organic & Natural Treatments with exact preparation\n'
+            '4. Chemical Controls with recommended dosages\n'
+            '5. Irrigation & Long-term Prevention';
       }
     } else if (isHealthy) {
       if (currentLang == 'si') {
-        prompt = 'මගේ බෝගය නිරෝගී (${result.label}) ලෙස ස්කෑන් කර ඇත. මෙම බෝගයේ නිරෝගීභාවය රැකගෙන උපරිම අස්වැන්නක් ලබා ගැනීමට අවශ්‍ය ජල සම්පාදනය, පොහොර යෙදීම සහ රැකවරණ උපදෙස් කරුණු වශයෙන් (Point by point) පැහැදිලි කරන්න.';
+        prompt = 'මගේ බෝගය ($plant) නිරෝගී ලෙස ස්කෑන් කර ඇත. ${result.botanicalName.isNotEmpty ? "(${result.botanicalName}) " : ""}මෙම බෝගයේ නිරෝගීභාවය රැකගෙන උපරිම අස්වැන්නක් ලබා ගැනීමට අවශ්‍ය ජල සම්පාදනය, පොහොර යෙදීම සහ රැකවරණ උපදෙස් කරුණු වශයෙන් (Point by point) පැහැදිලි කරන්න.';
       } else if (currentLang == 'ta') {
-        prompt = 'எனது பயிர் ஆரோக்கியமானது (${result.label}) என உறுதி செய்யப்பட்டுள்ளது. இதன் ஆரோக்கியத்தைப் பேணவும் அதிக விளைச்சலைப் பெறவும் தேவையான ஆலோசனைகளை குறிப்புகளாக (Point by point) விளக்கவும்.';
+        prompt = 'எனது பயிர் ($plant) ஆரோக்கியமானது என உறுதி செய்யப்பட்டுள்ளது. இதன் ஆரோக்கியத்தைப் பேணவும் அதிக விளைச்சலைப் பெறவும் தேவையான ஆலோசனைகளை விளக்கவும்.';
       } else {
-        prompt = 'I scanned my crop leaf and it was identified as healthy (${result.label}). Please provide point-by-point advice on optimal fertilizers, irrigation schedule, and preventive care to maximize healthy yield.';
+        prompt = 'I scanned my crop leaf ($plant) and it was identified as healthy. Please provide point-by-point advice on optimal fertilizers, irrigation schedule, and preventive care to maximize healthy yield.';
       }
     } else {
       if (currentLang == 'si') {
@@ -69,23 +79,20 @@ class CameraScanScreen extends ConsumerWidget {
       }
     }
 
-    final condition = result.diseaseName.isNotEmpty ? result.diseaseName : result.label;
     final String plantTitle;
     if (isUnrecognized) {
       plantTitle = currentLang == 'si'
           ? 'ශාක පරීක්ෂාව'
           : (currentLang == 'ta' ? 'பயிர் ஆய்வு' : 'Plant Diagnostic Scan');
     } else {
-      plantTitle = currentLang == 'si'
-          ? 'රෝග විනිශ්චය: $condition'
-          : (currentLang == 'ta' ? 'நோய் ஆய்வு: $condition' : condition);
+      plantTitle = isDiseased ? '$plant ($condition)' : '$plant (Healthy)';
     }
 
     context.push('/chat', extra: {
       'prompt': prompt,
       'imagePath': imagePath,
       'title': plantTitle,
-      'cropType': plantTitle,
+      'cropType': plant,
     });
   }
 

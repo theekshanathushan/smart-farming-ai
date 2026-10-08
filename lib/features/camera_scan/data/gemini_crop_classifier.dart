@@ -9,15 +9,30 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 class GeminiCropClassifier {
   static String get _apiKey => dotenv.env['GEMINI_API_KEY'] ?? 'YOUR_GEMINI_API_KEY';
 
-  static bool get _isKeyValid {
+  static bool get _isKeyConfigured {
     final key = _apiKey.trim();
-    return key.isNotEmpty && key != 'YOUR_GEMINI_API_KEY' && key.startsWith('AIzaSy');
+    return key.isNotEmpty && key != 'YOUR_GEMINI_API_KEY';
   }
+
+  // Exact supported models requested by user, tried in intelligent priority order
+  static const List<String> supportedModels = [
+    'gemini-3.8-flash',
+    'gemini-3.6-flash',
+    'gemini-3.7-flash',
+    'gemini-3.5-flash',
+    'gemini-3.5-flash-lite',
+    'gemini-2.5-flash-lite',
+    'gemini-3-flash',
+    'gemini-3.1-flash-lite',
+    'gemini-2.0-flash',
+    'gemini-1.5-flash',
+    'gemini-flash-latest',
+  ];
   
   Future<ClassifierResult?> analyzeImage(String imagePath, {String language = 'en'}) async {
-    if (!_isKeyValid) {
-       debugPrint('Gemini API key is not a valid Google AI Studio key (must start with AIzaSy). Seamlessly falling back to offline CV model.');
-       return null; // Return null so the hybrid model falls back to offline
+    if (!_isKeyConfigured) {
+       debugPrint('Notice: GEMINI_API_KEY is not configured in .env. Falling back to offline scanner.');
+       return null;
     }
 
     try {
@@ -26,9 +41,9 @@ class GeminiCropClassifier {
 
       String langInstruction = 'Provide all text values in English.';
       if (language == 'si') {
-        langInstruction = 'Provide all text fields ("label", "diseaseName", "treatmentPlan", "severity") 100% EXCLUSIVELY in pure Sinhala script (සිංහල). Zero English words. Zero Singlish.';
+        langInstruction = 'Provide all text fields ("label", "plantName", "cropType", "diseaseName", "symptoms", "treatmentPlan", "severity", "immediateActions", "organicRemedies", "chemicalRemedies", "irrigationTips", "preventiveTips") 100% EXCLUSIVELY in pure Sinhala script (සිංහල). Zero English words. Zero Singlish.';
       } else if (language == 'ta') {
-        langInstruction = 'Provide all text fields ("label", "diseaseName", "treatmentPlan", "severity") 100% EXCLUSIVELY in pure Tamil script (தமிழ்). Zero English words. Zero Tanglish.';
+        langInstruction = 'Provide all text fields 100% EXCLUSIVELY in pure Tamil script (தமிழ்). Zero English words. Zero Tanglish.';
       }
 
       final unrecognizedLabel = language == 'si'
@@ -36,19 +51,27 @@ class GeminiCropClassifier {
           : (language == 'ta' ? 'அடையாளம் காண முடியவில்லை' : 'Unrecognized / Not a plant');
 
       final prompt = '''
-You are an expert agricultural botanist and plant pathologist. 
-Analyze the provided image. 
+You are an expert plant pathologist, agricultural scientist, and botanist. 
+Analyze the provided crop image in comprehensive agronomic detail.
 Language Policy: $langInstruction
-1. If the image is NOT a plant or leaf (e.g. it's a bottle, person, car, etc.), you MUST set "isPlant" to false, "label" to "$unrecognizedLabel", and keep the rest empty.
-2. If it IS a plant, determine if it is perfectly healthy or diseased.
+
 Return a JSON object with the exact following structure without markdown blocks:
 {
-  "isPlant": boolean (true if it's a plant/leaf, false otherwise),
-  "isHealthy": boolean (true if the plant looks perfectly healthy, false if diseased. Ignored if not a plant),
-  "diseaseName": string (if diseased, the precise name of the disease. If healthy or not a plant, leave empty),
-  "treatmentPlan": string (a step-by-step treatment plan if diseased. If healthy, provide general care tips. If not a plant, leave empty),
-  "severity": string (e.g. ${language == 'si' ? '"නැත", "අඩු", "මධ්‍යම", "ඉහළ"' : (language == 'ta' ? '"இல்லை", "குறைவு", "நடுத்தரம்", "அதிகம்"' : '"None", "Low", "Medium", "High"')}),
-  "label": string (a short display title like ${language == 'si' ? '"නිරෝගී තක්කාලි කොළය", "තක්කාලි අකල් අංගමාරය"' : (language == 'ta' ? '"ஆரோக்கியமான தக்காளி இலை", "தக்காளி கருகல் நோய்"' : '"Healthy Tomato Leaf", "Tomato Early Blight"')})
+  "isPlant": boolean (true if image contains a plant, leaf, crop, or fruit; false otherwise),
+  "cropType": string (the category and family of crop, e.g. "එළවළු බෝග (Solanaceae)", "පළතුරු බෝග", "ධාන්‍ය බෝග", "කුළුබඩු බෝග"),
+  "plantName": string (the common name of the plant/crop, e.g. "තක්කාලි", "මිරිස්", "බණ්ඩක්කා", "කෙසෙල්", "වම්බටු"),
+  "botanicalName": string (the scientific/botanical name, e.g. "Solanum lycopersicum", "Capsicum annuum"),
+  "isHealthy": boolean (true if perfectly healthy, false if diseased or pest attacked),
+  "diseaseName": string (exact name of the disease or pest and pathogen type e.g. "තක්කාලි අකල් අංගමාරය (Early Blight - Alternaria solani)". If healthy or not a plant, leave empty),
+  "symptoms": string (detailed description of visual symptoms on the leaf: lesions, yellowing chlorosis, concentric rings, spots, wilting),
+  "severity": string (${language == 'si' ? '"නැත", "අඩු", "මධ්‍යම", "ඉහළ"' : (language == 'ta' ? '"இல்லை", "குறைவு", "நடுத்தரம்", "அதிகம்"' : '"None", "Low", "Moderate", "High"')}),
+  "immediateActions": string (urgent field actions to take immediately: pruning infected foliage, isolating plant, burning debris),
+  "organicRemedies": string (natural organic remedies with exact preparation and dosages: neem oil spray, wood ash, compost tea, baking soda solution),
+  "chemicalRemedies": string (recommended chemical controls and fungicide/insecticide with exact dosages per tank e.g. Mancozeb, Chlorothalonil, Copper Oxychloride),
+  "irrigationTips": string (watering recommendations: avoid overhead watering, drip irrigation, water only at root level in early morning),
+  "preventiveTips": string (long-term crop rotation, resistant varieties, soil solarization, spacing),
+  "treatmentPlan": string (summary of comprehensive step-by-step numbered instructions),
+  "label": string (short display title e.g. "තක්කාලි අකල් අංගමාරය" or "නිරෝගී තක්කාලි පත්‍රය")
 }
 ''';
 
@@ -60,9 +83,8 @@ Return a JSON object with the exact following structure without markdown blocks:
       ];
 
       GenerateContentResponse? response;
-      final modelsToTry = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-flash-latest'];
 
-      for (final modelName in modelsToTry) {
+      for (final modelName in supportedModels) {
         try {
           final model = GenerativeModel(
             model: modelName,
@@ -73,16 +95,16 @@ Return a JSON object with the exact following structure without markdown blocks:
           );
           response = await model.generateContent(content);
           if (response.text != null && response.text!.isNotEmpty) {
+            debugPrint('Gemini classification succeeded using model: $modelName');
             break;
           }
         } catch (e) {
-          debugPrint('Notice: Model $modelName failed: $e. Trying next model...');
+          debugPrint('Model $modelName notice: $e. Trying next model...');
         }
       }
       
       if (response != null && response.text != null) {
         String jsonString = response.text!;
-        // Clean markdown backticks if Gemini includes them
         jsonString = jsonString.replaceAll('```json', '').replaceAll('```', '').trim();
         
         final jsonResult = jsonDecode(jsonString);
@@ -95,24 +117,57 @@ Return a JSON object with the exact following structure without markdown blocks:
              isHealthy: false,
              diseaseName: '',
              treatmentPlan: '',
-             severity: language == 'si' ? 'නැත' : (language == 'ta' ? 'இல்லை' : 'None')
+             severity: language == 'si' ? 'නැත' : (language == 'ta' ? 'இல்லை' : 'None'),
+             isPlant: false,
+             plantName: '',
+             cropType: '',
+             botanicalName: '',
+             symptoms: '',
+             immediateActions: '',
+             organicRemedies: '',
+             chemicalRemedies: '',
+             preventiveTips: '',
            );
         }
 
+        final isHealthy = jsonResult['isHealthy'] ?? false;
+        final plantName = jsonResult['plantName'] ?? (language == 'si' ? 'ගොවිපළ බෝගය' : 'Crop');
+        final cropType = jsonResult['cropType'] ?? (language == 'si' ? 'කෘෂිකාර්මික බෝග' : 'Agricultural Crop');
+        final botanicalName = jsonResult['botanicalName'] ?? '';
+        final diseaseName = jsonResult['diseaseName'] ?? '';
+        final symptoms = jsonResult['symptoms'] ?? '';
+        final immediateActions = jsonResult['immediateActions'] ?? '';
+        final organicRemedies = jsonResult['organicRemedies'] ?? '';
+        final chemicalRemedies = jsonResult['chemicalRemedies'] ?? '';
+        final irrigationTips = jsonResult['irrigationTips'] ?? '';
+        final preventiveTips = jsonResult['preventiveTips'] ?? '';
+        final treatmentPlan = jsonResult['treatmentPlan'] ?? '';
+        final severity = jsonResult['severity'] ?? (language == 'si' ? 'සාමාන්‍ය' : 'Moderate');
+        final label = jsonResult['label'] ?? (diseaseName.isNotEmpty ? diseaseName : plantName);
+
         return ClassifierResult(
-          label: jsonResult['label'] ?? (language == 'si' ? 'නොදන්නා බෝගය' : (language == 'ta' ? 'தெரியாத பயிர்' : 'Unknown Crop')),
-          confidence: 0.98, // High confidence for Generative AI result
-          isHealthy: jsonResult['isHealthy'] ?? false,
-          diseaseName: jsonResult['diseaseName'] ?? '',
-          treatmentPlan: jsonResult['treatmentPlan'] ?? '',
-          severity: jsonResult['severity'] ?? (language == 'si' ? 'සාමාන්‍ය' : (language == 'ta' ? 'சாதாரண' : 'Moderate')),
+          label: label,
+          confidence: 0.98,
+          isHealthy: isHealthy,
+          diseaseName: diseaseName,
+          treatmentPlan: treatmentPlan.isNotEmpty ? treatmentPlan : immediateActions,
+          severity: severity,
+          plantName: plantName,
+          cropType: cropType,
+          botanicalName: botanicalName,
+          symptoms: symptoms,
+          immediateActions: immediateActions,
+          organicRemedies: organicRemedies,
+          chemicalRemedies: chemicalRemedies,
+          preventiveTips: preventiveTips.isNotEmpty ? preventiveTips : irrigationTips,
+          isPlant: true,
         );
       } else {
-        return null; // Return null so offline model takes over
+        return null;
       }
     } catch (e) {
-      debugPrint('Gemini API Error: $e');
-      return null; // Return null to seamlessly fallback to offline CV engine
+      debugPrint('Gemini Crop Classifier Error: $e');
+      return null;
     }
   }
 }
