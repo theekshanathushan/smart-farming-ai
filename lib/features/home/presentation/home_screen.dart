@@ -118,10 +118,10 @@ class HomeScreen extends ConsumerWidget {
                             child: CircleAvatar(
                               radius: 24,
                               backgroundColor: Colors.white24,
-                              backgroundImage: authState.profileImagePath != null
+                              backgroundImage: (authState.profileImagePath != null && File(authState.profileImagePath!).existsSync())
                                   ? FileImage(File(authState.profileImagePath!))
                                   : null,
-                              child: authState.profileImagePath == null
+                              child: (authState.profileImagePath == null || !File(authState.profileImagePath!).existsSync())
                                   ? const Icon(Icons.person, color: Colors.white)
                                   : null,
                             ),

@@ -199,10 +199,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           child: CircleAvatar(
                             radius: 50,
                             backgroundColor: isDark ? Colors.white24 : Colors.black12,
-                            backgroundImage: authState.profileImagePath != null
+                            backgroundImage: (authState.profileImagePath != null && File(authState.profileImagePath!).existsSync())
                                 ? FileImage(File(authState.profileImagePath!))
                                 : null,
-                            child: authState.profileImagePath == null
+                            child: (authState.profileImagePath == null || !File(authState.profileImagePath!).existsSync())
                                 ? Icon(Icons.person, size: 50, color: textColor)
                                 : null,
                           ),

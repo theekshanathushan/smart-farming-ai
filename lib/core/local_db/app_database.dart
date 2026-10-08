@@ -233,8 +233,25 @@ LazyDatabase _openConnection([String dbName = 'db.sqlite']) {
           // Assign legacy data exclusively to the first user
           await prefs.setString('legacy_db_owner', dbName);
           await legacyFile.copy(targetFile.path);
+
+          final legacyWal = File(p.join(dbFolder.path, 'db.sqlite-wal'));
+          if (legacyWal.existsSync()) {
+            await legacyWal.copy(p.join(dbFolder.path, '$dbName-wal'));
+          }
+          final legacyShm = File(p.join(dbFolder.path, 'db.sqlite-shm'));
+          if (legacyShm.existsSync()) {
+            await legacyShm.copy(p.join(dbFolder.path, '$dbName-shm'));
+          }
         } else if (legacyOwner == dbName) {
           await legacyFile.copy(targetFile.path);
+          final legacyWal = File(p.join(dbFolder.path, 'db.sqlite-wal'));
+          if (legacyWal.existsSync()) {
+            await legacyWal.copy(p.join(dbFolder.path, '$dbName-wal'));
+          }
+          final legacyShm = File(p.join(dbFolder.path, 'db.sqlite-shm'));
+          if (legacyShm.existsSync()) {
+            await legacyShm.copy(p.join(dbFolder.path, '$dbName-shm'));
+          }
         }
         // If legacyOwner != dbName, DO NOT copy! New user gets an isolated empty DB!
       }

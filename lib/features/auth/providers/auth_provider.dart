@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -34,6 +37,7 @@ class AuthState {
     String? name,
     bool? isLoggedIn,
     String? profileImagePath,
+    bool clearProfileImage = false,
     bool? isRegistration,
   }) {
     return AuthState(
@@ -43,7 +47,7 @@ class AuthState {
       phoneNumber: phoneNumber ?? this.phoneNumber,
       name: name ?? this.name,
       isLoggedIn: isLoggedIn ?? this.isLoggedIn,
-      profileImagePath: profileImagePath ?? this.profileImagePath,
+      profileImagePath: clearProfileImage ? null : (profileImagePath ?? this.profileImagePath),
       isRegistration: isRegistration ?? this.isRegistration,
     );
   }
@@ -52,25 +56,28 @@ class AuthState {
 class AuthNotifier extends StateNotifier<AuthState> {
   final firebase.FirebaseAuth _auth = firebase.FirebaseAuth.instance;
 
-  AuthNotifier() : super(const AuthState()) {
+  AuthNotifier([AuthState? initialState]) : super(initialState ?? const AuthState()) {
     _loadSession();
   }
 
   Future<void> _loadSession() async {
     final prefs = await SharedPreferences.getInstance();
     final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
-    final name = prefs.getString('userName');
-    final phone = prefs.getString('userPhone');
-    final profileImagePath = prefs.getString('profileImagePath');
+    final phone = prefs.getString('userPhone') ?? _auth.currentUser?.phoneNumber;
 
-    // Also check firebase auth
-    final isFirebaseLoggedIn = _auth.currentUser != null;
+    if (isLoggedIn && phone != null && phone.trim().isNotEmpty) {
+      final activePhone = phone.trim();
+      final name = prefs.getString('registered_user_name_$activePhone') ?? prefs.getString('userName');
+      var profileImagePath = prefs.getString('user_profile_photo_$activePhone') ?? prefs.getString('profileImagePath');
 
-    if (isLoggedIn || isFirebaseLoggedIn) {
-      final activePhone = phone ?? _auth.currentUser?.phoneNumber;
-      if (activePhone != null && activePhone.trim().isNotEmpty) {
-        await _ensureUserRegisteredLocally(activePhone.trim(), name ?? '');
+      if (profileImagePath != null) {
+        final f = File(profileImagePath);
+        if (!await f.exists()) {
+          profileImagePath = null;
+        }
       }
+
+      await _ensureUserRegisteredLocally(activePhone, name ?? '');
 
       state = state.copyWith(
         isLoggedIn: true,
@@ -78,6 +85,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
         phoneNumber: activePhone,
         profileImagePath: profileImagePath,
       );
+    } else if (!isLoggedIn) {
+      state = const AuthState();
     }
   }
 
@@ -207,26 +216,82 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   Future<void> verifyOTP(String otpCode) async {
     state = state.copyWith(status: AuthStateStatus.loading);
-    
+
     // MOCK OTP VERIFICATION
     await Future.delayed(const Duration(milliseconds: 600));
-    
+
     if (otpCode.isNotEmpty) {
       final phone = state.phoneNumber ?? '';
-      final name = state.name ?? '';
+      final prefs = await SharedPreferences.getInstance();
 
-      // Register / update in local and cloud records
+      // Resolve user's persistent name (specific to this phone)
+      String name = prefs.getString('registered_user_name_$phone') ?? (state.name ?? '');
+      if (name.trim().isEmpty) {
+        try {
+          final doc = await FirebaseFirestore.instance
+              .collection('users')
+              .doc(phone)
+              .get()
+              .timeout(const Duration(seconds: 4));
+          if (doc.exists && doc.data() != null) {
+            name = (doc.data()!['name'] as String?) ?? '';
+          }
+        } catch (_) {}
+      }
+      if (name.trim().isEmpty) {
+        name = 'Farmer';
+      }
+
+      // Resolve user's persistent profile photo (specific to this phone)
+      String? photoPath = prefs.getString('user_profile_photo_$phone');
+      if (photoPath != null) {
+        final f = File(photoPath);
+        if (!await f.exists()) {
+          photoPath = null;
+        }
+      }
+
+      // If photoPath not found locally, check Firestore
+      if (photoPath == null) {
+        try {
+          final doc = await FirebaseFirestore.instance
+              .collection('users')
+              .doc(phone)
+              .get()
+              .timeout(const Duration(seconds: 4));
+          if (doc.exists && doc.data() != null) {
+            final cloudPhoto = doc.data()!['profileImagePath'] as String?;
+            if (cloudPhoto != null && cloudPhoto.isNotEmpty) {
+              final f = File(cloudPhoto);
+              if (await f.exists()) {
+                photoPath = cloudPhoto;
+                await prefs.setString('user_profile_photo_$phone', photoPath);
+              }
+            }
+          }
+        } catch (_) {}
+      }
+
+      // Save registry and cloud records
       await _ensureUserRegisteredLocally(phone, name);
       try {
         await FirebaseFirestore.instance.collection('users').doc(phone).set({
           'phone': phone,
           'name': name,
-          'updatedAt': FieldValue.serverTimestamp(),
+          if (photoPath != null) 'profileImagePath': photoPath,
+          'lastLoginAt': FieldValue.serverTimestamp(),
         }, SetOptions(merge: true));
       } catch (_) {}
 
-      await _saveSession(phone, name);
-      state = state.copyWith(status: AuthStateStatus.success, isLoggedIn: true);
+      await _saveSession(phone, name, photoPath);
+
+      state = state.copyWith(
+        status: AuthStateStatus.success,
+        isLoggedIn: true,
+        phoneNumber: phone,
+        name: name,
+        profileImagePath: photoPath,
+      );
     } else {
       state = state.copyWith(
         status: AuthStateStatus.error,
@@ -246,43 +311,131 @@ class AuthNotifier extends StateNotifier<AuthState> {
           await FirebaseFirestore.instance
               .collection('users')
               .doc(state.phoneNumber)
-              .set({'name': trimmed}, SetOptions(merge: true));
+              .set({'name': trimmed, 'updatedAt': FieldValue.serverTimestamp()}, SetOptions(merge: true));
         } catch (_) {}
       }
       state = state.copyWith(name: trimmed);
     }
   }
 
-  Future<void> _saveSession(String phone, String? name) async {
+  Future<void> _saveSession(String phone, String? name, String? profileImagePath) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isLoggedIn', true);
     await prefs.setString('userPhone', phone);
     if (name != null && name.trim().isNotEmpty) {
       await prefs.setString('userName', name.trim());
+      await prefs.setString('registered_user_name_$phone', name.trim());
       state = state.copyWith(name: name.trim());
+    }
+    if (profileImagePath != null && profileImagePath.trim().isNotEmpty) {
+      await prefs.setString('profileImagePath', profileImagePath.trim());
+      await prefs.setString('user_profile_photo_$phone', profileImagePath.trim());
+      state = state.copyWith(profileImagePath: profileImagePath.trim());
+    } else {
+      await prefs.remove('profileImagePath');
     }
   }
 
   Future<void> updateProfileImage(String? path) async {
     final prefs = await SharedPreferences.getInstance();
+    final phone = state.phoneNumber;
+
     if (path == null) {
       await prefs.remove('profileImagePath');
-    } else {
-      await prefs.setString('profileImagePath', path);
+      if (phone != null) {
+        await prefs.remove('user_profile_photo_$phone');
+        try {
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(phone)
+              .set({'profileImagePath': null}, SetOptions(merge: true));
+        } catch (_) {}
+      }
+      state = state.copyWith(clearProfileImage: true);
+      return;
     }
-    state = state.copyWith(profileImagePath: path);
+
+    // Persist picked image permanently into application documents directory
+    String savedPath = path;
+    try {
+      final file = File(path);
+      if (await file.exists()) {
+        final docDir = await getApplicationDocumentsDirectory();
+        final profileDir = Directory(p.join(docDir.path, 'profile_photos'));
+        if (!await profileDir.exists()) {
+          await profileDir.create(recursive: true);
+        }
+
+        final sanitizedPhone = (phone ?? 'user').replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_');
+        final ext = p.extension(path).isNotEmpty ? p.extension(path) : '.jpg';
+        final destFile = File(p.join(
+          profileDir.path,
+          'profile_${sanitizedPhone}_${DateTime.now().millisecondsSinceEpoch}$ext',
+        ));
+
+        // Delete old persistent photo if different
+        final oldPath = state.profileImagePath;
+        if (oldPath != null && oldPath != path) {
+          try {
+            final oldFile = File(oldPath);
+            if (await oldFile.exists()) {
+              await oldFile.delete();
+            }
+          } catch (_) {}
+        }
+
+        await file.copy(destFile.path);
+        savedPath = destFile.path;
+      }
+    } catch (_) {
+      savedPath = path;
+    }
+
+    // Save to active session and user-specific persistent storage
+    await prefs.setString('profileImagePath', savedPath);
+    if (phone != null) {
+      await prefs.setString('user_profile_photo_$phone', savedPath);
+      try {
+        await FirebaseFirestore.instance.collection('users').doc(phone).set({
+          'profileImagePath': savedPath,
+          'hasProfilePhoto': true,
+          'updatedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+      } catch (_) {}
+    }
+
+    state = state.copyWith(profileImagePath: savedPath);
   }
 
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
-    // Clear only session data, preserve registered accounts and preferences
+    // Clear only session data, NEVER touch user-specific records (e.g. user_profile_photo_$phone or registered_user_name_$phone)
     await prefs.remove('isLoggedIn');
     await prefs.remove('userName');
     await prefs.remove('userPhone');
     await prefs.remove('profileImagePath');
+
+    // Clean up any guest database files to ensure 100% privacy
+    try {
+      final docDir = await getApplicationDocumentsDirectory();
+      final guestDb = File(p.join(docDir.path, 'db_guest.sqlite'));
+      if (await guestDb.exists()) {
+        await guestDb.delete();
+      }
+      final guestWal = File(p.join(docDir.path, 'db_guest.sqlite-wal'));
+      if (await guestWal.exists()) {
+        await guestWal.delete();
+      }
+      final guestShm = File(p.join(docDir.path, 'db_guest.sqlite-shm'));
+      if (await guestShm.exists()) {
+        await guestShm.delete();
+      }
+    } catch (_) {}
+
     try {
       await _auth.signOut();
     } catch (_) {}
+
     state = const AuthState();
   }
 
@@ -298,3 +451,4 @@ class AuthNotifier extends StateNotifier<AuthState> {
 final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
   return AuthNotifier();
 });
+
