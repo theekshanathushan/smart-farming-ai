@@ -876,51 +876,55 @@ class CameraScanScreen extends ConsumerWidget {
           ],
 
           const SizedBox(height: 20),
-          if (isUnrecognized)
-            ElevatedButton(
-              onPressed: () => ref.read(scanControllerProvider.notifier).reset(),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange,
-                minimumSize: const Size(double.infinity, 56),
-              ),
-              child: Text(l10n.tryAgain, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-            )
-          else ...[
-            ElevatedButton.icon(
-              onPressed: state.isSaved
-                  ? null
-                  : () {
-                      ref.read(scanControllerProvider.notifier).saveResult(null);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(l10n.savedToOfflineDb),
-                          backgroundColor: Theme.of(context).colorScheme.secondary,
-                        ),
-                      );
-                    },
-              icon: Icon(state.isSaved ? Icons.check : Icons.save),
-              label: Text(state.isSaved ? l10n.saved : l10n.saveResult),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: state.isSaved ? Colors.grey : Theme.of(context).colorScheme.secondary,
-                minimumSize: const Size(double.infinity, 54),
-              ),
+          ElevatedButton.icon(
+            onPressed: state.isSaved
+                ? null
+                : () {
+                    ref.read(scanControllerProvider.notifier).saveResult(null);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(l10n.savedToOfflineDb),
+                        backgroundColor: Theme.of(context).colorScheme.secondary,
+                      ),
+                    );
+                  },
+            icon: Icon(state.isSaved ? Icons.check : Icons.save),
+            label: Text(state.isSaved ? l10n.saved : l10n.saveResult),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: state.isSaved ? Colors.grey : Theme.of(context).colorScheme.secondary,
+              minimumSize: const Size(double.infinity, 54),
             ),
-            const SizedBox(height: 12),
-            OutlinedButton.icon(
-              onPressed: () => _askAiAboutScan(context, ref, state.result!, state.imagePath),
-              icon: const Icon(Icons.forum_outlined),
-              label: Text(
-                currentLang == 'si'
-                    ? 'මෙම ස්කෑන් පරීක්ෂාව ගැන AgriAI සමග කතාබස් කරන්න'
-                    : (currentLang == 'ta' ? 'இந்த ஆய்வு பற்றி AgriAI உடன் பேசவும்' : 'Chat with AgriAI about this scan'),
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              style: OutlinedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 50),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-              ),
+          ),
+          const SizedBox(height: 12),
+          OutlinedButton.icon(
+            onPressed: () => _askAiAboutScan(context, ref, state.result!, state.imagePath),
+            icon: const Icon(Icons.forum_outlined),
+            label: Text(
+              currentLang == 'si'
+                  ? 'මෙම ස්කෑන් පරීක්ෂාව ගැන AgriAI සමග කතාබස් කරන්න'
+                  : (currentLang == 'ta' ? 'இந்த ஆய்வு பற்றி AgriAI உடன் பேசவும்' : 'Chat with AgriAI about this scan'),
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
-          ],
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size(double.infinity, 50),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            ),
+          ),
+          const SizedBox(height: 10),
+          TextButton.icon(
+            onPressed: () => ref.read(scanControllerProvider.notifier).reset(),
+            icon: const Icon(Icons.refresh_rounded),
+            label: Text(
+              currentLang == 'si'
+                  ? 'වෙනත් බෝගයක් ස්කෑන් කරන්න (Rescan)'
+                  : (currentLang == 'ta' ? 'வேறு பயிரை ஸ்கேன் செய்யவும்' : 'Scan Another Crop / Rescan'),
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.primary,
+              minimumSize: const Size(double.infinity, 44),
+            ),
+          ),
         ],
       );
     }
