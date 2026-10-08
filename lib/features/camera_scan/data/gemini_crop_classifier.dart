@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
+import 'package:image/image.dart' as img;
 import '../domain/classifier_result.dart';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -11,12 +12,18 @@ class GeminiCropClassifier {
     final keys = <String>[];
     final primary = (dotenv.env['GEMINI_API_KEY'] ?? '').trim();
     final backup = (dotenv.env['GEMINI_BACKUP_KEY'] ?? '').trim();
-    if (primary.isNotEmpty && primary != 'YOUR_GEMINI_API_KEY') keys.add(primary);
-    if (backup.isNotEmpty && backup != 'YOUR_GEMINI_API_KEY' && !keys.contains(backup)) keys.add(backup);
+
+    if (primary.isNotEmpty && primary != 'YOUR_GEMINI_API_KEY') {
+      keys.add(primary);
+    }
+    if (backup.isNotEmpty &&
+        backup != 'YOUR_GEMINI_API_KEY' &&
+        !keys.contains(backup)) {
+      keys.add(backup);
+    }
     return keys;
   }
 
-  static bool get _isKeyConfigured => _apiKeys.isNotEmpty;
 
   // Prioritize active, responsive Gemini models
   static const List<String> supportedModels = [
@@ -29,15 +36,28 @@ class GeminiCropClassifier {
   ];
   
   Future<ClassifierResult?> analyzeImage(String imagePath, {String language = 'en'}) async {
-    if (!_isKeyConfigured) {
-       debugPrint('Notice: GEMINI_API_KEY is not configured in .env. Falling back to offline scanner.');
-       return null;
-    }
-
     try {
       final file = File(imagePath);
       if (!await file.exists()) return null;
-      final bytes = await file.readAsBytes();
+      Uint8List bytes = await file.readAsBytes();
+
+      // Optimize image payload size so upload takes < 1 second and never drops connection
+      try {
+        final decoded = img.decodeImage(bytes);
+        if (decoded != null) {
+          // Resize if large
+          final maxDim = decoded.width > decoded.height ? decoded.width : decoded.height;
+          final img.Image processed;
+          if (maxDim > 800) {
+            processed = img.copyResize(decoded, width: 800, height: 800, maintainAspect: true);
+          } else {
+            processed = decoded;
+          }
+          bytes = Uint8List.fromList(img.encodeJpg(processed, quality: 80));
+        }
+      } catch (e) {
+        debugPrint('Image compression notice: $e');
+      }
 
       String langInstruction = 'Provide all text values in English.';
       if (language == 'si') {
@@ -51,21 +71,21 @@ class GeminiCropClassifier {
           : (language == 'ta' ? 'தாவரம் கண்டறியப்படவில்லை' : 'Not a Plant / Unrecognized Object');
 
       final rescanAdvice = language == 'si'
-          ? 'මෙම ඡායාරූපයෙහි ශාකයක් හෝ බෝග පත්‍රයක් හඳුනාගත නොහැක (උදා: හෙල්මට්, වාහන, ඇඳුම් හෝ වෙනත් වස්තූන්). කරුණාකර සැබෑ ශාක පත්‍රයක් හෝ බෝගයක් ආලෝකය සහිතව ඡායාරූපගත කර නැවත ස්කෑන් කරන්න.'
+          ? 'මෙම ඡායාරූපයෙහි ශාකයක් හෝ බෝග පත්‍රයක් හඳුනාගත නොහැක (උදා: බෝතල්, ක්‍රීම් බෝතල්, හෙල්මට්, වාහන හෝ වෙනත් භාණ්ඩ). කරුණාකර සැබෑ ශාක පත්‍රයක් හෝ බෝගයක් ආලෝකය සහිතව ඡායාරූපගත කර නැවත ස්කෑන් කරන්න.'
           : (language == 'ta'
-              ? 'இந்த படத்தில் தாவர இலை கண்டறியப்படவில்லை (ஹெல்மெட், பிற பொருள்கள்). தயவுசெய்து உண்மையான பயிரின் இலையை படம் எடுத்து மீண்டும் ஸ்கேன் செய்யவும்.'
-              : 'The image does not contain an agricultural plant or crop leaf (e.g., helmet, furniture, or non-plant object). Please focus the camera on an actual crop leaf and rescan.');
+              ? 'இந்த படத்தில் தாவர இலை கண்டறியப்படவில்லை (பாட்டில், ஹெல்மெட், பிற பொருள்கள்). தயவுசெய்து உண்மையான பயிரின் இலையை படம் எடுத்து மீண்டும் ஸ்கேன் செய்யவும்.'
+              : 'The image does not contain an agricultural plant or crop leaf (e.g. bottle, cream bottle, helmet, furniture, or non-plant item). Please focus the camera on an actual crop leaf and rescan.');
 
       final prompt = '''
 You are an expert plant pathologist, agricultural scientist, and botanist. 
 Analyze the provided image in comprehensive agronomic detail.
 Language Policy: $langInstruction
 
-MANDATORY CRITICAL STEP 1 - OBJECT CLASSIFICATION:
-Carefully determine if the subject in the photo is genuinely a plant, crop, leaf, flower, or agricultural produce.
-- If the image depicts any non-plant item (such as a motorcycle helmet, face, clothing, furniture, tool, vehicle, pet, room, screen, wall, ground without vegetation), you MUST set "isPlant": false.
-- NEVER fabricate, invent, or force a plant diagnosis for a non-plant object like a helmet!
-- ONLY set "isPlant": true if there is a real botanical plant or crop in view.
+MANDATORY CRITICAL STEP 1 - PLANT DETECTION TEST:
+Carefully inspect whether the image contains a genuine biological plant, crop, leaf, flower, or fruit.
+- If the image shows ANY non-plant manufactured object (such as a cream bottle, cosmetic container, shampoo bottle, plastic bottle, can, glass, motorcycle helmet, electronic device, furniture, human face, hand, clothing, floor, room, wall, background without plants), you MUST set "isPlant": false.
+- NEVER hypothesize, imagine, or assume that a bottle, container, or helmet is a plant or leaf!
+- ONLY set "isPlant": true if there is an actual live botanical plant, leaf, crop, or produce clearly visible.
 
 If "isPlant" is false, return:
 {

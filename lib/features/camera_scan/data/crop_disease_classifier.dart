@@ -23,9 +23,8 @@ class HybridCropDiseaseClassifier implements ICropDiseaseClassifier {
   }
 
   @override
-  @override
   Future<List<ClassifierResult>> classifyImage(String imagePath, {String language = 'en'}) async {
-    // 1. Try Online Advanced AI (Gemini) with working model cascade and generous timeout
+    // 1. Online AI (Gemini) - Accurate Plant Verification & Agronomic Diagnostics
     try {
       final geminiResult = await _geminiClassifier.analyzeImage(imagePath, language: language).timeout(const Duration(seconds: 25));
       if (geminiResult != null &&
@@ -34,11 +33,41 @@ class HybridCropDiseaseClassifier implements ICropDiseaseClassifier {
         return [geminiResult];
       }
     } catch (e) {
-      debugPrint('Gemini classification notice ($e), falling back to local verification.');
+      debugPrint('Gemini classification notice: $e');
     }
 
-    // 2. Offline Fallback (Local Computer Vision & TFLite)
-    return await _tfliteClassifier.classifyImage(imagePath, language: language);
+    // 2. Strict Safety Fallback:
+    // NEVER fabricate "Healthy Leaf" or "Diseased Leaf" for unknown/offline scans (like bottles, helmets, objects)!
+    // Prompt the user honestly to ensure internet connection and rescan.
+    final notRecognizedLabel = language == 'si'
+        ? 'හඳුනාගත නොහැක / ශාකයක් නොවේ'
+        : (language == 'ta' ? 'தாவரம் கண்டறியப்படவில்லை' : 'No Plant Detected / Scan Failed');
+
+    final rescanPrompt = language == 'si'
+        ? 'ඡායාරූපයෙහි ශාකයක් හෝ බෝගයක් හඳුනාගත නොහැකි විය (උදා: බෝතල්, හෙල්මට් හෝ වෙනත් උපකරණ). කරුණාකර සැබෑ ශාක පත්‍රයක් හෝ බෝගයක් ආලෝකය සහිතව ඡායාරූපගත කර අන්තර්ජාලය සක්‍රියව නැවත ස්කෑන් කරන්න (Rescan).'
+        : (language == 'ta'
+            ? 'படத்தில் தாவர இலை கண்டறியப்படவில்லை. தயவுசெய்து உண்மையான பயிர் இலையை படம் எடுத்து மீண்டும் ஸ்கேன் செய்யவும்.'
+            : 'No crop or plant leaf recognized. Please focus on an actual plant leaf with good lighting, ensure internet connection, and rescan.');
+
+    return [
+      ClassifierResult(
+        label: notRecognizedLabel,
+        confidence: 0.0,
+        isHealthy: false,
+        diseaseName: '',
+        treatmentPlan: rescanPrompt,
+        severity: language == 'si' ? 'නැත' : (language == 'ta' ? 'இல்லை' : 'None'),
+        isPlant: false,
+        plantName: '',
+        cropType: '',
+        botanicalName: '',
+        symptoms: '',
+        immediateActions: '',
+        organicRemedies: '',
+        chemicalRemedies: '',
+        preventiveTips: '',
+      )
+    ];
   }
 
   @override
