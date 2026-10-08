@@ -334,12 +334,114 @@ class CameraScanScreen extends ConsumerWidget {
     }
 
     if (state.imagePath != null && state.result != null) {
-      final isUnrecognized = state.result!.confidence == 0 ||
+      final isUnrecognized = !state.result!.isPlant ||
+          state.result!.confidence == 0 ||
           state.result!.label.contains('Unrecognized') ||
           state.result!.label.contains('හඳුනාගත නොහැක') ||
-          state.result!.label.contains('அடையாளம்');
-      final isDiseased = !state.result!.isHealthy && !isUnrecognized;
-      final isHealthy = state.result!.isHealthy && !isUnrecognized;
+          state.result!.label.contains('නොවේ') ||
+          state.result!.label.contains('அடையாளம்') ||
+          state.result!.label.contains('கண்டறியப்படவில்லை');
+
+      // 1. Dedicated, clean UI when image is NOT a plant (e.g. helmet, car, non-plant object)
+      if (isUnrecognized) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: Colors.amber.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Colors.amber.withValues(alpha: 0.4), width: 1.5),
+              ),
+              child: Column(
+                children: [
+                  if (state.imagePath != null && File(state.imagePath!).existsSync())
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(14),
+                      child: Image.file(
+                        File(state.imagePath!),
+                        height: 120,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  const SizedBox(height: 14),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.amber.withValues(alpha: 0.15),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.warning_amber_rounded, color: Colors.amber, size: 36),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    currentLang == 'si'
+                        ? 'ශාකයක් හෝ බෝගයක් හඳුනාගත නොහැක'
+                        : (currentLang == 'ta' ? 'தாவரம் கண்டறியப்படவில்லை' : 'No Plant or Crop Detected'),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.amber.shade800,
+                        ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    state.result!.treatmentPlan.isNotEmpty
+                        ? state.result!.treatmentPlan
+                        : (currentLang == 'si'
+                            ? 'ඡායාරූපයෙහි ශාක පත්‍රයක් හෝ බෝගයක් හඳුනාගත නොහැක (උදා: හෙල්මට්, වාහන හෝ වෙනත් වස්තූන්). කරුණාකර සැබෑ ශාක පත්‍රයක් ආලෝකය සහිතව ඡායාරූපගත කර නැවත ස්කෑන් කරන්න.'
+                            : (currentLang == 'ta'
+                                ? 'இந்த படத்தில் தாவர இலை கண்டறியப்படவில்லை. தயவுசெய்து உண்மையான பயிர் இலையை படம் எடுத்து மீண்டும் ஸ்கேன் செய்யவும்.'
+                                : 'No plant leaf detected in this photo (e.g., helmet, furniture, or non-plant item). Please take a well-lit photo of an actual plant leaf and rescan.')),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 13,
+                      height: 1.4,
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.85),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 18),
+            ElevatedButton.icon(
+              onPressed: () => ref.read(scanControllerProvider.notifier).reset(),
+              icon: const Icon(Icons.refresh_rounded),
+              label: Text(
+                currentLang == 'si'
+                    ? 'නැවත ස්කෑන් කරන්න (Rescan)'
+                    : (currentLang == 'ta' ? 'மீண்டும் ஸ்கேன் செய்' : 'Rescan / Retake Photo'),
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.secondary,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              ),
+            ),
+            const SizedBox(height: 10),
+            OutlinedButton.icon(
+              onPressed: () => _handleCapture(ref, context, ImageSource.camera),
+              icon: const Icon(Icons.camera_alt_outlined),
+              label: Text(
+                currentLang == 'si' ? 'කැමරාවෙන් අලුත් ඡායාරූපයක් ගන්න' : 'Take New Photo with Camera',
+              ),
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              ),
+            ),
+          ],
+        );
+      }
+
+      // 2. Real Plant Detected: Render Comprehensive Diagnostic Details
+      final isDiseased = !state.result!.isHealthy;
+      final isHealthy = state.result!.isHealthy;
 
       return Column(
         mainAxisSize: MainAxisSize.min,

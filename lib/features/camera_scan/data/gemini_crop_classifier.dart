@@ -18,20 +18,14 @@ class GeminiCropClassifier {
 
   static bool get _isKeyConfigured => _apiKeys.isNotEmpty;
 
-  // Exact supported models requested by user, tried in intelligent priority order
+  // Prioritize active, responsive Gemini models
   static const List<String> supportedModels = [
-    'gemini-3.8-flash',
-    'gemini-3.6-flash',
-    'gemini-3.7-flash',
-    'gemini-3.5-flash',
+    'gemini-flash-lite-latest',
     'gemini-3.5-flash-lite',
-    'gemini-2.5-flash-lite',
-    'gemini-3-flash',
-    'gemini-3.1-flash-lite',
-    'gemini-2.5-flash',
-    'gemini-2.0-flash',
-    'gemini-1.5-flash',
+    'gemini-3.5-flash',
     'gemini-flash-latest',
+    'gemini-3.8-flash',
+    'gemini-3.7-flash',
   ];
   
   Future<ClassifierResult?> analyzeImage(String imagePath, {String language = 'en'}) async {
@@ -42,6 +36,7 @@ class GeminiCropClassifier {
 
     try {
       final file = File(imagePath);
+      if (!await file.exists()) return null;
       final bytes = await file.readAsBytes();
 
       String langInstruction = 'Provide all text values in English.';
@@ -52,23 +47,54 @@ class GeminiCropClassifier {
       }
 
       final unrecognizedLabel = language == 'si'
-          ? 'හඳුනාගත නොහැක / ශාක පත්‍රයක් නොවේ'
-          : (language == 'ta' ? 'அடையாளம் காண முடியவில்லை' : 'Unrecognized / Not a plant');
+          ? 'හඳුනාගත නොහැක / ශාකයක් නොවේ'
+          : (language == 'ta' ? 'தாவரம் கண்டறியப்படவில்லை' : 'Not a Plant / Unrecognized Object');
+
+      final rescanAdvice = language == 'si'
+          ? 'මෙම ඡායාරූපයෙහි ශාකයක් හෝ බෝග පත්‍රයක් හඳුනාගත නොහැක (උදා: හෙල්මට්, වාහන, ඇඳුම් හෝ වෙනත් වස්තූන්). කරුණාකර සැබෑ ශාක පත්‍රයක් හෝ බෝගයක් ආලෝකය සහිතව ඡායාරූපගත කර නැවත ස්කෑන් කරන්න.'
+          : (language == 'ta'
+              ? 'இந்த படத்தில் தாவர இலை கண்டறியப்படவில்லை (ஹெல்மெட், பிற பொருள்கள்). தயவுசெய்து உண்மையான பயிரின் இலையை படம் எடுத்து மீண்டும் ஸ்கேன் செய்யவும்.'
+              : 'The image does not contain an agricultural plant or crop leaf (e.g., helmet, furniture, or non-plant object). Please focus the camera on an actual crop leaf and rescan.');
 
       final prompt = '''
 You are an expert plant pathologist, agricultural scientist, and botanist. 
-Analyze the provided crop image in comprehensive agronomic detail.
+Analyze the provided image in comprehensive agronomic detail.
 Language Policy: $langInstruction
 
-Return a JSON object with the exact following structure without markdown blocks:
+MANDATORY CRITICAL STEP 1 - OBJECT CLASSIFICATION:
+Carefully determine if the subject in the photo is genuinely a plant, crop, leaf, flower, or agricultural produce.
+- If the image depicts any non-plant item (such as a motorcycle helmet, face, clothing, furniture, tool, vehicle, pet, room, screen, wall, ground without vegetation), you MUST set "isPlant": false.
+- NEVER fabricate, invent, or force a plant diagnosis for a non-plant object like a helmet!
+- ONLY set "isPlant": true if there is a real botanical plant or crop in view.
+
+If "isPlant" is false, return:
 {
-  "isPlant": boolean (true if image contains a plant, leaf, crop, or fruit; false otherwise),
-  "cropType": string (the category and family of crop, e.g. "එළවළු බෝග (Solanaceae)", "පළතුරු බෝග", "ධාන්‍ය බෝග", "කුළුබඩු බෝග"),
-  "plantName": string (the common name of the plant/crop, e.g. "තක්කාලි", "මිරිස්", "බණ්ඩක්කා", "කෙසෙල්", "වම්බටු"),
-  "botanicalName": string (the scientific/botanical name, e.g. "Solanum lycopersicum", "Capsicum annuum"),
-  "isHealthy": boolean (true if perfectly healthy, false if diseased or pest attacked),
-  "diseaseName": string (exact name of the disease or pest and pathogen type e.g. "තක්කාලි අකල් අංගමාරය (Early Blight - Alternaria solani)". If healthy or not a plant, leave empty),
-  "symptoms": string (detailed description of visual symptoms on the leaf: lesions, yellowing chlorosis, concentric rings, spots, wilting),
+  "isPlant": false,
+  "cropType": "",
+  "plantName": "",
+  "botanicalName": "",
+  "isHealthy": false,
+  "diseaseName": "",
+  "symptoms": "",
+  "severity": "None",
+  "immediateActions": "",
+  "organicRemedies": "",
+  "chemicalRemedies": "",
+  "irrigationTips": "",
+  "preventiveTips": "",
+  "treatmentPlan": "",
+  "label": "$unrecognizedLabel"
+}
+
+If "isPlant" is true, analyze accurately:
+{
+  "isPlant": true,
+  "cropType": string (the exact category and botanical family, e.g. "එළවළු බෝග (Solanaceae)", "ධාන්‍ය බෝග (Poaceae)", "පළතුරු බෝග (Musaceae)"),
+  "plantName": string (the accurate common name of the crop, e.g. "තක්කාලි", "මිරිස්", "බණ්ඩක්කා", "කෙසෙල්", "වම්බටු", "වී", "පොල්"),
+  "botanicalName": string (the accurate scientific botanical name, e.g. "Solanum lycopersicum", "Capsicum annuum"),
+  "isHealthy": boolean (true if the foliage is completely healthy, vigorous and free of disease/pests; false if infected or deficient),
+  "diseaseName": string (exact verified disease or pest diagnosis e.g. "අකල් අංගමාරය (Early Blight)", "පිටිපුස් රෝගය (Powdery Mildew)", "කොළ කොඩවීම (Leaf Curl)". If healthy, leave empty),
+  "symptoms": string (detailed description of visual symptoms on the leaf: lesions, chlorosis, concentric rings, spots, wilting. If healthy, describe healthy leaf condition),
   "severity": string (${language == 'si' ? '"නැත", "අඩු", "මධ්‍යම", "ඉහළ"' : (language == 'ta' ? '"இல்லை", "குறைவு", "நடுத்தரம்", "அதிகம்"' : '"None", "Low", "Moderate", "High"')}),
   "immediateActions": string (urgent field actions to take immediately: pruning infected foliage, isolating plant, burning debris),
   "organicRemedies": string (natural organic remedies with exact preparation and dosages: neem oil spray, wood ash, compost tea, baking soda solution),
@@ -78,6 +104,8 @@ Return a JSON object with the exact following structure without markdown blocks:
   "treatmentPlan": string (summary of comprehensive step-by-step numbered instructions),
   "label": string (short display title e.g. "තක්කාලි අකල් අංගමාරය" or "නිරෝගී තක්කාලි පත්‍රය")
 }
+
+Return ONLY valid JSON matching the structure without markdown blocks.
 ''';
 
       final content = [
@@ -100,8 +128,11 @@ Return a JSON object with the exact following structure without markdown blocks:
                 responseMimeType: 'application/json',
               ),
             );
-            response = await model.generateContent(content);
-            if (response.text != null && response.text!.isNotEmpty) {
+            
+            // Timeout per model attempt to prevent hanging on congested models
+            final res = await model.generateContent(content).timeout(const Duration(seconds: 12));
+            if (res.text != null && res.text!.trim().isNotEmpty) {
+              response = res;
               debugPrint('Gemini classification succeeded using model: $modelName');
               break keyLoop;
             }
@@ -112,19 +143,19 @@ Return a JSON object with the exact following structure without markdown blocks:
       }
       
       if (response != null && response.text != null) {
-        String jsonString = response.text!;
+        String jsonString = response.text!.trim();
         jsonString = jsonString.replaceAll('```json', '').replaceAll('```', '').trim();
         
         final jsonResult = jsonDecode(jsonString);
         
-        final isPlant = jsonResult['isPlant'] ?? true;
+        final isPlant = jsonResult['isPlant'] == true;
         if (!isPlant) {
            return ClassifierResult(
              label: unrecognizedLabel,
-             confidence: 0.98,
+             confidence: 0.0,
              isHealthy: false,
              diseaseName: '',
-             treatmentPlan: '',
+             treatmentPlan: rescanAdvice,
              severity: language == 'si' ? 'නැත' : (language == 'ta' ? 'இல்லை' : 'None'),
              isPlant: false,
              plantName: '',
@@ -138,28 +169,38 @@ Return a JSON object with the exact following structure without markdown blocks:
            );
         }
 
-        final isHealthy = jsonResult['isHealthy'] ?? false;
-        final plantName = jsonResult['plantName'] ?? (language == 'si' ? 'ගොවිපළ බෝගය' : 'Crop');
-        final cropType = jsonResult['cropType'] ?? (language == 'si' ? 'කෘෂිකාර්මික බෝග' : 'Agricultural Crop');
-        final botanicalName = jsonResult['botanicalName'] ?? '';
-        final diseaseName = jsonResult['diseaseName'] ?? '';
-        final symptoms = jsonResult['symptoms'] ?? '';
-        final immediateActions = jsonResult['immediateActions'] ?? '';
-        final organicRemedies = jsonResult['organicRemedies'] ?? '';
-        final chemicalRemedies = jsonResult['chemicalRemedies'] ?? '';
-        final irrigationTips = jsonResult['irrigationTips'] ?? '';
-        final preventiveTips = jsonResult['preventiveTips'] ?? '';
-        final treatmentPlan = jsonResult['treatmentPlan'] ?? '';
-        final severity = jsonResult['severity'] ?? (language == 'si' ? 'සාමාන්‍ය' : 'Moderate');
-        final label = jsonResult['label'] ?? (diseaseName.isNotEmpty ? diseaseName : plantName);
+        final isHealthy = jsonResult['isHealthy'] == true;
+        final plantName = (jsonResult['plantName'] ?? '').toString().trim();
+        final cropType = (jsonResult['cropType'] ?? '').toString().trim();
+        final botanicalName = (jsonResult['botanicalName'] ?? '').toString().trim();
+        final diseaseName = (jsonResult['diseaseName'] ?? '').toString().trim();
+        final symptoms = (jsonResult['symptoms'] ?? '').toString().trim();
+        final immediateActions = (jsonResult['immediateActions'] ?? '').toString().trim();
+        final organicRemedies = (jsonResult['organicRemedies'] ?? '').toString().trim();
+        final chemicalRemedies = (jsonResult['chemicalRemedies'] ?? '').toString().trim();
+        final irrigationTips = (jsonResult['irrigationTips'] ?? '').toString().trim();
+        final preventiveTips = (jsonResult['preventiveTips'] ?? '').toString().trim();
+        final treatmentPlan = (jsonResult['treatmentPlan'] ?? '').toString().trim();
+        final severity = (jsonResult['severity'] ?? (language == 'si' ? 'මධ්‍යම' : 'Moderate')).toString().trim();
+        
+        final String label;
+        if (jsonResult['label'] != null && jsonResult['label'].toString().trim().isNotEmpty) {
+          label = jsonResult['label'].toString().trim();
+        } else if (isHealthy) {
+          label = language == 'si' ? 'නිරෝගී $plantName' : 'Healthy $plantName';
+        } else if (diseaseName.isNotEmpty) {
+          label = diseaseName;
+        } else {
+          label = plantName;
+        }
 
         return ClassifierResult(
           label: label,
-          confidence: 0.98,
+          confidence: 0.96,
           isHealthy: isHealthy,
-          diseaseName: diseaseName,
+          diseaseName: isHealthy ? '' : diseaseName,
           treatmentPlan: treatmentPlan.isNotEmpty ? treatmentPlan : immediateActions,
-          severity: severity,
+          severity: isHealthy ? (language == 'si' ? 'නැත' : 'None') : severity,
           plantName: plantName,
           cropType: cropType,
           botanicalName: botanicalName,
@@ -179,3 +220,4 @@ Return a JSON object with the exact following structure without markdown blocks:
     }
   }
 }
+
