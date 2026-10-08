@@ -464,9 +464,136 @@ class CameraScanScreen extends ConsumerWidget {
             ),
           ),
 
+          // Plant Profile Card (ශාකයේ නම, ගහේ වර්ගය, විද්‍යාත්මක නම)
+          if (!isUnrecognized) ...[
+            const SizedBox(height: 14),
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.25),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.nature_people_outlined, color: Theme.of(context).colorScheme.primary, size: 20),
+                      const SizedBox(width: 8),
+                      Text(
+                        currentLang == 'si'
+                            ? 'ශාකයේ සම්පූර්ණ විස්තරය (Plant Profile)'
+                            : (currentLang == 'ta' ? 'பயிர் விவரக்குறிப்பு' : 'Plant & Crop Profile'),
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              currentLang == 'si' ? 'ශාකයේ නම' : (currentLang == 'ta' ? 'பயிரின் பெயர்' : 'Plant Name'),
+                              style: const TextStyle(fontSize: 11, color: Colors.grey),
+                            ),
+                            Text(
+                              state.result!.plantName.isNotEmpty ? state.result!.plantName : state.result!.label,
+                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              currentLang == 'si' ? 'ගහේ / බෝග වර්ගය' : (currentLang == 'ta' ? 'பயிர் வகை' : 'Crop Category'),
+                              style: const TextStyle(fontSize: 11, color: Colors.grey),
+                            ),
+                            Text(
+                              state.result!.cropType.isNotEmpty
+                                  ? state.result!.cropType
+                                  : (currentLang == 'si' ? 'කෘෂිකාර්මික බෝග' : 'Crop'),
+                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (state.result!.botanicalName.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        const Icon(Icons.menu_book_outlined, size: 14, color: Colors.grey),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            '${currentLang == 'si' ? 'උද්භිද විද්‍යාත්මක නම' : 'Botanical Name'}: ${state.result!.botanicalName}',
+                            style: const TextStyle(fontSize: 12, fontStyle: FontStyle.italic, color: Colors.grey),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ],
+
+          // Symptoms Card when Symptoms are detected
+          if (isDiseased && state.result!.symptoms.isNotEmpty) ...[
+            const SizedBox(height: 14),
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: Colors.amber.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.amber.withValues(alpha: 0.35)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.search_outlined, color: Colors.amber, size: 20),
+                      const SizedBox(width: 8),
+                      Text(
+                        currentLang == 'si'
+                            ? 'නිරීක්ෂණය වූ රෝග ලක්ෂණ'
+                            : (currentLang == 'ta' ? 'கண்டறியப்பட்ட அறிகுறிகள்' : 'Observed Disease Symptoms'),
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.amber.shade900,
+                            ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    state.result!.symptoms,
+                    style: TextStyle(
+                      fontSize: 13,
+                      height: 1.4,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+
           // Practical Action Guide when Diseased
           if (isDiseased) ...[
-            const SizedBox(height: 18),
+            const SizedBox(height: 16),
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
@@ -497,42 +624,50 @@ class CameraScanScreen extends ConsumerWidget {
                     context,
                     icon: Icons.content_cut,
                     iconColor: Colors.orange,
-                    title: currentLang == 'si' ? '1. කප්පාදු කිරීම සහ හුදකලා කිරීම' : (currentLang == 'ta' ? '1. கவாத்து மற்றும் தனிமைப்படுத்தல்' : '1. Prune & Isolate'),
-                    desc: currentLang == 'si'
-                        ? 'ආසාදිත කොළ සහ අතු වහාම කපා ඉවත් කර වගා බිමෙන් ඉවතට ගෙන විනාශ කරන්න.'
-                        : (currentLang == 'ta' ? 'பாதிக்கப்பட்ட இலைகளை வெட்டி அகற்றி தோட்டத்திலிருந்து வெளியேற்றவும்.' : 'Prune affected leaves immediately and dispose of them far from the field.'),
+                    title: currentLang == 'si' ? '1. හදිසි ක්ෂේත්‍ර පියවර සහ හුදකලා කිරීම' : (currentLang == 'ta' ? '1. அவசர கள நடவடிக்கைகள்' : '1. Immediate Field Action'),
+                    desc: state.result!.immediateActions.isNotEmpty
+                        ? state.result!.immediateActions
+                        : (currentLang == 'si'
+                            ? 'ආසාදිත කොළ සහ අතු වහාම කපා ඉවත් කර වගා බිමෙන් ඉවතට ගෙන විනාශ කරන්න.'
+                            : (currentLang == 'ta' ? 'பாதிக்கப்பட்ட இலைகளை வெட்டி அகற்றி தோட்டத்திலிருந்து வெளியேற்றவும்.' : 'Prune affected leaves immediately and dispose of them far from the field.')),
                   ),
                   const SizedBox(height: 8),
                   _buildPracticalStepTile(
                     context,
                     icon: Icons.eco,
                     iconColor: Colors.green,
-                    title: currentLang == 'si' ? '2. කාබනික කොහොඹ තෙල් සත්කාරය' : (currentLang == 'ta' ? '2. இயற்கை வேப்பெண்ணெய் சிகிச்சை' : '2. Organic Neem Treatment'),
-                    desc: currentLang == 'si'
-                        ? 'කොහොඹ තෙල් මිලිලීටර් 5ක් සබන් වතුර ලීටරයකට මිශ්‍ර කර දින 5-7 කට වරක් කොළ වලට ඉසින්න.'
-                        : (currentLang == 'ta' ? 'வேப்பெண்ணெய் 5ml-ஐ சோப்பு கலந்த தண்ணீரில் கலந்து 5-7 நாட்களுக்கு ஒருமுறை தெளிக்கவும்.' : 'Mix 5ml neem oil with a drop of liquid soap per liter of water and spray every 5-7 days.'),
+                    title: currentLang == 'si' ? '2. කාබනික ස්වාභාවික පිළියම් සහ මාත්‍රා' : (currentLang == 'ta' ? '2. இயற்கை தீர்வுகள் மற்றும் அளவுகள்' : '2. Organic Remedies & Dosages'),
+                    desc: state.result!.organicRemedies.isNotEmpty
+                        ? state.result!.organicRemedies
+                        : (currentLang == 'si'
+                            ? 'කොහොඹ තෙල් මිලිලීටර් 5ක් සබන් වතුර ලීටරයකට මිශ්‍ර කර දින 5-7 කට වරක් කොළ වලට ඉසින්න.'
+                            : (currentLang == 'ta' ? 'வேப்பெண்ணெய் 5ml-ஐ சோப்பு கலந்த தண்ணீரில் கலந்து 5-7 நாட்களுக்கு ஒருமுறை தெளிக்கவும்.' : 'Mix 5ml neem oil with a drop of liquid soap per liter of water and spray every 5-7 days.')),
                   ),
                   const SizedBox(height: 8),
                   _buildPracticalStepTile(
                     context,
                     icon: Icons.science,
                     iconColor: Colors.blueAccent,
-                    title: currentLang == 'si' ? '3. විශේෂිත රෝග ප්‍රතිකාරය' : (currentLang == 'ta' ? '3. குறிப்பிட்ட நோய் சிகிச்சை' : '3. Targeted Disease Control'),
-                    desc: state.result!.treatmentPlan.isNotEmpty
-                        ? state.result!.treatmentPlan
-                        : (currentLang == 'si'
-                            ? 'ප්‍රාදේශීය කෘෂිකර්ම උපදෙස් අනුව නිර්දේශිත දිලීර හෝ කෘමි නාශක යොදන්න.'
-                            : (currentLang == 'ta' ? 'பரிந்துரைக்கப்பட்ட பூஞ்சைக் கொல்லி அல்லது மருந்தைப் பயன்படுத்தவும்.' : 'Apply recommended fungicide or pesticide according to local guidance.')),
+                    title: currentLang == 'si' ? '3. රසායනික පාලනය සහ නිර්දේශිත මාත්‍රා' : (currentLang == 'ta' ? '3. இரசாயன கட்டுப்பாடு மற்றும் அளவுகள்' : '3. Chemical Controls & Exact Dosages'),
+                    desc: state.result!.chemicalRemedies.isNotEmpty
+                        ? state.result!.chemicalRemedies
+                        : (state.result!.treatmentPlan.isNotEmpty
+                            ? state.result!.treatmentPlan
+                            : (currentLang == 'si'
+                                ? 'ප්‍රාදේශීය කෘෂිකර්ම උපදෙස් අනුව නිර්දේශිත දිලීර හෝ කෘමි නාශක යොදන්න.'
+                                : (currentLang == 'ta' ? 'பரிந்துரைக்கப்பட்ட பூஞ்சைக் கொல்லி அல்லது மருந்தைப் பயன்படுத்தவும்.' : 'Apply recommended fungicide or pesticide according to local guidance.'))),
                   ),
                   const SizedBox(height: 8),
                   _buildPracticalStepTile(
                     context,
                     icon: Icons.water_drop,
                     iconColor: Colors.lightBlue,
-                    title: currentLang == 'si' ? '4. මුල් පාමුලට ජල සම්පාදනය' : (currentLang == 'ta' ? '4. வேருக்கு நீர் பாய்ச்சுதல்' : '4. Root-Zone Watering'),
-                    desc: currentLang == 'si'
-                        ? 'කොළ මතට ජලය නොවැටෙන සේ ශාකයේ මුල් පාමුලට පමණක් උදෑසන කාලයේ ජලය සපයන්න.'
-                        : (currentLang == 'ta' ? 'இலைகள் நனையாமல் காலையில் வேருக்கு மட்டும் தண்ணீர் பாய்ச்சவும்.' : 'Avoid wetting foliage; water strictly at root level during early morning.'),
+                    title: currentLang == 'si' ? '4. ජල සම්පාදනය සහ වැළැක්වීමේ පියවර' : (currentLang == 'ta' ? '4. நீர்ப்பாசனம் மற்றும் தடுப்பு வழிகள்' : '4. Irrigation & Long-Term Prevention'),
+                    desc: state.result!.preventiveTips.isNotEmpty
+                        ? state.result!.preventiveTips
+                        : (currentLang == 'si'
+                            ? 'කොළ මතට ජලය නොවැටෙන සේ ශාකයේ මුල් පාමුලට පමණක් උදෑසන කාලයේ ජලය සපයන්න.'
+                            : (currentLang == 'ta' ? 'இலைகள் நனையாமல் காலையில் வேருக்கு மட்டும் தண்ணீர் பாய்ச்சவும்.' : 'Avoid wetting foliage; water strictly at root level during early morning.')),
                   ),
                   const SizedBox(height: 14),
                   FilledButton.icon(

@@ -7,12 +7,16 @@ import '../domain/classifier_result.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class GeminiCropClassifier {
-  static String get _apiKey => dotenv.env['GEMINI_API_KEY'] ?? 'YOUR_GEMINI_API_KEY';
-
-  static bool get _isKeyConfigured {
-    final key = _apiKey.trim();
-    return key.isNotEmpty && key != 'YOUR_GEMINI_API_KEY';
+  static List<String> get _apiKeys {
+    final keys = <String>[];
+    final primary = (dotenv.env['GEMINI_API_KEY'] ?? '').trim();
+    final backup = (dotenv.env['GEMINI_BACKUP_KEY'] ?? '').trim();
+    if (primary.isNotEmpty && primary != 'YOUR_GEMINI_API_KEY') keys.add(primary);
+    if (backup.isNotEmpty && backup != 'YOUR_GEMINI_API_KEY' && !keys.contains(backup)) keys.add(backup);
+    return keys;
   }
+
+  static bool get _isKeyConfigured => _apiKeys.isNotEmpty;
 
   // Exact supported models requested by user, tried in intelligent priority order
   static const List<String> supportedModels = [
@@ -24,6 +28,7 @@ class GeminiCropClassifier {
     'gemini-2.5-flash-lite',
     'gemini-3-flash',
     'gemini-3.1-flash-lite',
+    'gemini-2.5-flash',
     'gemini-2.0-flash',
     'gemini-1.5-flash',
     'gemini-flash-latest',
@@ -84,22 +89,25 @@ Return a JSON object with the exact following structure without markdown blocks:
 
       GenerateContentResponse? response;
 
-      for (final modelName in supportedModels) {
-        try {
-          final model = GenerativeModel(
-            model: modelName,
-            apiKey: _apiKey,
-            generationConfig: GenerationConfig(
-              responseMimeType: 'application/json',
-            ),
-          );
-          response = await model.generateContent(content);
-          if (response.text != null && response.text!.isNotEmpty) {
-            debugPrint('Gemini classification succeeded using model: $modelName');
-            break;
+      keyLoop:
+      for (final activeKey in _apiKeys) {
+        for (final modelName in supportedModels) {
+          try {
+            final model = GenerativeModel(
+              model: modelName,
+              apiKey: activeKey,
+              generationConfig: GenerationConfig(
+                responseMimeType: 'application/json',
+              ),
+            );
+            response = await model.generateContent(content);
+            if (response.text != null && response.text!.isNotEmpty) {
+              debugPrint('Gemini classification succeeded using model: $modelName');
+              break keyLoop;
+            }
+          } catch (e) {
+            debugPrint('Model $modelName notice: $e. Trying next model...');
           }
-        } catch (e) {
-          debugPrint('Model $modelName notice: $e. Trying next model...');
         }
       }
       

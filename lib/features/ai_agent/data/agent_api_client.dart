@@ -9,12 +9,31 @@ class AgentChatTurn {
 }
 
 class AgentApiClient {
-  GenerativeModel _getModel(String language, {String modelName = 'gemini-2.0-flash'}) {
-    final apiKey = dotenv.env['GEMINI_API_KEY'] ?? '';
-    if (apiKey.isEmpty || apiKey == 'YOUR_GEMINI_API_KEY') {
-      throw Exception('Gemini API Key is missing. Please set GEMINI_API_KEY in .env file.');
-    }
+  static const List<String> candidateModels = [
+    'gemini-3.8-flash',
+    'gemini-3.6-flash',
+    'gemini-3.7-flash',
+    'gemini-3.5-flash',
+    'gemini-3.5-flash-lite',
+    'gemini-2.5-flash-lite',
+    'gemini-3-flash',
+    'gemini-3.1-flash-lite',
+    'gemini-2.5-flash',
+    'gemini-2.0-flash',
+    'gemini-1.5-flash',
+    'gemini-flash-latest',
+  ];
 
+  List<String> get _apiKeys {
+    final keys = <String>[];
+    final primary = (dotenv.env['GEMINI_API_KEY'] ?? '').trim();
+    final backup = (dotenv.env['GEMINI_BACKUP_KEY'] ?? '').trim();
+    if (primary.isNotEmpty && primary != 'YOUR_GEMINI_API_KEY') keys.add(primary);
+    if (backup.isNotEmpty && backup != 'YOUR_GEMINI_API_KEY' && !keys.contains(backup)) keys.add(backup);
+    return keys;
+  }
+
+  GenerativeModel _getModel(String language, {required String apiKey, required String modelName}) {
     String languageRule;
     String refusalText;
     String headersTemplate;
@@ -59,24 +78,28 @@ class AgentApiClient {
       headersTemplate =
           '     ### 🔍 1. Diagnosis & Key Symptoms\n'
           '     ### ⚠️ 2. Causes & Risk Factors\n'
-          '     ### 🌿 3. Immediate Organic & Natural Remedies\n'
-          '     ### 🧪 4. Chemical Controls & Recommended Dosages\n'
-          '     ### 🛡️ 5. Long-Term Field Care & Preventive Practices';
+          '     ### 🌿 3. Organic & Natural Remedies\n'
+          '     ### 🧪 4. Chemical Controls & Exact Dosages\n'
+          '     ### 🛡️ 5. Preventive Measures & Long-term Field Care';
     }
 
     return GenerativeModel(
       model: modelName,
       apiKey: apiKey,
       systemInstruction: Content.system(
-        'You are AgriAI (කෘෂි AI), a specialized and strictly dedicated agricultural, farming, and plant health AI assistant.\n\n'
-        '🛑 CRITICAL MANDATORY TOPIC RESTRICTION RULE (ABSOLUTE POLICY - ZERO EXCEPTIONS):\n'
-        '1. You MUST ONLY and EXCLUSIVELY answer questions directly related to agriculture, farming, crops, plant diseases, pest management, soil health, fertilizers (chemical and organic), irrigation techniques, harvesting, farm machinery, livestock, weather/climate impact on farming, agricultural economics, and market yields.\n'
-        '2. If the user asks about ANYTHING ELSE that is NOT related to agriculture (such as politics, movies, entertainment, sports, computer programming, games, non-agricultural history, celebrities, relationships, general trivia, mathematics, general science, greetings without agricultural context, etc.), you MUST POLITELY REFUSE using this exact refusal text:\n'
-        '   $refusalText\n\n'
+        'You are AgriAI, a world-class agronomist and agricultural scientist assisting farmers.\n'
         '$languageRule\n\n'
-        '4. CLARITY & POINT-BY-POINT STRUCTURE (MANDATORY):\n'
-        '   - ALWAYS organize your explanation clearly POINT BY POINT using bold numbers (1., 2., 3.) or bullet points (•).\n'
-        '   - Do NOT write dense or cluttered walls of paragraphs.\n'
+        'CRITICAL SCOPE BOUNDARY:\n'
+        'You strictly ONLY answer questions related to:\n'
+        '- Agriculture, crop cultivation, farming techniques\n'
+        '- Plant diseases, pests, weeds, and treatments\n'
+        '- Soil health, fertilization, composting\n'
+        '- Irrigation, water management, agricultural weather impacts\n'
+        '- Farm equipment, post-harvest handling, agricultural economics\n\n'
+        'If the user asks ANY question outside of agriculture (e.g. movies, programming, general chat, math, politics, philosophy, history, creative writing), politely refuse with this exact message:\n'
+        '$refusalText\n\n'
+        'EXPERT QUALITY INSTRUCTIONS:\n'
+        'When diagnosing or treating any plant issue:\n'
         '   - Structure your advice with clean, bold section headers and emojis:\n'
         '$headersTemplate\n'
         '   - Under each section, provide specific, concise, numbered or bulleted actionable steps.\n'
@@ -94,6 +117,11 @@ class AgentApiClient {
     double? latitude,
     double? longitude,
   }) async* {
+    final keys = _apiKeys;
+    if (keys.isEmpty) {
+      throw Exception('Gemini API Key is missing. Please set GEMINI_API_KEY in .env file.');
+    }
+
     final contextParts = <String>[];
     if (cropType != null && cropType.isNotEmpty) {
       if (language == 'si') {
@@ -108,7 +136,7 @@ class AgentApiClient {
       if (language == 'si') {
         contextParts.add('ස්ථානය: $latitude, $longitude');
       } else if (language == 'ta') {
-        contextParts.add('அமைவிடம்: $latitude, $longitude');
+        contextParts.add('அமைවිடம்: $latitude, $longitude');
       } else {
         contextParts.add('Location: $latitude, $longitude');
       }
@@ -158,46 +186,34 @@ class AgentApiClient {
     // Append current prompt
     contents.add(Content.text(promptWithContext));
 
-    // Try primary model: gemini-2.0-flash
     bool streamStarted = false;
-    try {
-      final primaryModel = _getModel(language, modelName: 'gemini-2.0-flash');
-      final responseStream = primaryModel.generateContentStream(contents);
+    Object? lastError;
 
-      await for (final chunk in responseStream) {
-        if (chunk.text != null && chunk.text!.isNotEmpty) {
-          streamStarted = true;
-          yield chunk.text!;
-        }
-      }
-    } catch (e) {
-      // If primary model fails before streaming, fallback to gemini-1.5-flash
-      if (!streamStarted) {
+    for (final activeKey in keys) {
+      for (final modelName in candidateModels) {
         try {
-          final fallbackModel = _getModel(language, modelName: 'gemini-1.5-flash');
-          final fallbackStream = fallbackModel.generateContentStream(contents);
-          await for (final chunk in fallbackStream) {
+          final model = _getModel(language, apiKey: activeKey, modelName: modelName);
+          final responseStream = model.generateContentStream(contents);
+
+          await for (final chunk in responseStream) {
             if (chunk.text != null && chunk.text!.isNotEmpty) {
               streamStarted = true;
               yield chunk.text!;
             }
           }
-        } catch (fallbackError) {
-          if (!streamStarted) {
-            final fallback2 = _getModel(language, modelName: 'gemini-flash-latest');
-            final stream2 = fallback2.generateContentStream(contents);
-            await for (final chunk in stream2) {
-              if (chunk.text != null && chunk.text!.isNotEmpty) {
-                yield chunk.text!;
-              }
-            }
-          } else {
+          if (streamStarted) return;
+        } catch (e) {
+          lastError = e;
+          if (streamStarted) {
             rethrow;
           }
+          continue;
         }
-      } else {
-        rethrow;
       }
+    }
+
+    if (!streamStarted && lastError != null) {
+      throw lastError;
     }
   }
 }
