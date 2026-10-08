@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import '../domain/classifier_result.dart';
 
@@ -15,7 +16,7 @@ class GeminiCropClassifier {
   
   Future<ClassifierResult?> analyzeImage(String imagePath, {String language = 'en'}) async {
     if (!_isKeyValid) {
-       print('Gemini API key is not a valid Google AI Studio key (must start with AIzaSy). Seamlessly falling back to offline CV model.');
+       debugPrint('Gemini API key is not a valid Google AI Studio key (must start with AIzaSy). Seamlessly falling back to offline CV model.');
        return null; // Return null so the hybrid model falls back to offline
     }
 
@@ -75,7 +76,7 @@ Return a JSON object with the exact following structure without markdown blocks:
             break;
           }
         } catch (e) {
-          print('Notice: Model $modelName failed: $e. Trying next model...');
+          debugPrint('Notice: Model $modelName failed: $e. Trying next model...');
         }
       }
       
@@ -110,7 +111,7 @@ Return a JSON object with the exact following structure without markdown blocks:
         return null; // Return null so offline model takes over
       }
     } catch (e) {
-      print('Gemini API Error: $e');
+      debugPrint('Gemini API Error: $e');
       return null; // Return null to seamlessly fallback to offline CV engine
     }
   }

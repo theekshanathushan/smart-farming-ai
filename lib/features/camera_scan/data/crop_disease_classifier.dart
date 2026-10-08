@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
@@ -32,7 +33,7 @@ class HybridCropDiseaseClassifier implements ICropDiseaseClassifier {
         return [geminiResult];
       }
     } catch (e) {
-      print('Gemini classification skipped/failed ($e), falling back to offline CV model.');
+      debugPrint('Gemini classification skipped/failed ($e), falling back to offline CV model.');
     }
 
     // 2. Offline Fallback (Local Computer Vision & TFLite)
@@ -61,7 +62,7 @@ class TFLiteCropDiseaseClassifier implements ICropDiseaseClassifier {
       final labelsData = await rootBundle.loadString(_labelsPath);
       _labels = labelsData.split('\n').where((s) => s.trim().isNotEmpty).toList();
     } catch (e) {
-      print('Warning: TFLite model initialization notice: $e');
+      debugPrint('Warning: TFLite model initialization notice: $e');
       _interpreter = null;
       _labels = null;
     }
@@ -113,7 +114,7 @@ class TFLiteCropDiseaseClassifier implements ICropDiseaseClassifier {
         var output = List.generate(1, (i) => List.filled(_labels!.length, 0.0));
         _interpreter!.run(input, output);
       } catch (e) {
-        print('TFLite inference notice (using pixel CV heuristic): $e');
+        debugPrint('TFLite inference notice (using pixel CV heuristic): $e');
       }
     }
 
