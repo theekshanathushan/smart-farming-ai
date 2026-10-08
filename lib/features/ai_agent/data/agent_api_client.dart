@@ -9,7 +9,7 @@ class AgentChatTurn {
 }
 
 class AgentApiClient {
-  GenerativeModel _getModel(String language, {String modelName = 'gemini-3.1-flash-lite'}) {
+  GenerativeModel _getModel(String language, {String modelName = 'gemini-2.0-flash'}) {
     final apiKey = dotenv.env['GEMINI_API_KEY'] ?? '';
     if (apiKey.isEmpty || apiKey == 'YOUR_GEMINI_API_KEY') {
       throw Exception('Gemini API Key is missing. Please set GEMINI_API_KEY in .env file.');
@@ -158,10 +158,10 @@ class AgentApiClient {
     // Append current prompt
     contents.add(Content.text(promptWithContext));
 
-    // Try primary model: gemini-3.1-flash-lite
+    // Try primary model: gemini-2.0-flash
     bool streamStarted = false;
     try {
-      final primaryModel = _getModel(language, modelName: 'gemini-3.1-flash-lite');
+      final primaryModel = _getModel(language, modelName: 'gemini-2.0-flash');
       final responseStream = primaryModel.generateContentStream(contents);
 
       await for (final chunk in responseStream) {
@@ -171,18 +171,29 @@ class AgentApiClient {
         }
       }
     } catch (e) {
-      // If primary model fails before streaming, fallback to gemini-3-flash-preview
+      // If primary model fails before streaming, fallback to gemini-1.5-flash
       if (!streamStarted) {
         try {
-          final fallbackModel = _getModel(language, modelName: 'gemini-3-flash-preview');
+          final fallbackModel = _getModel(language, modelName: 'gemini-1.5-flash');
           final fallbackStream = fallbackModel.generateContentStream(contents);
           await for (final chunk in fallbackStream) {
             if (chunk.text != null && chunk.text!.isNotEmpty) {
+              streamStarted = true;
               yield chunk.text!;
             }
           }
         } catch (fallbackError) {
-          rethrow;
+          if (!streamStarted) {
+            final fallback2 = _getModel(language, modelName: 'gemini-flash-latest');
+            final stream2 = fallback2.generateContentStream(contents);
+            await for (final chunk in stream2) {
+              if (chunk.text != null && chunk.text!.isNotEmpty) {
+                yield chunk.text!;
+              }
+            }
+          } else {
+            rethrow;
+          }
         }
       } else {
         rethrow;

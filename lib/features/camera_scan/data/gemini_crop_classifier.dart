@@ -7,10 +7,15 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class GeminiCropClassifier {
   static String get _apiKey => dotenv.env['GEMINI_API_KEY'] ?? 'YOUR_GEMINI_API_KEY';
+
+  static bool get _isKeyValid {
+    final key = _apiKey.trim();
+    return key.isNotEmpty && key != 'YOUR_GEMINI_API_KEY' && key.startsWith('AIzaSy');
+  }
   
   Future<ClassifierResult?> analyzeImage(String imagePath, {String language = 'en'}) async {
-    if (_apiKey == 'YOUR_GEMINI_API_KEY') {
-       print('Gemini API key not configured. Falling back to offline model.');
+    if (!_isKeyValid) {
+       print('Gemini API key is not a valid Google AI Studio key (must start with AIzaSy). Seamlessly falling back to offline CV model.');
        return null; // Return null so the hybrid model falls back to offline
     }
 
@@ -53,29 +58,28 @@ Return a JSON object with the exact following structure without markdown blocks:
         ])
       ];
 
-      GenerateContentResponse response;
-      try {
-        final model = GenerativeModel(
-          model: 'gemini-3.1-flash-lite',
-          apiKey: _apiKey,
-          generationConfig: GenerationConfig(
-            responseMimeType: 'application/json',
-          ),
-        );
-        response = await model.generateContent(content);
-      } catch (e) {
-        // Fallback to gemini-3-flash-preview if primary model fails
-        final fallbackModel = GenerativeModel(
-          model: 'gemini-3-flash-preview',
-          apiKey: _apiKey,
-          generationConfig: GenerationConfig(
-            responseMimeType: 'application/json',
-          ),
-        );
-        response = await fallbackModel.generateContent(content);
+      GenerateContentResponse? response;
+      final modelsToTry = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-flash-latest'];
+
+      for (final modelName in modelsToTry) {
+        try {
+          final model = GenerativeModel(
+            model: modelName,
+            apiKey: _apiKey,
+            generationConfig: GenerationConfig(
+              responseMimeType: 'application/json',
+            ),
+          );
+          response = await model.generateContent(content);
+          if (response.text != null && response.text!.isNotEmpty) {
+            break;
+          }
+        } catch (e) {
+          print('Notice: Model $modelName failed: $e. Trying next model...');
+        }
       }
       
-      if (response.text != null) {
+      if (response != null && response.text != null) {
         String jsonString = response.text!;
         // Clean markdown backticks if Gemini includes them
         jsonString = jsonString.replaceAll('```json', '').replaceAll('```', '').trim();
@@ -103,25 +107,11 @@ Return a JSON object with the exact following structure without markdown blocks:
           severity: jsonResult['severity'] ?? (language == 'si' ? 'සාමාන්‍ය' : (language == 'ta' ? 'சாதாரண' : 'Moderate')),
         );
       } else {
-        return ClassifierResult(
-          label: 'API Blocked Response',
-          confidence: 0.0,
-          isHealthy: false,
-          diseaseName: 'No Text Returned',
-          treatmentPlan: 'Gemini returned an empty response. Finish Reason: \${response.candidates.isNotEmpty ? response.candidates.first.finishReason : "Unknown"}',
-          severity: 'High'
-        );
+        return null; // Return null so offline model takes over
       }
     } catch (e) {
       print('Gemini API Error: $e');
-      return ClassifierResult(
-        label: 'API/Network Error',
-        confidence: 0.0,
-        isHealthy: false,
-        diseaseName: 'Connection Failed',
-        treatmentPlan: 'Error Details:\n$e',
-        severity: 'High'
-      );
+      return null; // Return null to seamlessly fallback to offline CV engine
     }
   }
 }

@@ -293,7 +293,7 @@ Return ONLY a valid JSON object without markdown code blocks, matching this exac
 
     try {
       final model = GenerativeModel(
-        model: 'gemini-3.1-flash-lite',
+        model: 'gemini-2.0-flash',
         apiKey: _apiKey,
         generationConfig: GenerationConfig(responseMimeType: 'application/json'),
       );
@@ -307,7 +307,7 @@ Return ONLY a valid JSON object without markdown code blocks, matching this exac
       debugPrint('Gemini primary model failed: $e. Trying fallback...');
       try {
         final fallbackModel = GenerativeModel(
-          model: 'gemini-3-flash-preview',
+          model: 'gemini-1.5-flash',
           apiKey: _apiKey,
           generationConfig: GenerationConfig(responseMimeType: 'application/json'),
         );
