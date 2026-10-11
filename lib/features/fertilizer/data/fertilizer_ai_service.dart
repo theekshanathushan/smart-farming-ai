@@ -168,59 +168,69 @@ class FertilizerAiService {
 
     final List<FertilizerItem> items = [
       FertilizerItem(
-        name: isSi ? 'යුරියා (Urea - 46% N)' : (isTa ? 'யூரியா (Urea)' : 'Urea (46% Nitrogen)'),
+        name: isSi ? 'යුරියා' : (isTa ? 'யூரியா' : 'Urea (46% Nitrogen)'),
         amountKg: double.parse(ureaAmount.toStringAsFixed(1)),
-        nutrientType: 'Nitrogen (N)',
-        timing: isSi ? 'මූලික යෙදුම 25% + ඉතිරිය මතුපිට යෙදුම් 2කට' : (isTa ? '25% ஆரம்ப உரம் + மீதி 2 முறை' : '25% at Basal + 75% in 2 Top Dressings'),
-        purpose: isSi ? 'ශාකයේ පත්‍ර හා කඳ සවිමත්ව ඉක්මනින් වර්ධනය කිරීමට' : 'Promotes leafy growth, tillering and stem vigor',
+        nutrientType: isSi ? 'නයිට්‍රජන්' : (isTa ? 'நைட்ரஜன்' : 'Nitrogen (N)'),
+        timing: isSi ? 'මූලික යෙදුම 25% ක් සහ ඉතිරිය මතුපිට යෙදුම් 2 කට' : (isTa ? '25% ஆரம்ப உரம் மற்றும் மீதி 2 மேலுரங்களாக' : '25% at Basal + 75% in 2 Top Dressings'),
+        purpose: isSi ? 'ශාකයේ පත්‍ර හා කඳ සවිමත්ව ඉක්මනින් වර්ධනය කිරීමට' : (isTa ? 'இலைகள் மற்றும் தண்டு விரைவாக வளர' : 'Promotes leafy growth, tillering and stem vigor'),
       ),
       FertilizerItem(
-        name: isSi ? 'මඩ පොහොර / ත්‍රිත්ව සුපර් පොස්පේට් (TSP - 46% P₂O₅)' : (isTa ? 'டிஎஸ்பி (TSP)' : 'Triple Super Phosphate (TSP - 46% P₂O₅)'),
+        name: isSi ? 'ත්‍රිත්ව සුපර් පොස්පේට් (TSP)' : (isTa ? 'டிரிபிள் சூப்பர் பாஸ்பேட் (TSP)' : 'Triple Super Phosphate (TSP - 46% P₂O₅)'),
         amountKg: double.parse(tspAmount.toStringAsFixed(1)),
-        nutrientType: 'Phosphorus (P)',
-        timing: isSi ? '100% ක්ම බීජ සිටුවීමට/පැල කිරීමට පෙර මූලික පොහොර ලෙස පසට කලවම් කරන්න' : '100% applied as Basal dressing before planting',
-        purpose: isSi ? 'ශක්තිමත් මුල් පද්ධතියක් සාදා ගැනීමට සහ මුල් බැසීම වේගවත් කිරීමට' : 'Stimulates deep root development and early seedling vigor',
+        nutrientType: isSi ? 'පොස්පරස්' : (isTa ? 'பாஸ்பரஸ்' : 'Phosphorus (P)'),
+        timing: isSi ? '100% ක්ම බීජ සිටුවීමට හෝ පැල කිරීමට පෙර මූලික පොහොර ලෙස පසට කලවම් කරන්න' : (isTa ? '100% நடுவதற்கு முன் ஆரம்ப உரமாக மண்ணில் கலக்கவும்' : '100% applied as Basal dressing before planting'),
+        purpose: isSi ? 'ශක්තිමත් මුල් පද්ධතියක් සාදා ගැනීමට සහ මුල් බැසීම වේගවත් කිරීමට' : (isTa ? 'ஆழமான வேர் வளர்ச்சி மற்றும் ஆரம்ப பயிர் உறுதிக்கு' : 'Stimulates deep root development and early seedling vigor'),
       ),
       FertilizerItem(
-        name: isSi ? 'බන්ඩි පොහොර / මියුරියේට් ඔෆ් පොටෑෂ් (MOP - 60% K₂O)' : (isTa ? 'எம்ஓபி (MOP)' : 'Muriate of Potash (MOP - 60% K₂O)'),
+        name: isSi ? 'මියුරියේට් ඔෆ් පොටෑෂ් (MOP)' : (isTa ? 'மியூரியேட் ஆஃப் பொட்டாஷ் (MOP)' : 'Muriate of Potash (MOP - 60% K₂O)'),
         amountKg: double.parse(mopAmount.toStringAsFixed(1)),
-        nutrientType: 'Potassium (K)',
-        timing: isSi ? '50% මූලික පොහොර ලෙසත්, 50% මල්/කරල් හටගන්නා අවධියේදීත්' : '50% at Basal + 50% at Flowering/Fruit setting',
-        purpose: isSi ? 'පලදාව, කරල්වල ප්‍රමාණය, ගුණාත්මක බව සහ රෝග වලට ඔරොත්තු දීම වැඩි කිරීමට' : 'Enhances fruit size, grain weight, disease resistance and quality',
+        nutrientType: isSi ? 'පොටෑසියම්' : (isTa ? 'பொட்டாசியம்' : 'Potassium (K)'),
+        timing: isSi ? '50% ක් මූලික පොහොර ලෙසත්, 50% ක් මල් හෝ කරල් හටගන්නා අවධියේදීත්' : (isTa ? '50% ஆரம்ப உரமாகவும், 50% பூக்கும் பருவத்திலும்' : '50% at Basal + 50% at Flowering/Fruit setting'),
+        purpose: isSi ? 'පලදාව, කරල්වල ප්‍රමාණය, ගුණාත්මක බව සහ රෝග වලට ඔරොත්තු දීම වැඩි කිරීමට' : (isTa ? 'காய் எடை, தரம் மற்றும் நோய் எதிர்ப்பு சக்தியை அதிகரிக்க' : 'Enhances fruit size, grain weight, disease resistance and quality'),
       ),
     ];
 
     final stages = [
       FertilizerStage(
-        stageName: isSi ? 'මූලික පොහොර යෙදුම (Basal Dressing)' : 'Basal Dressing (At Planting)',
-        timing: isSi ? 'බීජ සිටුවීමට හෝ පැල සිටුවීමට දින 1-2 කට පෙර' : 'At or 1-2 days before planting',
+        stageName: isSi ? 'මූලික පොහොර යෙදුම' : (isTa ? 'ஆரம்ப உரமிடல்' : 'Basal Dressing (At Planting)'),
+        timing: isSi ? 'බීජ සිටුවීමට හෝ පැල සිටුවීමට දින 1-2 කට පෙර' : (isTa ? 'விதைப்பதற்கு 1-2 நாட்களுக்கு முன்' : 'At or 1-2 days before planting'),
         instructions: isSi
             ? 'මුළු TSP ප්‍රමාණයම (${tspAmount.toStringAsFixed(1)} kg) සහ MOP වලින් අඩක් (${(mopAmount * 0.5).toStringAsFixed(1)} kg) පසට දමා හොඳින් මිශ්‍ර කරන්න.'
-            : 'Incorporate 100% of TSP (${tspAmount.toStringAsFixed(1)} kg) and 50% of MOP (${(mopAmount * 0.5).toStringAsFixed(1)} kg) into the root zone.',
+            : (isTa
+                ? 'முழு TSP அளவையும் (${tspAmount.toStringAsFixed(1)} kg) மற்றும் பாதியளவு MOP (${(mopAmount * 0.5).toStringAsFixed(1)} kg) மண்ணில் நன்கு கலக்கவும்.'
+                : 'Incorporate 100% of TSP (${tspAmount.toStringAsFixed(1)} kg) and 50% of MOP (${(mopAmount * 0.5).toStringAsFixed(1)} kg) into the root zone.'),
       ),
       FertilizerStage(
-        stageName: isSi ? 'පළමු මතුපිට යෙදුම (1st Top Dressing)' : '1st Top Dressing (Early Vegetative)',
-        timing: isSi ? 'සිටුවා සති 2-3 කට පසු' : '2-3 weeks after transplanting / emergence',
+        stageName: isSi ? 'පළමු මතුපිට යෙදුම' : (isTa ? 'முதல் மேலுரம்' : '1st Top Dressing (Early Vegetative)'),
+        timing: isSi ? 'සිටුවා සති 2-3 කට පසු' : (isTa ? 'நட்ட 2-3 வாரங்களுக்குப் பிறகு' : '2-3 weeks after transplanting / emergence'),
         instructions: isSi
             ? 'යුරියා වලින් අඩක් (${(ureaAmount * 0.5).toStringAsFixed(1)} kg) පැල වටා පස තෙතමනය සහිත අවස්ථාවකදී යොදන්න.'
-            : 'Apply 50% of Urea (${(ureaAmount * 0.5).toStringAsFixed(1)} kg) around the plant drip line when soil is moist.',
+            : (isTa
+                ? 'பாதியளவு யூரியாவை (${(ureaAmount * 0.5).toStringAsFixed(1)} kg) மண் ஈரப்பதமாக இருக்கும்போது பயிரைச் சுற்றி இடவும்.'
+                : 'Apply 50% of Urea (${(ureaAmount * 0.5).toStringAsFixed(1)} kg) around the plant drip line when soil is moist.'),
       ),
       FertilizerStage(
-        stageName: isSi ? 'දෙවන මතුපිට යෙදුම (2nd Top Dressing)' : '2nd Top Dressing (Flowering & Yield Stage)',
-        timing: isSi ? 'සිටුවා සති 5-7 කට පසු (මල්/කරල් ඒමට පෙර)' : '5-7 weeks after planting (Before panicle/flowering)',
+        stageName: isSi ? 'දෙවන මතුපිට යෙදුම' : (isTa ? 'இரண்டாம் மேலுரம்' : '2nd Top Dressing (Flowering & Yield Stage)'),
+        timing: isSi ? 'සිටුවා සති 5-7 කට පසු (මල් හෝ කරල් ඒමට පෙර)' : (isTa ? 'நட்ட 5-7 வாரங்களுக்குப் பிறகு (பூக்கும் முன்)' : '5-7 weeks after planting (Before panicle/flowering)'),
         instructions: isSi
             ? 'ඉතිරි යුරියා (${(ureaAmount * 0.5).toStringAsFixed(1)} kg) සහ ඉතිරි MOP (${(mopAmount * 0.5).toStringAsFixed(1)} kg) පසට යොදා සැහැල්ලුවෙන් පස් කරන්න.'
-            : 'Apply remaining Urea (${(ureaAmount * 0.5).toStringAsFixed(1)} kg) and remaining MOP (${(mopAmount * 0.5).toStringAsFixed(1)} kg) followed by light irrigation.',
+            : (isTa
+                ? 'மீதமுள்ள யூரியா (${(ureaAmount * 0.5).toStringAsFixed(1)} kg) மற்றும் மீதமுள்ள MOP (${(mopAmount * 0.5).toStringAsFixed(1)} kg) இட்டு நீர் பாய்ச்சவும்.'
+                : 'Apply remaining Urea (${(ureaAmount * 0.5).toStringAsFixed(1)} kg) and remaining MOP (${(mopAmount * 0.5).toStringAsFixed(1)} kg) followed by light irrigation.'),
       ),
     ];
 
     final organicAlt = isSi
-        ? 'හොඳින් දිරාපත් වූ කොම්පෝස්ට් හෝ ගොම පොහොර ${(2000 * acres).toStringAsFixed(0)} - ${(3500 * acres).toStringAsFixed(0)} kg පස සකස් කරන විට එක් කරන්න. इससे පසේ සාරවත්බව දෙගුණ වේ.'
-        : 'Apply ${(2000 * acres).toStringAsFixed(0)} - ${(3500 * acres).toStringAsFixed(0)} kg of well-decomposed organic compost or farmyard manure during land preparation to build organic carbon.';
+        ? 'හොඳින් දිරාපත් වූ කොම්පෝස්ට් හෝ ගොම පොහොර ${(2000 * acres).toStringAsFixed(0)} - ${(3500 * acres).toStringAsFixed(0)} kg පස සකස් කරන විට එක් කරන්න. මෙමගින් පසේ සාරවත්බව දෙගුණ වේ.'
+        : (isTa
+            ? 'நிலம் தயாரிக்கும் போது ${(2000 * acres).toStringAsFixed(0)} - ${(3500 * acres).toStringAsFixed(0)} கிலோ மக்கிய உரம் அல்லது இயற்கை உரம் இட்டு மண்ணின் வளத்தை அதிகரிக்கவும்.'
+            : 'Apply ${(2000 * acres).toStringAsFixed(0)} - ${(3500 * acres).toStringAsFixed(0)} kg of well-decomposed organic compost or farmyard manure during land preparation to build organic carbon.');
 
     final tips = isSi
         ? '1. තද වැසි ලැබෙන විට පොහොර නොයොදන්න (සෝදා යාම වැළැක්වීමට).\n2. පොහොර යෙදීමට පෙර පසේ ප්‍රමාණවත් තෙතමනයක් තිබිය යුතුය.\n3. යුරියා යෙදූ පසු පස් වලින් සැහැල්ලුවෙන් වසන්න (වාෂ්පීකරණය වැළැක්වීමට).'
-        : '1. Never apply fertilizer right before heavy downpours to avoid leaching.\n2. Ensure soil is moist before application.\n3. Lightly incorporate Urea into topsoil to prevent ammonia volatilization.';
+        : (isTa
+            ? '1. கனமழை பெய்யும் போது உரம் இட வேண்டாம்.\n2. உரம் இடுவதற்கு முன் மண்ணில் போதுமான ஈரப்பதம் இருப்பதை உறுதி செய்யவும்.\n3. ஆவியாவதைத் தடுக்க யூரியாவை இட்ட பின் லேசாக மண்ணால் மூடவும்.'
+            : '1. Never apply fertilizer right before heavy downpours to avoid leaching.\n2. Ensure soil is moist before application.\n3. Lightly incorporate Urea into topsoil to prevent ammonia volatilization.');
 
     return FertilizerPlanResult(
       cropName: cropName,
@@ -249,11 +259,17 @@ class FertilizerAiService {
       );
     }
 
-    String langInstruction = 'Respond in English.';
+    String langInstruction = 'Respond 100% EXCLUSIVELY in pure English. Do NOT include any Sinhala or Tamil words or characters.';
+    String exampleFertilizer = 'Urea (46% N)';
+    String exampleStage = 'Basal Dressing (At Planting)';
     if (language == 'si') {
-      langInstruction = 'Provide ALL text fields ("timing", "instructions", "organicAlternative", "practicalTips", "stageName", "purpose") 100% EXCLUSIVELY in pure Sinhala script (සිංහල). Zero English words. Zero Singlish.';
+      langInstruction = 'Provide ALL text fields ("name", "nutrientType", "timing", "instructions", "organicAlternative", "practicalTips", "stageName", "purpose") 100% EXCLUSIVELY in pure Sinhala script (සිංහල). Zero English words. Zero Singlish.';
+      exampleFertilizer = 'යුරියා';
+      exampleStage = 'මූලික යෙදුම';
     } else if (language == 'ta') {
-      langInstruction = 'Provide ALL text fields 100% EXCLUSIVELY in pure Tamil script (தமிழ்). Zero English words. Zero Tanglish.';
+      langInstruction = 'Provide ALL text fields ("name", "nutrientType", "timing", "instructions", "organicAlternative", "practicalTips", "stageName", "purpose") 100% EXCLUSIVELY in pure Tamil script (தமிழ்). Zero English words. Zero Tanglish.';
+      exampleFertilizer = 'யூரியா';
+      exampleStage = 'ஆரம்ப உரமிடல்';
     }
 
     final prompt = '''
@@ -272,22 +288,22 @@ Return ONLY a valid JSON object without markdown code blocks, matching this exac
 {
   "fertilizers": [
     {
-      "name": "string (e.g. Urea (යුරියා / N))",
+      "name": "string (e.g. $exampleFertilizer)",
       "amountKg": number (exact total kg for $acres acres, e.g. 90.0),
-      "nutrientType": "string (e.g. Nitrogen - N)",
-      "timing": "string (when to apply, e.g. 25% basal + 2 split top dressings)",
-      "purpose": "string (e.g. Leafy growth and tillering)"
+      "nutrientType": "string",
+      "timing": "string",
+      "purpose": "string"
     }
   ],
   "applicationStages": [
     {
-      "stageName": "string (e.g. Basal Dressing / මූලික යෙදුම)",
-      "timing": "string (e.g. At planting / Day 0)",
-      "instructions": "string (detailed instructions for farmer)"
+      "stageName": "string (e.g. $exampleStage)",
+      "timing": "string",
+      "instructions": "string"
     }
   ],
-  "organicAlternative": "string (recommended compost or bio-fertilizer amounts in kg or tons for $acres acres)",
-  "practicalTips": "string (practical agronomy guidelines on moisture, rain, split application, and soil health)"
+  "organicAlternative": "string",
+  "practicalTips": "string"
 }
 ''';
 

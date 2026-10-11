@@ -14,52 +14,51 @@ class IrrigationScreen extends ConsumerStatefulWidget {
 }
 
 class _IrrigationScreenState extends ConsumerState<IrrigationScreen> {
-  String _selectedCrop = 'Paddy (වී)';
+  String _selectedCrop = 'Paddy';
   final _customCropController = TextEditingController();
   final _areaController = TextEditingController(text: '1.0');
   String _areaUnit = 'Acres';
-  String _selectedSoil = 'Loamy / සාරවත් මැටි මිශ්‍ර පස';
-  String _selectedClimate = 'Dry Zone (වියළි කලාපය - Yala)';
+  String _selectedSoil = 'Loamy';
+  String _selectedClimate = 'Dry Zone';
 
   bool _isCustomCrop = false;
   bool _isLoadingAi = false;
   IrrigationPlanResult? _results;
 
-  final List<String> _popularCrops = [
-    'Paddy (වී)',
-    'Corn (බඩඉරිඟු)',
-    'Tomato (තක්කාලි)',
-    'Chilli (මිරිස්)',
-    'Big Onion (රතු / ලොකු ලූනු)',
-    'Potato (අර්තාපල්)',
-    'Carrot (කැරට්)',
-    'Cabbage (ගෝවා)',
-    'Eggplant / Brinjal (වම්බටු)',
-    'Okra / Ladies Finger (බණ්ඩක්කා)',
-    'Banana (කෙසෙල්)',
-    'Papaya (පැපොල්)',
-    'Watermelon (පැණි කොමඩු)',
-    'Cucumber (පිපිඤ්ඤා)',
-    'Pumpkin (වට්ටක්කා)',
-    'Coconut (පොල්)',
-    'Tea (තේ)',
-    'Pepper (ගම්මිරිස්)',
-    'Custom / Enter Other Crop...',
+  static const List<Map<String, String>> _cropsData = [
+    {'key': 'Paddy', 'en': 'Paddy', 'si': 'වී', 'ta': 'நெல்'},
+    {'key': 'Corn', 'en': 'Corn', 'si': 'බඩඉරිඟු', 'ta': 'மக்காச்சோளம்'},
+    {'key': 'Tomato', 'en': 'Tomato', 'si': 'තක්කාලි', 'ta': 'தக்காளி'},
+    {'key': 'Chilli', 'en': 'Chilli', 'si': 'මිරිස්', 'ta': 'மிளகாய்'},
+    {'key': 'Big Onion', 'en': 'Big Onion', 'si': 'ලොකු ලූනු', 'ta': 'பெரிய வெங்காயம்'},
+    {'key': 'Potato', 'en': 'Potato', 'si': 'අර්තාපල්', 'ta': 'உருளைக்கிழங்கு'},
+    {'key': 'Carrot', 'en': 'Carrot', 'si': 'කැරට්', 'ta': 'கேரட்'},
+    {'key': 'Cabbage', 'en': 'Cabbage', 'si': 'ගෝවා', 'ta': 'முட்டைக்கோஸ்'},
+    {'key': 'Brinjal', 'en': 'Brinjal / Eggplant', 'si': 'වම්බටු', 'ta': 'கத்தரிக்காய்'},
+    {'key': 'Okra', 'en': 'Okra / Ladies Finger', 'si': 'බණ්ඩක්කා', 'ta': 'வெண்டைக்காய்'},
+    {'key': 'Banana', 'en': 'Banana', 'si': 'කෙසෙල්', 'ta': 'வாழை'},
+    {'key': 'Papaya', 'en': 'Papaya', 'si': 'පැපොල්', 'ta': 'பப்பாளி'},
+    {'key': 'Watermelon', 'en': 'Watermelon', 'si': 'පැණි කොමඩු', 'ta': 'தர்பூசணி'},
+    {'key': 'Cucumber', 'en': 'Cucumber', 'si': 'පිපිඤ්ඤා', 'ta': 'வெள்ளரி'},
+    {'key': 'Pumpkin', 'en': 'Pumpkin', 'si': 'වට්ටක්කා', 'ta': 'பூசணி'},
+    {'key': 'Coconut', 'en': 'Coconut', 'si': 'පොල්', 'ta': 'தென்னை'},
+    {'key': 'Tea', 'en': 'Tea', 'si': 'තේ', 'ta': 'தேயிலை'},
+    {'key': 'Pepper', 'en': 'Pepper', 'si': 'ගම්මිරිස්', 'ta': 'மிளகு'},
+  ];
+
+  static const List<Map<String, String>> _soilData = [
+    {'key': 'Loamy', 'en': 'Loamy Soil (Fertile & Well Drained)', 'si': 'සාරවත් මැටි මිශ්‍ර පස', 'ta': 'வண்டல் மண்'},
+    {'key': 'Sandy', 'en': 'Sandy Soil (Quick Draining)', 'si': 'වැලි සහිත පස', 'ta': 'மணல் மண்'},
+    {'key': 'Clay', 'en': 'Clay Soil (High Moisture Retention)', 'si': 'මැටි අධික පස', 'ta': 'களிமண்'},
+  ];
+
+  static const List<Map<String, String>> _climateData = [
+    {'key': 'Dry Zone', 'en': 'Dry Zone (Yala Season)', 'si': 'වියළි කලාපය (යල කන්නය)', 'ta': 'வறண்ட வலயம் (யால பருவம்)'},
+    {'key': 'Wet Zone', 'en': 'Wet Zone (Maha Season)', 'si': 'තෙත් කලාපය (මහ කන්නය)', 'ta': 'ஈரப்பத வலயம் (மஹா பருவம்)'},
+    {'key': 'Intermediate Zone', 'en': 'Intermediate Zone', 'si': 'අතරමැදි කලාපය', 'ta': 'இடைப்பட்ட வலயம்'},
   ];
 
   final List<String> _areaUnits = ['Acres', 'Hectares', 'Perches'];
-
-  final List<String> _soilTypes = [
-    'Loamy / සාරවත් මැටි මිශ්‍ර පස',
-    'Sandy / වැලි සහිත පස (ඉක්මනින් ජලය බසින)',
-    'Clay / මැටි අධික පස (ජලය රඳන)',
-  ];
-
-  final List<String> _climateZones = [
-    'Dry Zone (වියළි කලාපය - Yala)',
-    'Wet Zone (තෙත් කලාපය - Maha)',
-    'Intermediate Zone (අතරමැදි කලාපය)',
-  ];
 
   @override
   void dispose() {
@@ -131,6 +130,7 @@ class _IrrigationScreenState extends ConsumerState<IrrigationScreen> {
         acres: acres,
         soilType: _selectedSoil,
         climateZone: _selectedClimate,
+        language: currentLang,
       );
       if (mounted) {
         setState(() {
@@ -151,13 +151,23 @@ class _IrrigationScreenState extends ConsumerState<IrrigationScreen> {
     if (currentLang == 'si') {
       prompt = 'මගේ $crop වගාවේ ජල කළමනාකරණ සැලසුම පහත දැක්වේ:\n\n'
           '• බෝගය: $crop\n'
-          '• ඉඩම් ප්‍රමාණය: $rawArea $_areaUnit (${_getAreaInAcres().toStringAsFixed(2)} Acres)\n'
-          '• දෛනික ජල අවශ්‍යතාව: ${_results!.dailyWaterLiters.toStringAsFixed(0)} Liters/day\n'
+          '• ඉඩම් ප්‍රමාණය: $rawArea $_areaUnit\n'
+          '• දෛනික ජල අවශ්‍යතාව: ${_results!.dailyWaterLiters.toStringAsFixed(0)} ලීටර\n'
           '• නිර්දේශිත ක්‍රමය: ${_results!.recommendedMethod}\n'
           '• ජලය යෙදීමේ වාර ගණන: ${_results!.frequency}\n'
           '• පස: $_selectedSoil\n'
           '• කලාපය: $_selectedClimate\n\n'
           'කරුණාකර මෙම බෝගයේ ජල සම්පාදනය, නියං සමයේ පස තෙතමනය රඳවා ගැනීමේ ක්‍රම සහ බිංදු ජල පද්ධතියක් සැලසුම් කරන ආකාරය පිළිබඳව උපදෙස් කරුණු වශයෙන් පැහැදිලි කරන්න.';
+    } else if (currentLang == 'ta') {
+      prompt = 'எனது $crop பயிருக்கான நீர்ப்பாசன திட்டம் கீழே தரப்பட்டுள்ளது:\n\n'
+          '• பயிர்: $crop\n'
+          '• நிலப் பரப்பு: $rawArea $_areaUnit\n'
+          '• தினசரி நீர் தேவை: ${_results!.dailyWaterLiters.toStringAsFixed(0)} லிட்டர்\n'
+          '• பரிந்துரைக்கப்பட்ட முறை: ${_results!.recommendedMethod}\n'
+          '• பாசன இடைவெளி: ${_results!.frequency}\n'
+          '• மண் வகை: $_selectedSoil\n'
+          '• வலயம்: $_selectedClimate\n\n'
+          'தயவுசெய்து இந்த பயிருக்கான சொட்டு நீர் பாசனம், வறட்சி மேலாண்மை மற்றும் மண் ஈரப்பதப் பாதுகாப்பு ஆலோசனைகளை குறிப்புகளாக தெளிவாக விளக்கவும்.';
     } else {
       prompt = 'Here is the irrigation plan for my $crop field:\n\n'
           '• Crop: $crop\n'
@@ -183,11 +193,77 @@ class _IrrigationScreenState extends ConsumerState<IrrigationScreen> {
     final inputBorder = isDark ? Colors.white.withValues(alpha: 0.15) : const Color(0xFFCBD5E1);
     final dropdownBg = isDark ? const Color(0xFF162232) : Colors.white;
 
+    final currentLang = ref.watch(localeProvider).languageCode;
+    final isSi = currentLang == 'si';
+    final isTa = currentLang == 'ta';
+
+    String appTitle = 'Smart Irrigation AI';
+    String formHeader = 'Select or Enter Crop';
+    String presetBtn = 'Preset List';
+    String customBtn = 'Custom Crop';
+    String customHint = 'Type any crop (e.g. Dragon Fruit, Cassava)...';
+    String landAreaLabel = 'Land Area';
+    String unitLabel = 'Unit';
+    String soilLabel = 'Soil Type';
+    String climateLabel = 'Climate Zone';
+    String calculateBtn = _isLoadingAi ? 'Consulting Smart AI Engine...' : 'Calculate & Search with AI';
+    String planTitleSuffix = 'Irrigation Plan';
+    String dailyDemandTitle = 'Total Daily Water Demand';
+    String dailyDemandSub = 'Estimated requirement for healthy crop canopy';
+    String litersPerDay = 'Liters / Day';
+    String recMethodTitle = 'Recommended Method';
+    String freqTitle = 'Watering Frequency & Interval';
+    String stageTitle = 'Growth Stage Schedule';
+    String droughtTitle = 'Water Conservation & Drought Tips';
+    String chatAiBtn = 'Chat with AgriAI about this Irrigation Plan';
+
+    if (isSi) {
+      appTitle = 'ස්මාර්ට් වාරිමාර්ග AI';
+      formHeader = 'බෝගය තෝරන්න හෝ ඇතුළත් කරන්න';
+      presetBtn = 'ලැයිස්තුව';
+      customBtn = 'වෙනත් බෝගයක්';
+      customHint = 'ඕනෑම බෝගයක නම ලියන්න (උදා: ඩ්‍රැගන් ෆෘට්, මඤ්ඤොක්කා)...';
+      landAreaLabel = 'ඉඩම් ප්‍රමාණය';
+      unitLabel = 'ඒකකය';
+      soilLabel = 'පස් වර්ගය';
+      climateLabel = 'කාලගුණ කලාපය';
+      calculateBtn = _isLoadingAi ? 'AI ගණනය කරමින් පවතී...' : 'AI මගින් ජල අවශ්‍යතාව ගණනය කරන්න';
+      planTitleSuffix = 'වාරිමාර්ග සැලැස්ම';
+      dailyDemandTitle = 'දෛනික සමස්ත ජල අවශ්‍යතාවය';
+      dailyDemandSub = 'නිරෝගී බෝග වර්ධනය සඳහා නිර්දේශිත ජල ප්‍රමාණය';
+      litersPerDay = 'ලීටර / දිනකට';
+      recMethodTitle = 'නිර්දේශිත ක්‍රමය';
+      freqTitle = 'වාර ගණන සහ කාල පරතරය';
+      stageTitle = 'අවධි අනුව කාලසටහන';
+      droughtTitle = 'ජල සංරක්ෂණය සහ නියඟයට උපදෙස්';
+      chatAiBtn = 'මෙම වාරිමාර්ග සැලැස්ම ගැන AgriAI සමඟ කතා කරන්න';
+    } else if (isTa) {
+      appTitle = 'ஸ்மார்ட் நீர்ப்பாசன AI';
+      formHeader = 'பயிரைத் தேர்ந்தெடுக்கவும் அல்லது உள்ளிடவும்';
+      presetBtn = 'பட்டியல்';
+      customBtn = 'மற்ற பயிர்';
+      customHint = 'எந்தவொரு பயிர் பெயரையும் தட்டச்சு செய்யவும்...';
+      landAreaLabel = 'நிலப் பரப்பு';
+      unitLabel = 'அலகு';
+      soilLabel = 'மண் வகை';
+      climateLabel = 'காலநிலை வலயம்';
+      calculateBtn = _isLoadingAi ? 'AI கணக்கிடுகிறது...' : 'AI மூலம் நீர்ப்பாசனத்தைக் கணக்கிடுக';
+      planTitleSuffix = 'நீர்ப்பாசன திட்டம்';
+      dailyDemandTitle = 'மொத்த தினசரி நீர் தேவை';
+      dailyDemandSub = 'ஆரோக்கியமான பயிர் வளர்ச்சிக்கான பரிந்துரைக்கப்பட்ட அளவு';
+      litersPerDay = 'லிட்டர் / நாள்';
+      recMethodTitle = 'பரிந்துரைக்கப்பட்ட முறை';
+      freqTitle = 'பாசன இடைவெளி';
+      stageTitle = 'பயிர் வளர்ச்சி நிலை அட்டவணை';
+      droughtTitle = 'நீர் சேமிப்பு மற்றும் வறட்சி குறிப்புகள்';
+      chatAiBtn = 'இந்த நீர்ப்பாசன திட்டம் குறித்து AgriAI உடன் பேசவும்';
+    }
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: Text(
-          'Smart Irrigation AI',
+          appTitle,
           style: TextStyle(fontWeight: FontWeight.bold, color: textColor),
         ),
         backgroundColor: Colors.transparent,
@@ -216,15 +292,17 @@ class _IrrigationScreenState extends ConsumerState<IrrigationScreen> {
                             const Icon(Icons.grass, color: Colors.blueAccent, size: 20),
                             const SizedBox(width: 8),
                             Text(
-                              'Select or Enter Crop',
+                              formHeader,
                               style: TextStyle(color: textColor, fontSize: 16, fontWeight: FontWeight.bold),
                             ),
                             const Spacer(),
-                            if (_isCustomCrop)
-                              TextButton(
-                                onPressed: () => setState(() => _isCustomCrop = false),
-                                child: const Text('Preset List', style: TextStyle(color: Colors.blueAccent)),
+                            TextButton(
+                              onPressed: () => setState(() => _isCustomCrop = !_isCustomCrop),
+                              child: Text(
+                                _isCustomCrop ? presetBtn : customBtn,
+                                style: const TextStyle(color: Colors.blueAccent),
                               ),
+                            ),
                           ],
                         ),
                         const SizedBox(height: 8),
@@ -252,18 +330,15 @@ class _IrrigationScreenState extends ConsumerState<IrrigationScreen> {
                               ),
                               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                             ),
-                            items: _popularCrops.map((c) {
+                            items: _cropsData.map((c) {
+                              final label = isSi ? c['si']! : (isTa ? c['ta']! : c['en']!);
                               return DropdownMenuItem(
-                                value: c,
-                                child: Text(c, overflow: TextOverflow.ellipsis, style: TextStyle(color: textColor)),
+                                value: c['key'],
+                                child: Text(label, overflow: TextOverflow.ellipsis, style: TextStyle(color: textColor)),
                               );
                             }).toList(),
                             onChanged: (val) {
-                              if (val == 'Custom / Enter Other Crop...') {
-                                setState(() {
-                                  _isCustomCrop = true;
-                                });
-                              } else if (val != null) {
+                              if (val != null) {
                                 setState(() {
                                   _selectedCrop = val;
                                 });
@@ -275,7 +350,7 @@ class _IrrigationScreenState extends ConsumerState<IrrigationScreen> {
                             controller: _customCropController,
                             style: TextStyle(color: textColor, fontSize: 16),
                             decoration: InputDecoration(
-                              hintText: 'Type any crop (e.g. Dragon Fruit, Cassava, කෙසෙල්)...',
+                              hintText: customHint,
                               hintStyle: TextStyle(color: subtextColor.withValues(alpha: 0.7), fontSize: 14),
                               filled: true,
                               fillColor: inputFill,
@@ -309,7 +384,7 @@ class _IrrigationScreenState extends ConsumerState<IrrigationScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Land Area',
+                                    landAreaLabel,
                                     style: TextStyle(color: textColor, fontSize: 13.5, fontWeight: FontWeight.w600),
                                   ),
                                   const SizedBox(height: 6),
@@ -346,7 +421,7 @@ class _IrrigationScreenState extends ConsumerState<IrrigationScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Unit',
+                                    unitLabel,
                                     style: TextStyle(color: textColor, fontSize: 13.5, fontWeight: FontWeight.w600),
                                   ),
                                   const SizedBox(height: 6),
@@ -372,7 +447,19 @@ class _IrrigationScreenState extends ConsumerState<IrrigationScreen> {
                                       ),
                                       contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
                                     ),
-                                    items: _areaUnits.map((u) => DropdownMenuItem(value: u, child: Text(u, overflow: TextOverflow.ellipsis, style: TextStyle(color: textColor)))).toList(),
+                                    items: _areaUnits.map((u) {
+                                      String unitName = u;
+                                      if (isSi) {
+                                        if (u == 'Acres') unitName = 'අක්කර';
+                                        if (u == 'Hectares') unitName = 'හෙක්ටයාර';
+                                        if (u == 'Perches') unitName = 'පර්චස්';
+                                      } else if (isTa) {
+                                        if (u == 'Acres') unitName = 'ஏக்கர்';
+                                        if (u == 'Hectares') unitName = 'ஹெக்டேர்';
+                                        if (u == 'Perches') unitName = 'பேர்ச்';
+                                      }
+                                      return DropdownMenuItem(value: u, child: Text(unitName, overflow: TextOverflow.ellipsis, style: TextStyle(color: textColor)));
+                                    }).toList(),
                                     onChanged: (val) => setState(() => _areaUnit = val!),
                                   ),
                                 ],
@@ -385,7 +472,7 @@ class _IrrigationScreenState extends ConsumerState<IrrigationScreen> {
 
                         // Soil Type
                         Text(
-                          'Soil Type (පස් වර්ගය)',
+                          soilLabel,
                           style: TextStyle(color: textColor, fontSize: 13.5, fontWeight: FontWeight.w600),
                         ),
                         const SizedBox(height: 6),
@@ -412,7 +499,10 @@ class _IrrigationScreenState extends ConsumerState<IrrigationScreen> {
                             ),
                             contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                           ),
-                          items: _soilTypes.map((s) => DropdownMenuItem(value: s, child: Text(s, overflow: TextOverflow.ellipsis, style: TextStyle(color: textColor)))).toList(),
+                          items: _soilData.map((s) {
+                            final label = isSi ? s['si']! : (isTa ? s['ta']! : s['en']!);
+                            return DropdownMenuItem(value: s['key'], child: Text(label, overflow: TextOverflow.ellipsis, style: TextStyle(color: textColor)));
+                          }).toList(),
                           onChanged: (val) => setState(() => _selectedSoil = val!),
                         ),
 
@@ -420,7 +510,7 @@ class _IrrigationScreenState extends ConsumerState<IrrigationScreen> {
 
                         // Climate Zone
                         Text(
-                          'Climate Zone (කාලගුණ කලාපය)',
+                          climateLabel,
                           style: TextStyle(color: textColor, fontSize: 13.5, fontWeight: FontWeight.w600),
                         ),
                         const SizedBox(height: 6),
@@ -447,7 +537,10 @@ class _IrrigationScreenState extends ConsumerState<IrrigationScreen> {
                             ),
                             contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                           ),
-                          items: _climateZones.map((c) => DropdownMenuItem(value: c, child: Text(c, overflow: TextOverflow.ellipsis, style: TextStyle(color: textColor)))).toList(),
+                          items: _climateData.map((c) {
+                            final label = isSi ? c['si']! : (isTa ? c['ta']! : c['en']!);
+                            return DropdownMenuItem(value: c['key'], child: Text(label, overflow: TextOverflow.ellipsis, style: TextStyle(color: textColor)));
+                          }).toList(),
                           onChanged: (val) => setState(() => _selectedClimate = val!),
                         ),
 
@@ -460,7 +553,7 @@ class _IrrigationScreenState extends ConsumerState<IrrigationScreen> {
                               ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                               : const Icon(Icons.water_drop_rounded, size: 22),
                           label: Text(
-                            _isLoadingAi ? 'Consulting Smart AI Engine...' : 'Calculate & Search with AI',
+                            calculateBtn,
                             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                           ),
                           style: ElevatedButton.styleFrom(
@@ -479,13 +572,13 @@ class _IrrigationScreenState extends ConsumerState<IrrigationScreen> {
                   if (_results != null) ...[
                     const SizedBox(height: 24),
 
-                    // Plan Title & Source Tag (Responsive row to prevent any overflow)
+                    // Plan Title & Source Tag
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Expanded(
                           child: Text(
-                            '${_getActiveCropName()} Irrigation Plan',
+                            '${_getActiveCropName()} $planTitleSuffix',
                             style: TextStyle(
                               color: textColor,
                               fontSize: 18,
@@ -519,7 +612,7 @@ class _IrrigationScreenState extends ConsumerState<IrrigationScreen> {
                               ),
                               const SizedBox(width: 4),
                               Text(
-                                _results!.isAiGenerated ? 'AI Custom' : 'Scientific',
+                                _results!.isAiGenerated ? 'AI Custom' : (isSi ? 'විද්‍යාත්මක' : (isTa ? 'விஞ்ஞான அடிப்படை' : 'Scientific')),
                                 style: TextStyle(
                                   color: _results!.isAiGenerated ? Colors.blueAccent : (isDark ? Colors.greenAccent : Colors.green.shade700),
                                   fontSize: 11,
@@ -556,7 +649,7 @@ class _IrrigationScreenState extends ConsumerState<IrrigationScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'Total Daily Water Demand',
+                                      dailyDemandTitle,
                                       style: TextStyle(
                                         color: textColor,
                                         fontSize: 14.5,
@@ -565,7 +658,7 @@ class _IrrigationScreenState extends ConsumerState<IrrigationScreen> {
                                     ),
                                     const SizedBox(height: 2),
                                     Text(
-                                      'දෛනික සමස්ත ජල අවශ්‍යතාවය',
+                                      dailyDemandSub,
                                       style: TextStyle(
                                         color: subtextColor,
                                         fontSize: 12.5,
@@ -592,7 +685,7 @@ class _IrrigationScreenState extends ConsumerState<IrrigationScreen> {
                                 ),
                               ),
                               Text(
-                                'Liters / Day (ලීටර)',
+                                litersPerDay,
                                 style: TextStyle(
                                   color: subtextColor,
                                   fontSize: 15,
@@ -608,7 +701,7 @@ class _IrrigationScreenState extends ConsumerState<IrrigationScreen> {
                     const SizedBox(height: 12),
                     _buildResultCard(
                       context,
-                      'Recommended Method (නිර්දේශිත ක්‍රමය)',
+                      recMethodTitle,
                       _results!.recommendedMethod,
                       Icons.tune_rounded,
                       Colors.teal,
@@ -616,7 +709,7 @@ class _IrrigationScreenState extends ConsumerState<IrrigationScreen> {
                     const SizedBox(height: 12),
                     _buildResultCard(
                       context,
-                      'Watering Frequency & Interval (වාර ගණන)',
+                      freqTitle,
                       _results!.frequency,
                       Icons.update_rounded,
                       Colors.orange,
@@ -624,7 +717,7 @@ class _IrrigationScreenState extends ConsumerState<IrrigationScreen> {
                     const SizedBox(height: 12),
                     _buildResultCard(
                       context,
-                      'Growth Stage Schedule (අවධි අනුව සැලැස්ම)',
+                      stageTitle,
                       _results!.criticalGrowthStages,
                       Icons.eco_rounded,
                       Colors.green,
@@ -632,7 +725,7 @@ class _IrrigationScreenState extends ConsumerState<IrrigationScreen> {
                     const SizedBox(height: 12),
                     _buildResultCard(
                       context,
-                      'Water Conservation & Drought Tips (ජල සංරක්ෂණය)',
+                      droughtTitle,
                       _results!.droughtAndSoilTips,
                       Icons.shield_outlined,
                       Colors.amber.shade700,
@@ -644,9 +737,9 @@ class _IrrigationScreenState extends ConsumerState<IrrigationScreen> {
                     FilledButton.icon(
                       onPressed: _chatWithAgriAi,
                       icon: const Icon(Icons.chat_bubble_outline_rounded, size: 20),
-                      label: const Text(
-                        'Chat with AgriAI about this Irrigation Plan',
-                        style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.bold),
+                      label: Text(
+                        chatAiBtn,
+                        style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.bold),
                       ),
                       style: FilledButton.styleFrom(
                         backgroundColor: Colors.blueAccent.shade700,

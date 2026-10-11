@@ -14,39 +14,38 @@ class FertilizerCalcScreen extends ConsumerStatefulWidget {
 }
 
 class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
-  String _selectedCrop = 'Paddy (වී)';
+  String _selectedCrop = 'Paddy';
   bool _isCustomCrop = false;
   final _customCropController = TextEditingController();
   final _areaController = TextEditingController(text: '1.0');
 
-  String _selectedStage = 'All Stages (සම්පූර්ණ චක්‍රය)';
-  final List<String> _stages = [
-    'All Stages (සම්පූර්ණ චක්‍රය)',
-    'Basal / Planting (මූලික යෙදුම)',
-    'Vegetative Growth (වර්ධන අවධිය)',
-    'Flowering & Fruiting (මල්/ඵල අවධිය)',
+  String _selectedStage = 'All Stages';
+  static const List<Map<String, String>> _stageOptions = [
+    {'key': 'All Stages', 'en': 'All Stages (Complete Lifecycle)', 'si': 'සම්පූර්ණ චක්‍රය', 'ta': 'முழு பயிர் பருவம்'},
+    {'key': 'Basal', 'en': 'Basal (At Planting)', 'si': 'මූලික යෙදුම', 'ta': 'ஆரம்ப உரமிடல்'},
+    {'key': 'Vegetative', 'en': 'Vegetative Growth Stage', 'si': 'වර්ධන අවධිය', 'ta': 'வளர்ச்சி பருவம்'},
+    {'key': 'Flowering', 'en': 'Flowering & Fruiting Stage', 'si': 'මල් සහ ඵල අවධිය', 'ta': 'பூக்கும் மற்றும் காய் பிடிக்கும் பருவம்'},
   ];
 
   bool _isLoading = false;
   FertilizerPlanResult? _planResult;
 
-  final List<String> _quickCrops = [
-    'Paddy (වී)',
-    'Corn (බඩඉරිඟු)',
-    'Tomato (තක්කාලි)',
-    'Chilli (මිරිස්)',
-    'Big Onion (ලොකු ලූණු)',
-    'Potato (අර්තාපල්)',
-    'Carrot (කැරට්)',
-    'Cabbage (ගෝවා)',
-    'Brinjal (වම්බටු)',
-    'Okra (බණ්ඩක්කා)',
-    'Banana (කෙසෙල්)',
-    'Papaya (පැපොල්)',
-    'Beans (බෝංචි)',
-    'Tea (තේ)',
-    'Coconut (පොල්)',
-    'Other / Custom Crop (වෙනත් බෝගයක්)',
+  static const List<Map<String, String>> _fertilizerCrops = [
+    {'key': 'Paddy', 'en': 'Paddy', 'si': 'වී', 'ta': 'நெல்'},
+    {'key': 'Corn', 'en': 'Corn', 'si': 'බඩඉරිඟු', 'ta': 'மக்காச்சோளம்'},
+    {'key': 'Tomato', 'en': 'Tomato', 'si': 'තක්කාලි', 'ta': 'தக்காளி'},
+    {'key': 'Chilli', 'en': 'Chilli', 'si': 'මිරිස්', 'ta': 'மிளகாய்'},
+    {'key': 'Big Onion', 'en': 'Big Onion', 'si': 'ලොකු ලූනු', 'ta': 'பெரிய வெங்காயம்'},
+    {'key': 'Potato', 'en': 'Potato', 'si': 'අර්තාපල්', 'ta': 'உருளைக்கிழங்கு'},
+    {'key': 'Carrot', 'en': 'Carrot', 'si': 'කැරට්', 'ta': 'கேரட்'},
+    {'key': 'Cabbage', 'en': 'Cabbage', 'si': 'ගෝවා', 'ta': 'முட்டைக்கோஸ்'},
+    {'key': 'Brinjal', 'en': 'Brinjal', 'si': 'වම්බටු', 'ta': 'கத்தரிக்காய்'},
+    {'key': 'Okra', 'en': 'Okra', 'si': 'බණ්ඩක්කා', 'ta': 'வெண்டைக்காய்'},
+    {'key': 'Banana', 'en': 'Banana', 'si': 'කෙසෙල්', 'ta': 'வாழை'},
+    {'key': 'Papaya', 'en': 'Papaya', 'si': 'පැපොල්', 'ta': 'பப்பாளி'},
+    {'key': 'Beans', 'en': 'Beans', 'si': 'බෝංචි', 'ta': 'பீன்ஸ்'},
+    {'key': 'Tea', 'en': 'Tea', 'si': 'තේ', 'ta': 'தேயிலை'},
+    {'key': 'Coconut', 'en': 'Coconut', 'si': 'පොල්', 'ta': 'தென்னை'},
   ];
 
   @override
@@ -130,6 +129,49 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
   Widget build(BuildContext context) {
     final currentLang = ref.watch(localeProvider).languageCode;
     final isSi = currentLang == 'si';
+    final isTa = currentLang == 'ta';
+
+    String appTitle = 'Fertilizer Calculator';
+    String bannerTitle = 'AI Crop Nutrition Engine';
+    String bannerDesc = 'Select or type any crop name. Calculates exact N-P-K & split application stages.';
+    String selectCropLabel = 'Select Crop';
+    String presetBtn = 'Preset List';
+    String customBtn = 'Custom Crop';
+    String customHint = 'e.g., Bitter Gourd, Capsicum, Ginger, Betel...';
+    String landAreaLabel = 'Land Area';
+    String acreSuffix = 'Acres';
+    String quickSizesLabel = 'Quick Sizes';
+    String stageLabel = 'Target Growth Stage';
+    String calcBtnText = _isLoading ? 'AI Calculating...' : 'Calculate Fertilizer with AI';
+
+    if (isSi) {
+      appTitle = 'පොහොර ගණකය';
+      bannerTitle = 'ඕනෑම බෝගයකට AI පොහොර නිර්දේශ';
+      bannerDesc = 'ඕනෑම බෝගයක් තෝරන්න හෝ නම ඇතුළත් කරන්න. නිශ්චිත N-P-K ප්‍රමාණ ක්ෂණිකව ගණනය වේ.';
+      selectCropLabel = 'බෝගය තෝරන්න';
+      presetBtn = 'ලැයිස්තුව';
+      customBtn = 'වෙනත් බෝගයක්';
+      customHint = 'උදා: කැරට්, බීට්රූට්, වැනිලා, ගස්ලබු...';
+      landAreaLabel = 'ඉඩම් ප්‍රමාණය';
+      acreSuffix = 'අක්කර';
+      quickSizesLabel = 'ක්ෂණික තේරීම්';
+      stageLabel = 'වර්ධන අවධිය';
+      calcBtnText = _isLoading ? 'AI ගණනය කරමින් පවතී...' : 'AI මගින් පොහොර ගණනය කරන්න';
+    } else if (isTa) {
+      appTitle = 'உரக் கால்குலேட்டர்';
+      bannerTitle = 'AI பயிர் ஊட்டச்சத்து வழிகாட்டி';
+      bannerDesc = 'பயிர் பெயரைத் தேர்ந்தெடுக்கவும் அல்லது தட்டச்சு செய்யவும். துல்லியமான N-P-K அளவுகள் கணக்கிடப்படும்.';
+      selectCropLabel = 'பயிரைத் தேர்ந்தெடுக்கவும்';
+      presetBtn = 'பட்டியல்';
+      customBtn = 'மற்ற பயிர்';
+      customHint = 'எ.கா. பாகற்காய், மிளகாய், இஞ்சி...';
+      landAreaLabel = 'நிலப் பரப்பு';
+      acreSuffix = 'ஏக்கர்';
+      quickSizesLabel = 'விரைவு அளவுகள்';
+      stageLabel = 'வளர்ச்சிப் பருவம்';
+      calcBtnText = _isLoading ? 'AI கணக்கிடுகிறது...' : 'AI மூலம் உரத்தைக் கணக்கிடுக';
+    }
+
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
@@ -142,7 +184,7 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: Text(
-          isSi ? 'පොහොර ගණකය (AI Fertilizer)' : 'Fertilizer Calculator',
+          appTitle,
           style: TextStyle(fontWeight: FontWeight.bold, color: textColor),
           overflow: TextOverflow.ellipsis,
         ),
@@ -180,7 +222,7 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                isSi ? 'ඕනෑම බෝගයකට AI පොහොර නිර්දේශ' : 'AI Crop Nutrition Engine',
+                                bannerTitle,
                                 style: TextStyle(
                                   color: textColor,
                                   fontSize: 15,
@@ -189,9 +231,7 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
                               ),
                               const SizedBox(height: 3),
                               Text(
-                                isSi
-                                    ? 'ඕනෑම බෝගයක් තෝරන්න හෝ නම ඇතුළත් කරන්න. නිශ්චිත N-P-K ප්‍රමාණ ක්ෂණිකව ගණනය වේ.'
-                                    : 'Select or type any crop name. Calculates exact N-P-K & split application stages.',
+                                bannerDesc,
                                 style: TextStyle(
                                   color: subtextColor,
                                   fontSize: 12,
@@ -217,7 +257,7 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
                           children: [
                             Expanded(
                               child: Text(
-                                isSi ? 'බෝගය තෝරන්න (Crop)' : 'Select Crop',
+                                selectCropLabel,
                                 style: TextStyle(
                                   color: textColor,
                                   fontSize: 15,
@@ -239,9 +279,7 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
                                 color: theme.colorScheme.primary,
                               ),
                               label: Text(
-                                _isCustomCrop
-                                    ? (isSi ? 'ලැයිස්තුව' : 'Preset List')
-                                    : (isSi ? 'වෙනත් බෝගයක්' : 'Custom Crop'),
+                                _isCustomCrop ? presetBtn : customBtn,
                                 style: TextStyle(color: theme.colorScheme.primary, fontSize: 12, fontWeight: FontWeight.bold),
                               ),
                               style: TextButton.styleFrom(
@@ -277,30 +315,24 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
                                 borderSide: BorderSide(color: theme.colorScheme.primary, width: 1.5),
                               ),
                             ),
-                            items: _quickCrops
-                                .map((c) => DropdownMenuItem(
-                                      value: c,
-                                      child: Text(
-                                        c,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
-                                          color: c.contains('Other') ? theme.colorScheme.primary : textColor,
-                                          fontWeight: c.contains('Other') ? FontWeight.bold : FontWeight.normal,
-                                        ),
-                                      ),
-                                    ))
+                            items: _fertilizerCrops
+                                .map((c) {
+                                  final label = isSi ? c['si']! : (isTa ? c['ta']! : c['en']!);
+                                  return DropdownMenuItem(
+                                    value: c['key'],
+                                    child: Text(
+                                      label,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(color: textColor),
+                                    ),
+                                  );
+                                })
                                 .toList(),
                             onChanged: (val) {
                               if (val != null) {
-                                if (val.contains('Other')) {
-                                  setState(() {
-                                    _isCustomCrop = true;
-                                  });
-                                } else {
-                                  setState(() {
-                                    _selectedCrop = val;
-                                  });
-                                }
+                                setState(() {
+                                  _selectedCrop = val;
+                                });
                               }
                             },
                           ),
@@ -311,9 +343,7 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
                             autofocus: true,
                             style: TextStyle(color: textColor, fontSize: 15),
                             decoration: InputDecoration(
-                              hintText: isSi
-                                  ? 'උදා: කැරට්, බීට්රූට්, වැනිලා, ගස්ලබු...'
-                                  : 'e.g., Bitter Gourd, Capsicum, Ginger, Betel...',
+                              hintText: customHint,
                               hintStyle: TextStyle(color: subtextColor.withValues(alpha: 0.7), fontSize: 13),
                               filled: true,
                               fillColor: inputFill,
@@ -352,15 +382,10 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
                           scrollDirection: Axis.horizontal,
                           physics: const BouncingScrollPhysics(),
                           child: Row(
-                            children: [
-                              _buildQuickChip('Paddy (වී)', isDark, textColor, theme),
-                              _buildQuickChip('Corn (බඩඉරිඟු)', isDark, textColor, theme),
-                              _buildQuickChip('Tomato (තක්කාලි)', isDark, textColor, theme),
-                              _buildQuickChip('Chilli (මිරිස්)', isDark, textColor, theme),
-                              _buildQuickChip('Potato (අර්තාපල්)', isDark, textColor, theme),
-                              _buildQuickChip('Banana (කෙසෙල්)', isDark, textColor, theme),
-                              _buildQuickChip('Carrot (කැරට්)', isDark, textColor, theme),
-                            ],
+                            children: _fertilizerCrops.take(7).map((c) {
+                              final label = isSi ? c['si']! : (isTa ? c['ta']! : c['en']!);
+                              return _buildQuickChip(c['key']!, label, isDark, textColor, theme);
+                            }).toList(),
                           ),
                         ),
 
@@ -376,7 +401,7 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    isSi ? 'ඉඩම් ප්‍රමාණය (Area)' : 'Land Area (Acres)',
+                                    landAreaLabel,
                                     style: TextStyle(
                                       color: textColor,
                                       fontSize: 14,
@@ -396,7 +421,7 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
                                     decoration: InputDecoration(
                                       filled: true,
                                       fillColor: inputFill,
-                                      suffixText: isSi ? 'අක්කර' : 'Acres',
+                                      suffixText: acreSuffix,
                                       suffixStyle: TextStyle(
                                         color: theme.colorScheme.primary,
                                         fontSize: 13,
@@ -428,7 +453,7 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    isSi ? 'ක්ෂණික තේරීම්' : 'Quick Sizes',
+                                    quickSizesLabel,
                                     style: TextStyle(
                                       color: subtextColor,
                                       fontSize: 13,
@@ -456,7 +481,7 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
 
                         // Optional Growth Stage
                         Text(
-                          isSi ? 'වර්ධන අවධිය (Growth Stage)' : 'Target Stage',
+                          stageLabel,
                           style: TextStyle(
                             color: subtextColor,
                             fontSize: 13,
@@ -482,11 +507,14 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
                               borderSide: BorderSide(color: inputBorder),
                             ),
                           ),
-                          items: _stages
-                              .map((s) => DropdownMenuItem(
-                                    value: s,
-                                    child: Text(s, overflow: TextOverflow.ellipsis, style: TextStyle(color: textColor)),
-                                  ))
+                          items: _stageOptions
+                              .map((s) {
+                                final label = isSi ? s['si']! : (isTa ? s['ta']! : s['en']!);
+                                return DropdownMenuItem(
+                                  value: s['key'],
+                                  child: Text(label, overflow: TextOverflow.ellipsis, style: TextStyle(color: textColor)),
+                                );
+                              })
                               .toList(),
                           onChanged: (val) {
                             if (val != null) {
@@ -540,7 +568,7 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
                   // Results Section
                   if (_planResult != null) ...[
                     const SizedBox(height: 28),
-                    _buildResultsSection(context, _planResult!, isSi, textColor, subtextColor, isDark, theme),
+                    _buildResultsSection(context, _planResult!, currentLang, textColor, subtextColor, isDark, theme),
                   ],
 
                   const SizedBox(height: 40),
@@ -553,16 +581,15 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
     );
   }
 
-  Widget _buildQuickChip(String crop, bool isDark, Color textColor, ThemeData theme) {
-    final isSelected = !_isCustomCrop && _selectedCrop == crop;
-    final label = crop.split(' ').first;
+  Widget _buildQuickChip(String cropKey, String label, bool isDark, Color textColor, ThemeData theme) {
+    final isSelected = !_isCustomCrop && _selectedCrop == cropKey;
     return Padding(
       padding: const EdgeInsets.only(right: 8.0),
       child: InkWell(
         onTap: () {
           setState(() {
             _isCustomCrop = false;
-            _selectedCrop = crop;
+            _selectedCrop = cropKey;
           });
         },
         borderRadius: BorderRadius.circular(20),
@@ -638,7 +665,18 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
     );
   }
 
-  Widget _buildResultsSection(BuildContext context, FertilizerPlanResult plan, bool isSi, Color textColor, Color subtextColor, bool isDark, ThemeData theme) {
+  Widget _buildResultsSection(BuildContext context, FertilizerPlanResult plan, String lang, Color textColor, Color subtextColor, bool isDark, ThemeData theme) {
+    final isSi = lang == 'si';
+    final isTa = lang == 'ta';
+
+    String sectionTitle = 'Recommended Nutrition';
+    String baselineTag = isSi ? 'විද්‍යාත්මක' : (isTa ? 'விஞ்ஞான அடிப்படை' : 'Agronomic Baseline');
+    String totalReqTitle = isSi ? 'මුළු රසායනික පොහොර අවශ්‍යතාව' : (isTa ? 'மொத்த இரசாயன உரத் தேவை' : 'Total Fertilizer Requirement');
+    String stagesTitle = isSi ? 'පොහොර යෙදීමේ කාලසටහන' : (isTa ? 'உரமிடும் கால அட்டவணை' : 'Application Stages & Schedule');
+    String organicTitle = isSi ? 'කාබනික පොහොර නිර්දේශය' : (isTa ? 'இயற்கை உரப் பரிந்துரை' : 'Organic Compost & Manure');
+    String tipsTitle = isSi ? 'විශේෂ කෘෂි උපදෙස්' : (isTa ? 'நடைமுறை விவசாயக் குறிப்புகள்' : 'Practical Application Tips');
+    String askAiBtn = isSi ? 'මෙම බෝගය ගැන AgriAI ගෙන් වැඩිදුර අසන්න' : (isTa ? 'இந்த பயிர் குறித்து AgriAI உடன் பேசவும்' : 'Ask AgriAI About This Crop');
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -648,7 +686,7 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
           children: [
             Expanded(
               child: Text(
-                isSi ? 'පොහොර නිර්දේශය' : 'Recommended Nutrition',
+                sectionTitle,
                 style: TextStyle(
                   color: textColor,
                   fontSize: 19,
@@ -679,7 +717,7 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
                   ),
                   const SizedBox(width: 4),
                   Text(
-                    plan.isAiGenerated ? 'AI Custom' : 'Agronomic Baseline',
+                    plan.isAiGenerated ? 'AI Custom' : baselineTag,
                     style: TextStyle(
                       color: plan.isAiGenerated ? theme.colorScheme.primary : (isDark ? Colors.amberAccent : Colors.amber.shade900),
                       fontSize: 11,
@@ -721,7 +759,7 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '${plan.cropName} (${plan.acres} Acres)',
+                      '${plan.cropName} (${plan.acres} ${isSi ? "අක්කර" : (isTa ? "ஏக்கர்" : "Acres")})',
                       style: TextStyle(
                         color: isDark ? Colors.white : const Color(0xFF065F46),
                         fontSize: 15,
@@ -731,7 +769,7 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      isSi ? 'මුළු රසායනික පොහොර අවශ්‍යතාව' : 'Total Fertilizer Requirement',
+                      totalReqTitle,
                       style: TextStyle(
                         color: isDark ? Colors.white70 : const Color(0xFF047857),
                         fontSize: 12,
@@ -757,7 +795,7 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
         const SizedBox(height: 16),
 
         // Fertilizer Cards
-        ...plan.fertilizers.map((f) => _buildFertilizerItemCard(f, isSi, textColor, subtextColor, isDark, theme)),
+        ...plan.fertilizers.map((f) => _buildFertilizerItemCard(f, lang, textColor, subtextColor, isDark, theme)),
 
         const SizedBox(height: 16),
 
@@ -775,7 +813,7 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        isSi ? 'පොහොර යෙදීමේ කාලසටහන' : 'Application Stages & Schedule',
+                        stagesTitle,
                         style: TextStyle(
                           color: textColor,
                           fontSize: 15,
@@ -812,7 +850,7 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        isSi ? 'කාබනික පොහොර නිර්දේශය' : 'Organic Compost & Manure',
+                        organicTitle,
                         style: TextStyle(
                           color: textColor,
                           fontSize: 15,
@@ -852,7 +890,7 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        isSi ? 'විශේෂ කෘෂි උපදෙස්' : 'Practical Application Tips',
+                        tipsTitle,
                         style: TextStyle(
                           color: textColor,
                           fontSize: 15,
@@ -881,9 +919,14 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
         // Ask AgriAI Button
         OutlinedButton.icon(
           onPressed: () {
-            final prompt = isSi
-                ? 'මම ${plan.cropName} සඳහා අක්කර ${plan.acres} කට පොහොර යෙදීමට බලාපොරොත්තු වෙමි. මෙම බෝගයේ වැඩි ඵලදාවක් ලබා ගැනීමට සහ පොහොර හානි වැළැක්වීමට අමතර උපදෙස් ලබා දෙන්න.'
-                : 'I am cultivating ${plan.cropName} on ${plan.acres} acres. Could you provide detailed advice on optimal fertilizer schedule, soil preparation, and nutrient deficiency prevention?';
+            String prompt;
+            if (isSi) {
+              prompt = 'මම ${plan.cropName} සඳහා අක්කර ${plan.acres} කට පොහොර යෙදීමට බලාපොරොත්තු වෙමි. මෙම බෝගයේ වැඩි ඵලදාවක් ලබා ගැනීමට සහ පොහොර හානි වැළැක්වීමට අමතර උපදෙස් කරුණු වශයෙන් ලබා දෙන්න.';
+            } else if (isTa) {
+              prompt = 'நான் ${plan.cropName} பயிருக்கு ${plan.acres} ஏக்கரில் உரமிட திட்டமிட்டுள்ளேன். அதிக மகசூல் பெறவும், ஊட்டச்சத்து இழப்பைத் தவிர்க்கவும் கூடுதல் ஆலோசனைகளை குறிப்புகளாக வழங்கவும்.';
+            } else {
+              prompt = 'I am cultivating ${plan.cropName} on ${plan.acres} acres. Could you provide detailed advice on optimal fertilizer schedule, soil preparation, and nutrient deficiency prevention?';
+            }
             context.push('/chat', extra: prompt);
           },
           style: OutlinedButton.styleFrom(
@@ -893,7 +936,7 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
           ),
           icon: Icon(Icons.chat_bubble_outline, color: theme.colorScheme.primary),
           label: Text(
-            isSi ? 'මෙම බෝගය ගැන AgriAI ගෙන් වැඩිදුර අසන්න' : 'Ask AgriAI About This Crop',
+            askAiBtn,
             style: TextStyle(color: theme.colorScheme.primary, fontWeight: FontWeight.bold),
           ),
         ),
@@ -901,7 +944,7 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
     );
   }
 
-  Widget _buildFertilizerItemCard(FertilizerItem item, bool isSi, Color textColor, Color subtextColor, bool isDark, ThemeData theme) {
+  Widget _buildFertilizerItemCard(FertilizerItem item, String lang, Color textColor, Color subtextColor, bool isDark, ThemeData theme) {
     Color iconColor = theme.colorScheme.primary;
     if (item.nutrientType.contains('P')) {
       iconColor = isDark ? Colors.lightBlueAccent : Colors.blue.shade700;
