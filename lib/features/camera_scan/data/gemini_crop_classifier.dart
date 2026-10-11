@@ -93,6 +93,12 @@ class GeminiCropClassifier {
           ? 'හඳුනාගත නොහැක / ශාකයක් නොවේ'
           : (language == 'ta' ? 'தாவரம் கண்டறியப்படவில்லை' : 'Not a Plant / Unrecognized Object');
 
+      final rescanAdvice = language == 'si'
+          ? 'කරුණාකර පැහැදිලි ආලෝකයක් සහිත ස්ථානයකදී බෝගයේ හෝ පත්‍රයේ ඡායාරූපයක් නැවත ස්කෑන් කරන්න.'
+          : (language == 'ta'
+              ? 'தயவுசெய்து தெளிவான வெளிச்சத்தில் பயிர் அல்லது இலையின் படத்தை மீண்டும் ஸ்கேன் செய்யவும்.'
+              : 'Please take a clear photo of an actual plant leaf or crop in good lighting.');
+
       final prompt = '''
 You are an expert plant pathologist, agricultural scientist, and botanist. 
 Analyze the provided image in comprehensive agronomic detail.

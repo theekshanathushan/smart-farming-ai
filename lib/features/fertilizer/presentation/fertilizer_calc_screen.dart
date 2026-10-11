@@ -549,9 +549,7 @@ class _FertilizerCalcScreenState extends ConsumerState<FertilizerCalcScreen> {
                                 )
                               : Icon(Icons.bolt, color: isDark ? const Color(0xFF042F22) : Colors.white, size: 22),
                           label: Text(
-                            _isLoading
-                                ? (isSi ? 'AI ගණනය කරමින් පවතී...' : 'AI Calculating...')
-                                : (isSi ? 'AI මගින් පොහොර ගණනය කරන්න' : 'Calculate Fertilizer with AI'),
+                            calcBtnText,
                             style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.bold,
