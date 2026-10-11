@@ -85,6 +85,7 @@ class IrrigationAiService {
     required double acres,
     required String soilType,
     required String climateZone,
+    String language = 'en',
   }) {
     final lowerName = cropName.toLowerCase();
     double baseRate = 4800.0; // Default liters per acre per day
@@ -98,46 +99,112 @@ class IrrigationAiService {
 
     // Adjust for soil type
     double soilFactor = 1.0;
-    if (soilType.contains('Sandy') || soilType.contains('වැලි')) {
+    if (soilType.toLowerCase().contains('sandy') || soilType.contains('වැලි') || soilType.contains('மணல்')) {
       soilFactor = 1.2; // Sandy soils drain faster
-    } else if (soilType.contains('Clay') || soilType.contains('මැටි')) {
+    } else if (soilType.toLowerCase().contains('clay') || soilType.contains('මැටි') || soilType.contains('களிமண்')) {
       soilFactor = 0.85; // Clay retains water
     }
 
     // Adjust for climate
     double climateFactor = 1.0;
-    if (climateZone.contains('Dry') || climateZone.contains('වියළි')) {
+    if (climateZone.toLowerCase().contains('dry') || climateZone.contains('වියළි') || climateZone.contains('வறண்ட')) {
       climateFactor = 1.25;
-    } else if (climateZone.contains('Wet') || climateZone.contains('තෙත්')) {
+    } else if (climateZone.toLowerCase().contains('wet') || climateZone.contains('තෙත්') || climateZone.contains('ஈரப்பத')) {
       climateFactor = 0.8;
     }
 
     final totalDaily = baseRate * acres * soilFactor * climateFactor;
 
-    String method = 'Drip Irrigation (බිංදු ජල සම්පාදනය)';
-    String frequency = 'Every 1 - 2 days (දින 1-2කට වරක්)';
-    String schedule = 'Water early in the morning (6:00 AM - 8:30 AM) or late afternoon.';
-    String critical = 'Vegetative expansion and flowering to fruit/pod setting stages.';
-    String droughtTips = 'Apply 5-8cm straw or dried leaves mulch to conserve up to 35% soil moisture.';
+    final isSi = language == 'si';
+    final isTa = language == 'ta';
 
-    if (lowerName.contains('paddy') || lowerName.contains('rice') || lowerName.contains('වී')) {
-      method = 'Controlled Alternate Wetting & Drying (AWD / ක්‍රමානුකූල පාලිත ජල සම්පාදනය)';
-      frequency = 'Keep 2-5cm standing water in panicle stage, then dry for 3 days.';
-      schedule = 'Do not stress with water deficit during flowering & milk stage.';
-      critical = 'Panicle initiation, heading, and flowering.';
-      droughtTips = 'Use AWD tube (පැණි බට ක්‍රමය) to save 30% water without yield reduction.';
-    } else if (lowerName.contains('banana') || lowerName.contains('කෙසෙල්') || lowerName.contains('papaya') || lowerName.contains('පැපොල්')) {
-      method = 'Basin or Micro-sprinkler / Drip around the canopy drip-line';
-      frequency = 'Every 2-3 days depending on weather';
-      schedule = 'Water around 50cm away from the trunk to avoid root collar rot.';
-      critical = 'Shooting/flowering and fruit bunch filling stages.';
-      droughtTips = 'Keep dry banana trash or mulch in a 1-meter radius around the stem.';
-    } else if (lowerName.contains('corn') || lowerName.contains('බඩඉරිඟු')) {
-      method = 'Furrow irrigation (නියරවල් දිගේ) or Rain-gun sprinkler';
-      frequency = 'Every 4-5 days';
-      schedule = 'Avoid water stagnation around root zones for more than 12 hours.';
-      critical = 'Tasseling, silking, and grain filling.';
-      droughtTips = 'Intercrop with cowpea or green gram to preserve soil moisture.';
+    String method;
+    String frequency;
+    String schedule;
+    String critical;
+    String droughtTips;
+
+    if (lowerName.contains('paddy') || lowerName.contains('rice') || lowerName.contains('වී') || lowerName.contains('நெல்')) {
+      if (isSi) {
+        method = 'ක්‍රමානුකූල පාලිත ජල සම්පාදනය (AWD)';
+        frequency = 'කරල් හටගන්නා අවධියේ 2-5cm ජලය රඳවා තබා, ඉන්පසු දින 3ක් ජලය බැස යාමට හරින්න.';
+        schedule = 'මල් පිපෙන හා කරල් පැසෙන අවධියේ ජල හිඟයක් ඇතිවීම වළක්වන්න.';
+        critical = 'කරල් හටගැනීම, මල් පිපීම සහ කරල් පැසෙන අවධිය.';
+        droughtTips = 'අස්වැන්න අඩු නොකර 30%ක් ජලය ඉතිරි කර ගැනීමට පැණි බට ක්‍රමය භාවිතා කරන්න.';
+      } else if (isTa) {
+        method = 'கட்டுப்படுத்தப்பட்ட மாற்று நனைத்தல் மற்றும் உலர்த்தல் (AWD)';
+        frequency = 'கதிர் விடும் பருவத்தில் 2-5 செ.மீ நீர் தேக்கி, பின் 3 நாட்கள் உலர விடவும்.';
+        schedule = 'பூக்கும் மற்றும் பால் பிடிக்கும் பருவத்தில் நீர் பற்றாக்குறை ஏற்படாமல் பார்த்துக் கொள்ளவும்.';
+        critical = 'கதிர் உருவாக்கம் மற்றும் பூக்கும் பருவம்.';
+        droughtTips = 'மகசூல் குறையாமல் 30% நீரைச் சேமிக்க துளையிடப்பட்ட குழாய் முறையைப் பயன்படுத்தவும்.';
+      } else {
+        method = 'Controlled Alternate Wetting & Drying (AWD)';
+        frequency = 'Keep 2-5cm standing water in panicle stage, then dry for 3 days.';
+        schedule = 'Do not stress with water deficit during flowering and milk stage.';
+        critical = 'Panicle initiation, heading, and flowering.';
+        droughtTips = 'Use AWD tube field monitoring to save 30% water without yield reduction.';
+      }
+    } else if (lowerName.contains('banana') || lowerName.contains('කෙසෙල්') || lowerName.contains('வாழை') ||
+               lowerName.contains('papaya') || lowerName.contains('පැපොල්') || lowerName.contains('பப்பாளி')) {
+      if (isSi) {
+        method = 'බිංදු ජල සම්පාදනය හෝ පාමුල වාරිමාර්ගය';
+        frequency = 'කාලගුණය අනුව දින 2-3 කට වරක්';
+        schedule = 'කඳ කුණුවීම වැළැක්වීම සඳහා කඳේ සිට සෙන්ටිමීටර 50 ක් පමණ ඈතින් ජලය යොදන්න.';
+        critical = 'මල් හටගැනීම සහ කැන/ගෙඩි වර්ධනය වන අවධිය.';
+        droughtTips = 'කඳ වටා මීටර 1 ක අරයක් තුළ වියළි කොළ හෝ පිදුරු වසුන් යොදන්න.';
+      } else if (isTa) {
+        method = 'சொட்டு நீர் பாசனம் அல்லது வட்டப்பாத்தி பாசனம்';
+        frequency = 'வானிலையைப் பொறுத்து 2-3 நாட்களுக்கு ஒருமுறை';
+        schedule = 'தண்டு அழுகலைத் தடுக்க தண்டிலிருந்து 50 செ.மீ தள்ளி நீர் பாய்ச்சவும்.';
+        critical = 'பூக்கும் மற்றும் காய் பிடிக்கும் பருவம்.';
+        droughtTips = 'தண்டின் அடிப்பகுதியில் 1 மீட்டர் சுற்றளவில் உலர் இலை மூடாக்கு இடவும்.';
+      } else {
+        method = 'Basin or Micro-sprinkler / Drip around canopy drip-line';
+        frequency = 'Every 2-3 days depending on weather';
+        schedule = 'Water around 50cm away from the trunk to avoid root collar rot.';
+        critical = 'Shooting/flowering and fruit bunch filling stages.';
+        droughtTips = 'Keep dry banana trash or mulch in a 1-meter radius around the stem.';
+      }
+    } else if (lowerName.contains('corn') || lowerName.contains('බඩඉරිඟු') || lowerName.contains('மக்காச்சோளம்')) {
+      if (isSi) {
+        method = 'නියරවල් දිගේ ජලය සැපයීම හෝ විසුරුම් ජල සම්පාදනය';
+        frequency = 'දින 4-5 කට වරක්';
+        schedule = 'මුල් කලාපය අවට පැය 12 කට වඩා ජලය එකතැන පල්වීම වළක්වන්න.';
+        critical = 'මල් පිපීම සහ කරල් පිරීමේ අවධිය.';
+        droughtTips = 'පසෙහි තෙතමනය රැක ගැනීමට කවුපි හෝ මුංඇට සමඟ මිශ්‍ර බෝග වගා කරන්න.';
+      } else if (isTa) {
+        method = 'சால் பாசனம் அல்லது தெளிப்பு நீர் பாசனம்';
+        frequency = '4-5 நாட்களுக்கு ஒருமுறை';
+        schedule = 'வேர் பகுதியில் 12 மணி நேரத்திற்கும் மேலாக நீர் தேங்குவதைத் தவிர்க்கவும்.';
+        critical = 'பூக்கும் மற்றும் கதிர் பால் பிடிக்கும் பருவம்.';
+        droughtTips = 'மண் ஈரப்பதத்தைப் பாதுகாக்க தட்டைப்பயறு அல்லது பாசிப்பயறு ஊடுபயிராக இடவும்.';
+      } else {
+        method = 'Furrow irrigation or Rain-gun sprinkler';
+        frequency = 'Every 4-5 days';
+        schedule = 'Avoid water stagnation around root zones for more than 12 hours.';
+        critical = 'Tasseling, silking, and grain filling.';
+        droughtTips = 'Intercrop with cowpea or green gram to preserve soil moisture.';
+      }
+    } else {
+      if (isSi) {
+        method = 'බිංදු ජල සම්පාදනය';
+        frequency = 'දින 1-2 කට වරක්';
+        schedule = 'උදෑසන (පෙ.ව. 6:00 - 8:30) හෝ සවස් කාලයේ ජලය යොදන්න.';
+        critical = 'ශාක වර්ධන හා මල්/කරල් හටගන්නා අවධිය.';
+        droughtTips = 'පසෙහි තෙතමනය 35% ක් දක්වා ආරක්ෂා කර ගැනීමට සෙන්ටිමීටර 5-8 ක වියළි කොළ හෝ පිදුරු වසුන් යොදන්න.';
+      } else if (isTa) {
+        method = 'சொட்டு நீர் பாசனம்';
+        frequency = '1-2 நாட்களுக்கு ஒருமுறை';
+        schedule = 'அதிகாலை (காலை 6:00 - 8:30) அல்லது மாலையில் நீர் பாய்ச்சவும்.';
+        critical = 'வளர்ச்சி மற்றும் பூக்கும் பருவம்.';
+        droughtTips = 'மண் ஈரப்பதத்தை 35% வரை பாதுகாக்க 5-8 செ.மீ வைக்கோல் மூடாக்கு இடவும்.';
+      } else {
+        method = 'Drip Irrigation';
+        frequency = 'Every 1 - 2 days';
+        schedule = 'Water early in the morning (6:00 AM - 8:30 AM) or late afternoon.';
+        critical = 'Vegetative expansion and flowering to fruit/pod setting stages.';
+        droughtTips = 'Apply 5-8cm straw or dried leaves mulch to conserve up to 35% soil moisture.';
+      }
     }
 
     return IrrigationPlanResult(
@@ -165,10 +232,11 @@ class IrrigationAiService {
         acres: acres,
         soilType: soilType,
         climateZone: climateZone,
+        language: language,
       );
     }
 
-    String langInstruction = 'Respond in English.';
+    String langInstruction = 'Respond 100% EXCLUSIVELY in pure English. Do NOT include any Sinhala or Tamil words or characters.';
     if (language == 'si') {
       langInstruction = 'Provide ALL text fields ("recommendedMethod", "frequency", "scheduleAndTips", "criticalGrowthStages", "droughtAndSoilTips") 100% EXCLUSIVELY in pure Sinhala script (සිංහල). Zero English words. Zero Singlish.';
     } else if (language == 'ta') {
@@ -248,6 +316,7 @@ Return ONLY a valid JSON object without markdown code blocks, matching this exac
       acres: acres,
       soilType: soilType,
       climateZone: climateZone,
+      language: language,
     );
   }
 }

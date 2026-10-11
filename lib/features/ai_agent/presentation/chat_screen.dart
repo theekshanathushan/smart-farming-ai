@@ -720,11 +720,15 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          currentLang == 'si' ? 'AgriAI සාකච්ඡා' : 'AgriAI Conversations',
+                          currentLang == 'si'
+                              ? 'AgriAI සාකච්ඡා'
+                              : (currentLang == 'ta' ? 'AgriAI உரையாடல்கள்' : 'AgriAI Conversations'),
                           style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                         ),
                         Text(
-                          currentLang == 'si' ? 'කෘෂිකාර්මික උපදේශක' : 'Smart Farming AI',
+                          currentLang == 'si'
+                              ? 'කෘෂිකාර්මික උපදේශක'
+                              : (currentLang == 'ta' ? 'விவசாய AI ஆலோசகர்' : 'Smart Farming AI'),
                           style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
                         ),
                       ],
@@ -743,7 +747,9 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
                   onPressed: _startNewChat,
                   icon: const Icon(Icons.add_rounded, size: 20),
                   label: Text(
-                    currentLang == 'si' ? '+ අලුත් සාකච්ඡාවක්' : '+ New Conversation',
+                    currentLang == 'si'
+                        ? '+ අලුත් සාකච්ඡාවක්'
+                        : (currentLang == 'ta' ? '+ புதிய அரட்டை' : '+ New Conversation'),
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                   style: FilledButton.styleFrom(
@@ -769,7 +775,9 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
                   Icon(Icons.history_rounded, size: 16, color: Colors.grey.shade600),
                   const SizedBox(width: 6),
                   Text(
-                    currentLang == 'si' ? 'පෙර සාකච්ඡා (History)' : 'Recent Chats',
+                    currentLang == 'si'
+                        ? 'පෙර සාකච්ඡා'
+                        : (currentLang == 'ta' ? 'சமீபத்திய அரட்டைகள்' : 'Recent Chats'),
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
@@ -803,7 +811,9 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
                             Text(
                               currentLang == 'si'
                                   ? 'තවමත් සාකච්ඡා නොමැත.\nනව සාකච්ඡාවක් ආරම්භ කරන්න.'
-                                  : 'No conversations yet.\nStart asking your farming queries!',
+                                  : (currentLang == 'ta'
+                                      ? 'இன்னும் உரையாடல்கள் இல்லை.\nபுதிய உரையாடலைத் தொடங்கவும்.'
+                                      : 'No conversations yet.\nStart asking your farming queries!'),
                               textAlign: TextAlign.center,
                               style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
                             ),
@@ -877,7 +887,9 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
                 dense: true,
                 leading: const Icon(Icons.delete_sweep_outlined, color: Colors.redAccent, size: 20),
                 title: Text(
-                  currentLang == 'si' ? 'සියලු සාකච්ඡා මකන්න' : 'Clear All Conversations',
+                  currentLang == 'si'
+                      ? 'සියලු සාකච්ඡා මකන්න'
+                      : (currentLang == 'ta' ? 'அனைத்து உரையாடல்களையும் நீக்கு' : 'Clear All Conversations'),
                   style: const TextStyle(color: Colors.redAccent, fontSize: 13, fontWeight: FontWeight.w600),
                 ),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -913,21 +925,29 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(currentLang == 'si' ? 'සාකච්ඡාව මකන්නද?' : 'Delete Conversation?'),
+        title: Text(currentLang == 'si'
+            ? 'සාකච්ඡාව මකන්නද?'
+            : (currentLang == 'ta' ? 'உரையாடலை நீக்கவா?' : 'Delete Conversation?')),
         content: Text(
           currentLang == 'si'
               ? '"${session.title}" සාකච්ඡාව සම්පූර්ණයෙන්ම මකා දැමීමට ඔබට අවශ්‍යද?'
-              : 'Are you sure you want to delete "${session.title}"? This cannot be undone.',
+              : (currentLang == 'ta'
+                  ? '"${session.title}" உரையாடலை நீக்க விரும்புகிறீர்களா?'
+                  : 'Are you sure you want to delete "${session.title}"? This cannot be undone.'),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: Text(currentLang == 'si' ? 'අවලංගු කරන්න' : 'Cancel'),
+            child: Text(currentLang == 'si'
+                ? 'අවලංගු කරන්න'
+                : (currentLang == 'ta' ? 'ரத்து செய்' : 'Cancel')),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(
-              currentLang == 'si' ? 'මකන්න' : 'Delete',
+              currentLang == 'si'
+                  ? 'මකන්න'
+                  : (currentLang == 'ta' ? 'நீக்கு' : 'Delete'),
               style: const TextStyle(color: Colors.red),
             ),
           ),
@@ -951,21 +971,29 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(currentLang == 'si' ? 'සියලු සාකච්ඡා මකන්නද?' : 'Clear All Conversations?'),
+        title: Text(currentLang == 'si'
+            ? 'සියලු සාකච්ඡා මකන්නද?'
+            : (currentLang == 'ta' ? 'அனைத்து உரையாடல்களையும் நீக்கவா?' : 'Clear All Conversations?')),
         content: Text(
           currentLang == 'si'
               ? 'ඔබගේ සියලුම පැරණි කෘෂි සාකච්ඡා ඉතිහාසය මකා දැමීමට ඔබට සහතිකද?'
-              : 'Are you sure you want to delete all saved conversations? This cannot be undone.',
+              : (currentLang == 'ta'
+                  ? 'அனைத்து பழைய உரையாடல்களையும் நீக்க உறுதிப்படுத்துகிறீர்களா?'
+                  : 'Are you sure you want to delete all saved conversations? This cannot be undone.'),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: Text(currentLang == 'si' ? 'අවලංගු කරන්න' : 'Cancel'),
+            child: Text(currentLang == 'si'
+                ? 'අවලංගු කරන්න'
+                : (currentLang == 'ta' ? 'ரத்து செய்' : 'Cancel')),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(
-              currentLang == 'si' ? 'ඔව්, මකන්න' : 'Clear All',
+              currentLang == 'si'
+                  ? 'ඔව්, මකන්න'
+                  : (currentLang == 'ta' ? 'ஆம், நீக்கு' : 'Clear All'),
               style: const TextStyle(color: Colors.red),
             ),
           ),
@@ -1012,32 +1040,59 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
               prompt: '__SCAN__',
             ),
           ]
-        : [
-            (
-              icon: Icons.pest_control_rounded,
-              title: 'Pest & Disease Diagnosis',
-              desc: 'Why are my crop leaves turning yellow?',
-              prompt: 'My crop leaves are turning yellow with brown spots. What are the causes, remedies, and prevention steps point-by-point?',
-            ),
-            (
-              icon: Icons.compost_rounded,
-              title: 'Organic Fertilizer Recipes',
-              desc: 'Best natural homemade fertilizers for high yield',
-              prompt: 'Explain how to prepare effective organic liquid fertilizer and compost step-by-step.',
-            ),
-            (
-              icon: Icons.water_drop_rounded,
-              title: 'Irrigation & Watering',
-              desc: 'Optimal watering schedule in dry weather',
-              prompt: 'What is the optimal irrigation schedule and water conservation method for vegetable cultivation?',
-            ),
-            (
-              icon: Icons.camera_alt_rounded,
-              title: 'Scan Leaf with Camera',
-              desc: 'Take a leaf photo for instant AI diagnosis',
-              prompt: '__SCAN__',
-            ),
-          ];
+        : (currentLang == 'ta'
+            ? [
+                (
+                  icon: Icons.pest_control_rounded,
+                  title: 'பயிர் நோய்கள் மற்றும் பூச்சிகள்',
+                  desc: 'பயிரின் இலைகள் மஞ்சள் நிறமாக மாறக் காரணம் என்ன?',
+                  prompt: 'எனது பயிர் இலைகள் மஞ்சள் நிறமாக மாறியுள்ளன. காரணங்கள் மற்றும் இயற்கை தீர்வுகளை விளக்கவும்.',
+                ),
+                (
+                  icon: Icons.compost_rounded,
+                  title: 'இயற்கை உரம் செய்முறைகள்',
+                  desc: 'வீட்டிலேயே செய்யக்கூடிய இயற்கை உரங்கள் யாவை?',
+                  prompt: 'வீட்டிலேயே செய்யக்கூடிய பயனுள்ள இயற்கை உரம் மற்றும் கம்போஸ்ட் தயாரிக்கும் முறைகளை விளக்கவும்.',
+                ),
+                (
+                  icon: Icons.water_drop_rounded,
+                  title: 'நீர்ப்பாசன ஆலோசனைகள்',
+                  desc: 'வறண்ட காலநிலையில் சிறந்த நீர் மேலாண்மை',
+                  prompt: 'வறண்ட காலநிலையில் காய்கறிப் பயிர்களுக்கான உகந்த நீர்ப்பாசன முறையை விளக்கவும்.',
+                ),
+                (
+                  icon: Icons.camera_alt_rounded,
+                  title: 'இலையை ஸ்கேன் செய்து கேட்கவும்',
+                  desc: 'கேமரா மூலம் படம் எடுத்து நோயைக் கண்டறியவும்',
+                  prompt: '__SCAN__',
+                ),
+              ]
+            : [
+                (
+                  icon: Icons.pest_control_rounded,
+                  title: 'Pest & Disease Diagnosis',
+                  desc: 'Why are my crop leaves turning yellow?',
+                  prompt: 'My crop leaves are turning yellow with brown spots. What are the causes, remedies, and prevention steps point-by-point?',
+                ),
+                (
+                  icon: Icons.compost_rounded,
+                  title: 'Organic Fertilizer Recipes',
+                  desc: 'Best natural homemade fertilizers for high yield',
+                  prompt: 'Explain how to prepare effective organic liquid fertilizer and compost step-by-step.',
+                ),
+                (
+                  icon: Icons.water_drop_rounded,
+                  title: 'Irrigation & Watering',
+                  desc: 'Optimal watering schedule in dry weather',
+                  prompt: 'What is the optimal irrigation schedule and water conservation method for vegetable cultivation?',
+                ),
+                (
+                  icon: Icons.camera_alt_rounded,
+                  title: 'Scan Leaf with Camera',
+                  desc: 'Take a leaf photo for instant AI diagnosis',
+                  prompt: '__SCAN__',
+                ),
+              ]);
 
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
@@ -1062,7 +1117,9 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            currentLang == 'si' ? 'AgriAI කෘෂි සහායක' : 'AgriAI Smart Assistant',
+            currentLang == 'si'
+                ? 'AgriAI කෘෂි සහායක'
+                : (currentLang == 'ta' ? 'AgriAI விவசாய உதவியாளர்' : 'AgriAI Smart Assistant'),
             style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 6),
@@ -1070,8 +1127,10 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Text(
               currentLang == 'si'
-                  ? 'වගාවන්, පළිබෝධ, පස, පොහොර සහ ගොවිතැන් කටයුතු පිළිබඳ ඕනෑම ගැටලුවක් විමසන්න. (කෘෂිකාර්මික උපදෙස් සඳහා පමණි)'
-                  : 'Your dedicated 24/7 farming companion. Ask anything about crops, plant diseases, soil, fertilizers, and irrigation.',
+                  ? 'වගාවන්, පළිබෝධ, පස, පොහොර සහ ගොවිතැන් කටයුතු පිළිබඳ ඕනෑම ගැටලුවක් විමසන්න.'
+                  : (currentLang == 'ta'
+                      ? 'பயிர்கள், பூச்சிகள், மண், உரம் மற்றும் நீர்ப்பாசனம் குறித்த ஆலோசனைகளைக் கேட்கலாம்.'
+                      : 'Your dedicated 24/7 farming companion. Ask anything about crops, plant diseases, soil, fertilizers, and irrigation.'),
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.grey.shade600, fontSize: 13, height: 1.4),
             ),
@@ -1081,7 +1140,9 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
           Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              currentLang == 'si' ? 'ජනප්‍රිය කෘෂි මාතෘකා' : 'Popular Inquiries',
+              currentLang == 'si'
+                  ? 'ජනප්‍රිය කෘෂි මාතෘකා'
+                  : (currentLang == 'ta' ? 'பிரபலமான தலைப்புகள்' : 'Popular Inquiries'),
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, letterSpacing: 0.5),
             ),
           ),
@@ -1244,7 +1305,7 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
                       '• நோய்: $condition\n'
                       '• தீவிரம்: ${result.severity}\n'
                       '• மாதிரி துல்லியம்: ${(result.confidence * 100).toStringAsFixed(1)}%\n\n'
-                      'தயவுசெய்து இந்த நோயைக் கட்டுப்படுத்த வழிகாட்டல்களை குறிப்புகளாக (Point by point) விளக்கவும்.';
+                      'தயவுசெய்து இந்த நோயைக் கட்டுப்படுத்த வழிகாட்டல்களை தெளிவாக விளக்குங்கள்.';
                 } else {
                   prompt = 'I scanned a crop leaf and the diagnosis returned the following details:\n\n'
                       '• Condition: $condition\n'
@@ -1255,6 +1316,8 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
               } else {
                 if (currentLang == 'si') {
                   prompt = 'මගේ බෝගය නිරෝගී (${result.label}) ලෙස ස්කෑන් කර ඇත. මෙම බෝගයේ නිරෝගීභාවය රැක ගැනීමට අවශ්‍ය උපදෙස් කරුණු වශයෙන් ලබා දෙන්න.';
+                } else if (currentLang == 'ta') {
+                  prompt = 'எனது பயிர் ஆரோக்கியமானது (${result.label}) என உறுதி செய்யப்பட்டுள்ளது. இதன் ஆரோக்கியத்தைப் பேணவும் அதிக விளைச்சலைப் பெறவும் தேவையான ஆலோசனைகளை விளக்கவும்.';
                 } else {
                   prompt = 'I scanned my crop leaf and it was identified as healthy (${result.label}). Please provide care tips to maximize yield.';
                 }
@@ -1358,30 +1421,33 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
     if (image == null) return;
 
     if (!mounted) return;
+    final currentLang = ref.read(localeProvider).languageCode;
+    final analyzingText = currentLang == 'si'
+        ? 'AI මගින් පත්‍රය පරීක්ෂා කරමින් පවතී...'
+        : (currentLang == 'ta' ? 'AI மூலம் இலை ஆய்வு செய்யப்படுகிறது...' : 'Analyzing leaf with AI...');
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
+      SnackBar(
         content: Row(
           children: [
-            SizedBox(
+            const SizedBox(
               width: 16,
               height: 16,
               child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
             ),
-            SizedBox(width: 12),
-            Text('Analyzing leaf with AI...'),
+            const SizedBox(width: 12),
+            Text(analyzingText),
           ],
         ),
-        duration: Duration(seconds: 4),
+        duration: const Duration(seconds: 4),
       ),
     );
 
     try {
       final classifier = ref.read(cropDiseaseClassifierProvider);
-      final results = await classifier.classifyImage(image.path);
+      final results = await classifier.classifyImage(image.path, language: currentLang);
       if (results.isEmpty) return;
 
       final result = results.first;
-      final currentLang = ref.read(localeProvider).languageCode;
       final isDiseased = !result.isHealthy && !result.label.contains('Unrecognized');
       final condition = result.diseaseName.isNotEmpty ? result.diseaseName : result.label;
 
@@ -1390,17 +1456,17 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
         if (currentLang == 'si') {
           prompt = 'මගේ බෝගයේ කොළ ස්කෑන් කළ විට හඳුනාගත් රෝග විස්තර පහත දැක්වේ:\n\n'
               '• හඳුනාගත් රෝගය: $condition\n'
-              '• බරපතලකම (Severity): ${result.severity}\n'
+              '• බරපතලකම: ${result.severity}\n'
               '• ආකෘති විශ්වාසනීයත්වය: ${(result.confidence * 100).toStringAsFixed(1)}%\n'
               '${result.treatmentPlan.isNotEmpty ? '• මූලික උපදෙස්: ${result.treatmentPlan}\n' : ''}\n'
-              'කරුණාකර මෙම රෝගය සුව කිරීමට අවශ්‍ය සවිස්තරාත්මක ප්‍රතිකාර, ස්වාභාවික හා කාබනික ක්‍රම, සහ නැවත බෝවීම වැළැක්වීමේ පියවර කරුණු වශයෙන් (Point by point) පැහැදිලිව ලබා දෙන්න.';
+              'කරුණාකර මෙම රෝගය සුව කිරීමට අවශ්‍ය සවිස්තරාත්මක ප්‍රතිකාර, ස්වාභාවික හා කාබනික ක්‍රම, සහ නැවත බෝවීම වැළැක්වීමේ පියවර කරුණු වශයෙන් පැහැදිලිව ලබා දෙන්න.';
         } else if (currentLang == 'ta') {
           prompt = 'எனது பயிரின் இலை ஸ்கேன் செய்யப்பட்டதன் முடிவுகள்:\n\n'
               '• கண்டறியப்பட்ட நோய்: $condition\n'
               '• தீவிரம்: ${result.severity}\n'
               '• மாதிரி துல்லியம்: ${(result.confidence * 100).toStringAsFixed(1)}%\n'
               '${result.treatmentPlan.isNotEmpty ? '• முதற்கட்ட சிகிச்சை: ${result.treatmentPlan}\n' : ''}\n'
-              'தயவுசெய்து இந்த நோயைக் கட்டுப்படுத்த இயற்கை முறைகள், மருந்து பரிந்துரைகள் மற்றும் தடுப்பு வழிகளை குறிப்புகளாக (Point by point) தெளிவாக விளக்குங்கள்.';
+              'தயவுசெய்து இந்த நோயைக் கட்டுப்படுத்த இயற்கை முறைகள், மருந்து பரிந்துரைகள் மற்றும் தடுப்பு வழிகளை தெளிவாக விளக்குங்கள்.';
         } else {
           prompt = 'I scanned a crop leaf and the diagnosis returned the following details:\n\n'
               '• Crop Condition / Disease: $condition\n'
@@ -1416,9 +1482,9 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
         }
       } else {
         if (currentLang == 'si') {
-          prompt = 'මගේ බෝගය නිරෝගී (${result.label}) ලෙස ස්කෑන් කර ඇත. මෙම බෝගයේ නිරෝගීභාවය රැකගෙන උපරිම අස්වැන්නක් ලබා ගැනීමට අවශ්‍ය ජල සම්පාදනය, පොහොර යෙදීම සහ රැකවරණ උපදෙස් කරුණු වශයෙන් (Point by point) පැහැදිලි කරන්න.';
+          prompt = 'මගේ බෝගය නිරෝගී (${result.label}) ලෙස ස්කෑන් කර ඇත. මෙම බෝගයේ නිරෝගීභාවය රැකගෙන උපරිම අස්වැන්නක් ලබා ගැනීමට අවශ්‍ය ජල සම්පාදනය, පොහොර යෙදීම සහ රැකවරණ උපදෙස් කරුණු වශයෙන් පැහැදිලි කරන්න.';
         } else if (currentLang == 'ta') {
-          prompt = 'எனது பயிர் ஆரோக்கியமானது (${result.label}) என உறுதி செய்யப்பட்டுள்ளது. இதன் ஆரோக்கியத்தைப் பேணவும் அதிக விளைச்சலைப் பெறவும் தேவையான ஆலோசனைகளை குறிப்புகளாக (Point by point) விளக்கவும்.';
+          prompt = 'எனது பயிர் ஆரோக்கியமானது (${result.label}) என உறுதி செய்யப்பட்டுள்ளது. இதன் ஆரோக்கியத்தைப் பேணவும் அதிக விளைச்சலைப் பெறவும் தேவையான ஆலோசனைகளை தெளிவாக விளக்கவும்.';
         } else {
           prompt = 'I scanned my crop leaf and it was identified as healthy (${result.label}). Please provide point-by-point advice on optimal fertilizers, irrigation schedule, and preventive care to maximize healthy yield.';
         }

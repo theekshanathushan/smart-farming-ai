@@ -226,12 +226,12 @@ class ScanHistoryScreen extends ConsumerWidget {
                           prompt = 'පෙර ස්කෑන් කරන ලද බෝගයේ තොරතුරු:\n'
                               '• බෝගය / රෝගය: ${item.predictedLabel}\n'
                               '• විශ්වාසනීයත්වය: ${(item.confidence * 100).toStringAsFixed(1)}%\n\n'
-                              'කරුණාකර මෙම බෝගය රැකබලා ගැනීමට හෝ ප්‍රතිකාර කිරීමට අවශ්‍ය උපදෙස් කරුණු වශයෙන් (Point by point) සවිස්තරාත්මකව ලබා දෙන්න.';
+                              'කරුණාකර මෙම බෝගය රැකබලා ගැනීමට හෝ ප්‍රතිකාර කිරීමට අවශ්‍ය උපදෙස් කරුණු වශයෙන් සවිස්තරාත්මකව ලබා දෙන්න.';
                         } else if (currentLang == 'ta') {
                           prompt = 'முந்தைய ஸ்கேன் செய்யப்பட்ட பயிர் விபரம்:\n'
                               '• பயிர் / நோய்: ${item.predictedLabel}\n'
                               '• துல்லியம்: ${(item.confidence * 100).toStringAsFixed(1)}%\n\n'
-                              'தயவுசெய்து இந்த பயிருக்கான விரிவான பராமரிப்பு அல்லது சிகிச்சை வழிகாட்டல்களை குறிப்புகளாக (Point by point) விளக்கவும்.';
+                              'தயவுசெய்து இந்த பயிருக்கான விரிவான பராமரிப்பு அல்லது சிகிச்சை வழிகாட்டல்களை குறிப்புகளாக விளக்கவும்.';
                         } else {
                           prompt = 'Details from a previous scan in my history:\n'
                               '• Crop / Diagnosis: ${item.predictedLabel}\n'

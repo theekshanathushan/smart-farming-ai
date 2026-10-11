@@ -32,19 +32,20 @@ class CameraScanScreen extends ConsumerWidget {
             '${result.cropType.isNotEmpty ? '• බෝග වර්ගය: ${result.cropType}\n' : ''}'
             '${result.botanicalName.isNotEmpty ? '• උද්භිද විද්‍යාත්මක නම: ${result.botanicalName}\n' : ''}'
             '• හඳුනාගත් රෝගය: $condition\n'
-            '• බරපතලකම (Severity): ${result.severity}\n'
+            '• බරපතලකම: ${result.severity}\n'
             '${result.symptoms.isNotEmpty ? '• ප්‍රධාන රෝග ලක්ෂණ: ${result.symptoms}\n' : ''}'
             '• ආකෘති විශ්වාසනීයත්වය: ${(result.confidence * 100).toStringAsFixed(1)}%\n'
             '${result.treatmentPlan.isNotEmpty ? '• මූලික සැලැස්ම: ${result.treatmentPlan}\n' : ''}\n'
-            'කරුණාකර මෙම රෝගය සුව කිරීමට අවශ්‍ය සවිස්තරාත්මක ප්‍රතිකාර, ස්වාභාවික හා කාබනික ක්‍රම, රසායනික මාත්‍රා, සහ නැවත බෝවීම වැළැක්වීමේ පියවර කරුණු වශයෙන් (Point by point) පැහැදිලිව ලබා දෙන්න.';
+            'කරුණාකර මෙම රෝගය සුව කිරීමට අවශ්‍ය සවිස්තරාත්මක ප්‍රතිකාර, ස්වාභාවික හා කාබනික ක්‍රම, රසායනික මාත්‍රා, සහ නැවත බෝවීම වැළැක්වීමේ පියවර කරුණු වශයෙන් පැහැදිලිව ලබා දෙන්න.';
       } else if (currentLang == 'ta') {
         prompt = 'எனது பயிரின் இலை ஸ்கேன் செய்யப்பட்டதன் முடிவுகள்:\n\n'
             '• பயிர் பெயர்: $plant\n'
             '${result.cropType.isNotEmpty ? '• பயிர் வகை: ${result.cropType}\n' : ''}'
+            '${result.botanicalName.isNotEmpty ? '• தாவரவியல் பெயர்: ${result.botanicalName}\n' : ''}'
             '• கண்டறியப்பட்ட நோய்: $condition\n'
             '• தீவிரம்: ${result.severity}\n'
             '• மாதிரி துல்லியம்: ${(result.confidence * 100).toStringAsFixed(1)}%\n'
-            'தயவுசெய்து இந்த நோயைக் கட்டுப்படுத்த இயற்கை முறைகள், மருந்து பரிந்துரைகள் மற்றும் தடுப்பு வழிகளை குறிப்புகளாக (Point by point) தெளிவாக விளக்குங்கள்.';
+            'தயவுசெய்து இந்த நோயைக் கட்டுப்படுத்த இயற்கை முறைகள், மருந்து பரிந்துரைகள் மற்றும் தடுப்பு வழிகளை குறிப்புகளாக தெளிவாக விளக்குங்கள்.';
       } else {
         prompt = 'I scanned a crop leaf and the diagnosis returned the following details:\n\n'
             '• Plant Name: $plant\n'
@@ -63,7 +64,7 @@ class CameraScanScreen extends ConsumerWidget {
       }
     } else if (isHealthy) {
       if (currentLang == 'si') {
-        prompt = 'මගේ බෝගය ($plant) නිරෝගී ලෙස ස්කෑන් කර ඇත. ${result.botanicalName.isNotEmpty ? "(${result.botanicalName}) " : ""}මෙම බෝගයේ නිරෝගීභාවය රැකගෙන උපරිම අස්වැන්නක් ලබා ගැනීමට අවශ්‍ය ජල සම්පාදනය, පොහොර යෙදීම සහ රැකවරණ උපදෙස් කරුණු වශයෙන් (Point by point) පැහැදිලි කරන්න.';
+        prompt = 'මගේ බෝගය ($plant) නිරෝගී ලෙස ස්කෑන් කර ඇත. ${result.botanicalName.isNotEmpty ? "(${result.botanicalName}) " : ""}මෙම බෝගයේ නිරෝගීභාවය රැකගෙන උපරිම අස්වැන්නක් ලබා ගැනීමට අවශ්‍ය ජල සම්පාදනය, පොහොර යෙදීම සහ රැකවරණ උපදෙස් කරුණු වශයෙන් පැහැදිලි කරන්න.';
       } else if (currentLang == 'ta') {
         prompt = 'எனது பயிர் ($plant) ஆரோக்கியமானது என உறுதி செய்யப்பட்டுள்ளது. இதன் ஆரோக்கியத்தைப் பேணவும் அதிக விளைச்சலைப் பெறவும் தேவையான ஆலோசனைகளை விளக்கவும்.';
       } else {
@@ -85,7 +86,13 @@ class CameraScanScreen extends ConsumerWidget {
           ? 'ශාක පරීක්ෂාව'
           : (currentLang == 'ta' ? 'பயிர் ஆய்வு' : 'Plant Diagnostic Scan');
     } else {
-      plantTitle = isDiseased ? '$plant ($condition)' : '$plant (Healthy)';
+      if (currentLang == 'si') {
+        plantTitle = isDiseased ? '$plant ($condition)' : '$plant (නිරෝගී)';
+      } else if (currentLang == 'ta') {
+        plantTitle = isDiseased ? '$plant ($condition)' : '$plant (ஆரோக்கியமானது)';
+      } else {
+        plantTitle = isDiseased ? '$plant ($condition)' : '$plant (Healthy)';
+      }
     }
 
     context.push('/chat', extra: {
@@ -412,7 +419,7 @@ class CameraScanScreen extends ConsumerWidget {
               icon: const Icon(Icons.refresh_rounded),
               label: Text(
                 currentLang == 'si'
-                    ? 'නැවත ස්කෑන් කරන්න (Rescan)'
+                    ? 'නැවත ස්කෑන් කරන්න'
                     : (currentLang == 'ta' ? 'மீண்டும் ஸ்கேன் செய்' : 'Rescan / Retake Photo'),
                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
@@ -428,7 +435,9 @@ class CameraScanScreen extends ConsumerWidget {
               onPressed: () => _handleCapture(ref, context, ImageSource.camera),
               icon: const Icon(Icons.camera_alt_outlined),
               label: Text(
-                currentLang == 'si' ? 'කැමරාවෙන් අලුත් ඡායාරූපයක් ගන්න' : 'Take New Photo with Camera',
+                currentLang == 'si'
+                    ? 'කැමරාවෙන් අලුත් ඡායාරූපයක් ගන්න'
+                    : (currentLang == 'ta' ? 'கேமரா மூலம் படம் எடுக்கவும்' : 'Take New Photo with Camera'),
               ),
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 14),
@@ -585,7 +594,7 @@ class CameraScanScreen extends ConsumerWidget {
                       const SizedBox(width: 8),
                       Text(
                         currentLang == 'si'
-                            ? 'ශාකයේ සම්පූර්ණ විස්තරය (Plant Profile)'
+                            ? 'ශාකයේ සම්පූර්ණ විස්තරය'
                             : (currentLang == 'ta' ? 'பயிர் விவரக்குறிப்பு' : 'Plant & Crop Profile'),
                         style: Theme.of(context).textTheme.titleSmall?.copyWith(
                               fontWeight: FontWeight.bold,
@@ -639,7 +648,7 @@ class CameraScanScreen extends ConsumerWidget {
                         const SizedBox(width: 6),
                         Expanded(
                           child: Text(
-                            '${currentLang == 'si' ? 'උද්භිද විද්‍යාත්මක නම' : 'Botanical Name'}: ${state.result!.botanicalName}',
+                            '${currentLang == 'si' ? 'උද්භිද විද්‍යාත්මක නම' : (currentLang == 'ta' ? 'தாவரவியல் பெயர்' : 'Botanical Name')}: ${state.result!.botanicalName}',
                             style: const TextStyle(fontSize: 12, fontStyle: FontStyle.italic, color: Colors.grey),
                           ),
                         ),
@@ -916,7 +925,7 @@ class CameraScanScreen extends ConsumerWidget {
             icon: const Icon(Icons.refresh_rounded),
             label: Text(
               currentLang == 'si'
-                  ? 'වෙනත් බෝගයක් ස්කෑන් කරන්න (Rescan)'
+                  ? 'වෙනත් බෝගයක් ස්කෑන් කරන්න'
                   : (currentLang == 'ta' ? 'வேறு பயிரை ஸ்கேன் செய்யவும்' : 'Scan Another Crop / Rescan'),
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),

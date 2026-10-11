@@ -291,13 +291,13 @@ class AppLocalizationsSi extends AppLocalizations {
   String get qualityGrade => 'තත්ත්ව ශ්‍රේණිය';
 
   @override
-  String get gradeA => 'Grade A (පළමු පෙළ)';
+  String get gradeA => 'පළමු පෙළ (උසස්)';
 
   @override
-  String get gradeB => 'Grade B (සාමාන්‍ය)';
+  String get gradeB => 'දෙවන පෙළ (සාමාන්‍ය)';
 
   @override
-  String get organic => 'කාබනික (Organic)';
+  String get organic => 'කාබනික';
 
   @override
   String get harvestDateLabel => 'නෙළාගත් දිනය';

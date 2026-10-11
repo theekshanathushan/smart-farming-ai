@@ -44,7 +44,7 @@ class HybridCropDiseaseClassifier implements ICropDiseaseClassifier {
         : (language == 'ta' ? 'தாவரம் கண்டறியப்படவில்லை' : 'No Plant Detected / Scan Failed');
 
     final rescanPrompt = language == 'si'
-        ? 'ඡායාරූපයෙහි ශාකයක් හෝ බෝගයක් හඳුනාගත නොහැකි විය (උදා: බෝතල්, හෙල්මට් හෝ වෙනත් උපකරණ). කරුණාකර සැබෑ ශාක පත්‍රයක් හෝ බෝගයක් ආලෝකය සහිතව ඡායාරූපගත කර අන්තර්ජාලය සක්‍රියව නැවත ස්කෑන් කරන්න (Rescan).'
+        ? 'ඡායාරූපයෙහි ශාකයක් හෝ බෝගයක් හඳුනාගත නොහැකි විය (උදා: බෝතල්, හෙල්මට් හෝ වෙනත් උපකරණ). කරුණාකර සැබෑ ශාක පත්‍රයක් හෝ බෝගයක් ආලෝකය සහිතව ඡායාරූපගත කර අන්තර්ජාලය සක්‍රියව නැවත ස්කෑන් කරන්න.'
         : (language == 'ta'
             ? 'படத்தில் தாவர இலை கண்டறியப்படவில்லை. தயவுசெய்து உண்மையான பயிர் இலையை படம் எடுத்து மீண்டும் ஸ்கேன் செய்யவும்.'
             : 'No crop or plant leaf recognized. Please focus on an actual plant leaf with good lighting, ensure internet connection, and rescan.');
@@ -228,24 +228,32 @@ class TFLiteCropDiseaseClassifier implements ICropDiseaseClassifier {
       return [
         ClassifierResult(
           label: language == 'si'
-              ? 'රෝගී පත්‍ර ලක්ෂණ (නොබැඳි හඳුනාගැනීම)'
-              : (language == 'ta' ? 'பாதிக்கப்பட்ட இலை (ஆஃப்லைன்)' : 'Diseased Foliage (Offline)'),
+              ? 'රෝගී පත්‍ර ලක්ෂණ'
+              : (language == 'ta' ? 'பாதிக்கப்பட்ட இலை' : 'Diseased Foliage'),
           confidence: confidence,
           isHealthy: false,
           diseaseName: language == 'si'
-              ? 'පත්‍ර ආසාදනයක් හඳුනාගන්නා ලදී (Online සවිස්තර අවශ්‍යයි)'
-              : (language == 'ta' ? 'இலை பாதிப்பு கண்டறியப்பட்டது' : 'Leaf Disease Detected (Requires Online AI)'),
+              ? 'පත්‍ර ආසාදනයක් හඳුනාගන්නා ලදී'
+              : (language == 'ta' ? 'இலை பாதிப்பு கண்டறியப்பட்டது' : 'Leaf Disease Detected'),
           treatmentPlan: language == 'si'
-              ? 'බෝගයේ නිශ්චිත නම, විද්‍යාත්මක වර්ගීකරණය සහ නිවැරදි රසායනික/කාබනික ප්‍රතිකාර ලබා ගැනීමට කරුණාකර අන්තර්ජාල සම්බන්ධතාවය සක්‍රිය කර නැවත ස්කෑන් කරන්න (Rescan).'
+              ? 'බෝගයේ නිශ්චිත නම, විද්‍යාත්මක වර්ගීකරණය සහ නිවැරදි රසායනික හා කාබනික ප්‍රතිකාර ලබා ගැනීමට කරුණාකර අන්තර්ජාල සම්බන්ධතාවය සක්‍රිය කර නැවත ස්කෑන් කරන්න.'
               : (language == 'ta'
-                  ? 'துல்லியமான பயிர் வகை மற்றும் முழு சிகிச்சை பெற இணையத்தை இயக்கி மீண்டும் ஸ்கேன் செய்யவும்.'
+                  ? 'துல்லியமான பயிர் வகை மற்றும் முழுமையான சிகிச்சை பெற இணையத்தை இயக்கி மீண்டும் ஸ்கேன் செய்யவும்.'
                   : 'To get the exact crop name, botanical identification, and verified treatment dosages, please connect to the internet and rescan.'),
           severity: language == 'si' ? 'මධ්‍යම' : (language == 'ta' ? 'நடுத்தரம்' : 'Moderate'),
-          plantName: language == 'si' ? 'හඳුනාගත් ශාකය' : 'Identified Plant',
-          cropType: language == 'si' ? 'ගොවිපළ බෝගය' : 'Crop',
+          plantName: language == 'si'
+              ? 'හඳුනාගත් ශාකය'
+              : (language == 'ta' ? 'அடையாளம் காணப்பட்ட பயிர்' : 'Identified Plant'),
+          cropType: language == 'si'
+              ? 'ගොවිපළ බෝගය'
+              : (language == 'ta' ? 'பயிர்' : 'Crop'),
           botanicalName: '',
-          symptoms: language == 'si' ? 'පත්‍රයේ දුර්වර්ණ වීම් හෝ ලප නිරීක්ෂණය වේ.' : 'Foliage discoloration or spotting detected.',
-          immediateActions: language == 'si' ? 'ආසාදිත කොළ අනෙක් පැළ වලින් වෙන් කර නිරීක්ෂණය කරන්න.' : 'Isolate affected plant from healthy crops.',
+          symptoms: language == 'si'
+              ? 'පත්‍රයේ දුර්වර්ණ වීම් හෝ ලප නිරීක්ෂණය වේ.'
+              : (language == 'ta' ? 'இலையில் நிறமாற்றம் அல்லது புள்ளிகள் காணப்படுகின்றன.' : 'Foliage discoloration or spotting detected.'),
+          immediateActions: language == 'si'
+              ? 'ආසාදිත කොළ අනෙක් පැළ වලින් වෙන් කර නිරීක්ෂණය කරන්න.'
+              : (language == 'ta' ? 'பாதிக்கப்பட்ட செடியை ஆரோக்கியமான பயிர்களிலிருந்து தனிமைப்படுத்தவும்.' : 'Isolate affected plant from healthy crops.'),
           organicRemedies: '',
           chemicalRemedies: '',
           preventiveTips: '',
@@ -256,19 +264,27 @@ class TFLiteCropDiseaseClassifier implements ICropDiseaseClassifier {
       return [
         ClassifierResult(
           label: language == 'si'
-              ? 'නිරෝගී ශාක පත්‍රය (නොබැඳි හඳුනාගැනීම)'
-              : (language == 'ta' ? 'ஆரோக்கியமான இலை (ஆஃப்லைன்)' : 'Healthy Leaf (Offline)'),
+              ? 'නිරෝගී ශාක පත්‍රය'
+              : (language == 'ta' ? 'ஆரோக்கியமான இலை' : 'Healthy Leaf'),
           confidence: confidence,
           isHealthy: true,
           diseaseName: '',
           treatmentPlan: language == 'si'
-              ? 'ශාක පත්‍රය නිරෝගී තත්ත්වයේ පවතී. නිතිපතා ජලය සහ කාබනික පොහොර යොදන්න. සවිස්තර බෝග තොරතුරු සඳහා Online සම්බන්ධ වන්න.'
-              : 'Foliage appears healthy. Maintain regular watering schedule.',
+              ? 'ශාක පත්‍රය නිරෝගී තත්ත්වයේ පවතී. නිතිපතා ජලය සහ කාබනික පොහොර යොදන්න.'
+              : (language == 'ta'
+                  ? 'இலை ஆரோக்கியமாக உள்ளது. வழக்கமான நீர் மற்றும் இயற்கை உரங்களை இடவும்.'
+                  : 'Foliage appears healthy. Maintain regular watering schedule.'),
           severity: language == 'si' ? 'නැත' : (language == 'ta' ? 'இல்லை' : 'None'),
-          plantName: language == 'si' ? 'නිරෝගී ශාකය' : 'Healthy Plant',
-          cropType: language == 'si' ? 'ගොවිපළ බෝගය' : 'Crop',
+          plantName: language == 'si'
+              ? 'නිරෝගී ශාකය'
+              : (language == 'ta' ? 'ஆரோக்கியமான செடி' : 'Healthy Plant'),
+          cropType: language == 'si'
+              ? 'ගොවිපළ බෝගය'
+              : (language == 'ta' ? 'பயிர்' : 'Crop'),
           botanicalName: '',
-          symptoms: language == 'si' ? 'නිරෝගී හරිත පැහැය.' : 'Healthy green foliage.',
+          symptoms: language == 'si'
+              ? 'නිරෝගී හරිත පැහැය.'
+              : (language == 'ta' ? 'ஆரோக்கியமான பச்சை இலை.' : 'Healthy green foliage.'),
           immediateActions: '',
           organicRemedies: '',
           chemicalRemedies: '',

@@ -66,7 +66,11 @@ class AgentApiClient {
           '     ### 🛡️ 5. நீண்ட கால களப் பராமரிப்பு மற்றும் தடுப்பு முறைகள்';
     } else {
       languageRule =
-          'Respond 100% in clear, professional English. Do not mix other languages.';
+          '🛑 MANDATORY LANGUAGE POLICY (100% CLEAN ENGLISH ONLY - ZERO SINHALA & ZERO TAMIL):\n'
+          '1. The user has selected English language.\n'
+          '2. You MUST respond 100% in pure, clean, professional English.\n'
+          '3. Do NOT include ANY Sinhala words, Sinhala script, Tamil words, or Tamil script.\n'
+          '4. Even if user questions contain Sinhala or Tamil terms, answer 100% EXCLUSIVELY in English.';
       refusalText =
           '"I am AgriAI, specialized strictly in agriculture and farming advice. I cannot answer non-agricultural questions. Please ask me questions regarding crops, pests, soil, fertilizers, or farming practices."';
       headersTemplate =
@@ -130,7 +134,7 @@ class AgentApiClient {
       if (language == 'si') {
         contextParts.add('ස්ථානය: $latitude, $longitude');
       } else if (language == 'ta') {
-        contextParts.add('அமைවිடம்: $latitude, $longitude');
+        contextParts.add('இடம்: $latitude, $longitude');
       } else {
         contextParts.add('Location: $latitude, $longitude');
       }

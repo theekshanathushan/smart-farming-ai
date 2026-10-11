@@ -60,10 +60,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get english => 'English';
 
   @override
-  String get sinhala => 'Sinhala (සිංහල)';
+  String get sinhala => 'Sinhala';
 
   @override
-  String get tamil => 'Tamil (தமிழ்)';
+  String get tamil => 'Tamil';
 
   @override
   String get navHome => 'Home';

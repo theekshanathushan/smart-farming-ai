@@ -205,13 +205,13 @@ abstract class AppLocalizations {
   /// No description provided for @sinhala.
   ///
   /// In en, this message translates to:
-  /// **'Sinhala (සිංහල)'**
+  /// **'Sinhala'**
   String get sinhala;
 
   /// No description provided for @tamil.
   ///
   /// In en, this message translates to:
-  /// **'Tamil (தமிழ்)'**
+  /// **'Tamil'**
   String get tamil;
 
   /// No description provided for @navHome.

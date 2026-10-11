@@ -291,13 +291,13 @@ class AppLocalizationsTa extends AppLocalizations {
   String get qualityGrade => 'தர வகை';
 
   @override
-  String get gradeA => 'Grade A (உயர் தரம்)';
+  String get gradeA => 'முதல் தரம் (உயர்தரம்)';
 
   @override
-  String get gradeB => 'Grade B (சாதாரண)';
+  String get gradeB => 'இரண்டாம் தரம் (சாதாரண)';
 
   @override
-  String get organic => 'இயற்கை (Organic)';
+  String get organic => 'இயற்கை உரம்';
 
   @override
   String get harvestDateLabel => 'அறுவடை தேதி';

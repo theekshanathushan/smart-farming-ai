@@ -59,22 +59,39 @@ class GeminiCropClassifier {
         debugPrint('Image compression notice: $e');
       }
 
-      String langInstruction = 'Provide all text values in English.';
+      String langInstruction;
+      String exampleCropType;
+      String examplePlantName;
+      String exampleDiseaseName;
+      String severityOptions;
+      String exampleLabel;
+
       if (language == 'si') {
-        langInstruction = 'Provide all text fields ("label", "plantName", "cropType", "diseaseName", "symptoms", "treatmentPlan", "severity", "immediateActions", "organicRemedies", "chemicalRemedies", "irrigationTips", "preventiveTips") 100% EXCLUSIVELY in pure Sinhala script (සිංහල). Zero English words. Zero Singlish.';
+        langInstruction = 'Provide all text fields ("label", "plantName", "cropType", "diseaseName", "symptoms", "treatmentPlan", "severity", "immediateActions", "organicRemedies", "chemicalRemedies", "irrigationTips", "preventiveTips") 100% EXCLUSIVELY in pure Sinhala script (සිංහල). Zero English words. Zero Singlish. Zero Tamil.';
+        exampleCropType = 'string (උදා: "එළවළු බෝගය", "ධාන්‍ය බෝගය", "පළතුරු බෝගය")';
+        examplePlantName = 'string (උදා: "තක්කාලි", "මිරිස්", "බණ්ඩක්කා", "කෙසෙල්", "වම්බටු", "වී")';
+        exampleDiseaseName = 'string (උදා: "අකල් අංගමාරය", "පිටිපුස් රෝගය", "කොළ කොඩවීම". නිරෝගී නම් හිස්ව තබන්න)';
+        severityOptions = '"නැත", "අඩු", "මධ්‍යම", "ඉහළ"';
+        exampleLabel = 'string (උදා: "තක්කාලි අකල් අංගමාරය" හෝ "නිරෝගී තක්කාලි පත්‍රය")';
       } else if (language == 'ta') {
-        langInstruction = 'Provide all text fields 100% EXCLUSIVELY in pure Tamil script (தமிழ்). Zero English words. Zero Tanglish.';
+        langInstruction = 'Provide all text fields ("label", "plantName", "cropType", "diseaseName", "symptoms", "treatmentPlan", "severity", "immediateActions", "organicRemedies", "chemicalRemedies", "irrigationTips", "preventiveTips") 100% EXCLUSIVELY in pure Tamil script (தமிழ்). Zero English words. Zero Tanglish. Zero Sinhala.';
+        exampleCropType = 'string (எ.கா. "காய்கறிப் பயிர்", "தானியப் பயிர்", "பழப் பயிர்")';
+        examplePlantName = 'string (எ.கா. "தக்காளி", "மிளகாய்", "வெண்டைக்காய்", "வாழை", "கத்தரிக்காய்", "நெல்")';
+        exampleDiseaseName = 'string (எ.கா. "ஆரம்பகால கருகல் நோய்", "சாம்பல் நோய்", "இலை சுருள் நோய்". ஆரோக்கியமானதாயின் காலியாக விடவும்)';
+        severityOptions = '"இல்லை", "குறைவு", "நடுத்தரம்", "அதிகம்"';
+        exampleLabel = 'string (எ.கா. "தக்காளி ஆரம்பகால கருகல்" அல்லது "ஆரோக்கியமான தக்காளி இலை")';
+      } else {
+        langInstruction = 'Provide all text fields ("label", "plantName", "cropType", "diseaseName", "symptoms", "treatmentPlan", "severity", "immediateActions", "organicRemedies", "chemicalRemedies", "irrigationTips", "preventiveTips") 100% EXCLUSIVELY in clean, professional English. Do not mix any Sinhala or Tamil words.';
+        exampleCropType = 'string (e.g. "Vegetable Crop", "Cereal Crop", "Fruit Crop")';
+        examplePlantName = 'string (e.g. "Tomato", "Chilli", "Okra", "Banana", "Eggplant", "Paddy")';
+        exampleDiseaseName = 'string (e.g. "Early Blight", "Powdery Mildew", "Leaf Curl". If healthy, leave empty)';
+        severityOptions = '"None", "Low", "Moderate", "High"';
+        exampleLabel = 'string (e.g. "Tomato Early Blight" or "Healthy Tomato Leaf")';
       }
 
       final unrecognizedLabel = language == 'si'
           ? 'හඳුනාගත නොහැක / ශාකයක් නොවේ'
           : (language == 'ta' ? 'தாவரம் கண்டறியப்படவில்லை' : 'Not a Plant / Unrecognized Object');
-
-      final rescanAdvice = language == 'si'
-          ? 'මෙම ඡායාරූපයෙහි ශාකයක් හෝ බෝග පත්‍රයක් හඳුනාගත නොහැක (උදා: බෝතල්, ක්‍රීම් බෝතල්, හෙල්මට්, වාහන හෝ වෙනත් භාණ්ඩ). කරුණාකර සැබෑ ශාක පත්‍රයක් හෝ බෝගයක් ආලෝකය සහිතව ඡායාරූපගත කර නැවත ස්කෑන් කරන්න.'
-          : (language == 'ta'
-              ? 'இந்த படத்தில் தாவர இலை கண்டறியப்படவில்லை (பாட்டில், ஹெல்மெட், பிற பொருள்கள்). தயவுசெய்து உண்மையான பயிரின் இலையை படம் எடுத்து மீண்டும் ஸ்கேன் செய்யவும்.'
-              : 'The image does not contain an agricultural plant or crop leaf (e.g. bottle, cream bottle, helmet, furniture, or non-plant item). Please focus the camera on an actual crop leaf and rescan.');
 
       final prompt = '''
 You are an expert plant pathologist, agricultural scientist, and botanist. 
@@ -109,20 +126,20 @@ If "isPlant" is false, return:
 If "isPlant" is true, analyze accurately:
 {
   "isPlant": true,
-  "cropType": string (the exact category and botanical family, e.g. "එළවළු බෝග (Solanaceae)", "ධාන්‍ය බෝග (Poaceae)", "පළතුරු බෝග (Musaceae)"),
-  "plantName": string (the accurate common name of the crop, e.g. "තක්කාලි", "මිරිස්", "බණ්ඩක්කා", "කෙසෙල්", "වම්බටු", "වී", "පොල්"),
+  "cropType": $exampleCropType,
+  "plantName": $examplePlantName,
   "botanicalName": string (the accurate scientific botanical name, e.g. "Solanum lycopersicum", "Capsicum annuum"),
   "isHealthy": boolean (true if the foliage is completely healthy, vigorous and free of disease/pests; false if infected or deficient),
-  "diseaseName": string (exact verified disease or pest diagnosis e.g. "අකල් අංගමාරය (Early Blight)", "පිටිපුස් රෝගය (Powdery Mildew)", "කොළ කොඩවීම (Leaf Curl)". If healthy, leave empty),
+  "diseaseName": $exampleDiseaseName,
   "symptoms": string (detailed description of visual symptoms on the leaf: lesions, chlorosis, concentric rings, spots, wilting. If healthy, describe healthy leaf condition),
-  "severity": string (${language == 'si' ? '"නැත", "අඩු", "මධ්‍යම", "ඉහළ"' : (language == 'ta' ? '"இல்லை", "குறைவு", "நடுத்தரம்", "அதிகம்"' : '"None", "Low", "Moderate", "High"')}),
+  "severity": string ($severityOptions),
   "immediateActions": string (urgent field actions to take immediately: pruning infected foliage, isolating plant, burning debris),
-  "organicRemedies": string (natural organic remedies with exact preparation and dosages: neem oil spray, wood ash, compost tea, baking soda solution),
-  "chemicalRemedies": string (recommended chemical controls and fungicide/insecticide with exact dosages per tank e.g. Mancozeb, Chlorothalonil, Copper Oxychloride),
+  "organicRemedies": string (natural organic remedies with exact preparation and dosages),
+  "chemicalRemedies": string (recommended chemical controls and fungicide/insecticide with exact dosages per tank),
   "irrigationTips": string (watering recommendations: avoid overhead watering, drip irrigation, water only at root level in early morning),
   "preventiveTips": string (long-term crop rotation, resistant varieties, soil solarization, spacing),
   "treatmentPlan": string (summary of comprehensive step-by-step numbered instructions),
-  "label": string (short display title e.g. "තක්කාලි අකල් අංගමාරය" or "නිරෝගී තක්කාලි පත්‍රය")
+  "label": $exampleLabel
 }
 
 Return ONLY valid JSON matching the structure without markdown blocks.

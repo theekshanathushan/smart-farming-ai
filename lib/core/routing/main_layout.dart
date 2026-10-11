@@ -89,17 +89,17 @@ class MainLayout extends ConsumerWidget {
               if (currentLang == 'si') {
                 prompt = 'මගේ බෝගයේ කොළ ස්කෑන් කළ විට හඳුනාගත් රෝග විස්තර පහත දැක්වේ:\n\n'
                     '• හඳුනාගත් රෝගය: $condition\n'
-                    '• බරපතලකම (Severity): ${result.severity}\n'
+                    '• බරපතලකම: ${result.severity}\n'
                     '• ආකෘති විශ්වාසනීයත්වය: ${(result.confidence * 100).toStringAsFixed(1)}%\n'
                     '${result.treatmentPlan.isNotEmpty ? '• මූලික උපදෙස්: ${result.treatmentPlan}\n' : ''}\n'
-                    'කරුණාකර මෙම රෝගය සුව කිරීමට අවශ්‍ය සවිස්තරාත්මක ප්‍රතිකාර, ස්වාභාවික හා කාබනික ක්‍රම, සහ නැවත බෝවීම වැළැක්වීමේ පියවර කරුණු වශයෙන් (Point by point) පැහැදිලිව ලබා දෙන්න.';
+                    'කරුණාකර මෙම රෝගය සුව කිරීමට අවශ්‍ය සවිස්තරාත්මක ප්‍රතිකාර, ස්වාභාවික හා කාබනික ක්‍රම, සහ නැවත බෝවීම වැළැක්වීමේ පියවර කරුණු වශයෙන් පැහැදිලිව ලබා දෙන්න.';
               } else if (currentLang == 'ta') {
                 prompt = 'எனது பயிரின் இலை ஸ்கேன் செய்யப்பட்டதன் முடிவுகள்:\n\n'
                     '• கண்டறியப்பட்ட நோய்: $condition\n'
                     '• தீவிரம்: ${result.severity}\n'
                     '• மாதிரி துல்லியம்: ${(result.confidence * 100).toStringAsFixed(1)}%\n'
                     '${result.treatmentPlan.isNotEmpty ? '• முதற்கட்ட சிகிச்சை: ${result.treatmentPlan}\n' : ''}\n'
-                    'தயவுசெய்து இந்த நோயைக் கட்டுப்படுத்த இயற்கை முறைகள், மருந்து பரிந்துரைகள் மற்றும் தடுப்பு வழிகளை குறிப்புகளாக (Point by point) தெளிவாக விளக்குங்கள்.';
+                    'தயவுசெய்து இந்த நோயைக் கட்டுப்படுத்த இயற்கை முறைகள், மருந்து பரிந்துரைகள் மற்றும் தடுப்பு வழிகளை குறிப்புகளாக தெளிவாக விளக்குங்கள்.';
               } else {
                 prompt = 'I scanned a crop leaf and the diagnosis returned the following details:\n\n'
                     '• Crop Condition / Disease: $condition\n'
@@ -110,7 +110,9 @@ class MainLayout extends ConsumerWidget {
               }
             } else {
               if (currentLang == 'si') {
-                prompt = 'මගේ බෝගය නිරෝගී (${result.label}) ලෙස ස්කෑන් කර ඇත. මෙම බෝගයේ නිරෝගීභාවය රැකගෙන උපරිම අස්වැන්නක් ලබා ගැනීමට අවශ්‍ය ජල සම්පාදනය, පොහොර යෙදීම සහ රැකවරණ උපදෙස් කරුණු වශයෙන් (Point by point) පැහැදිලි කරන්න.';
+                prompt = 'මගේ බෝගය නිරෝගී (${result.label}) ලෙස ස්කෑන් කර ඇත. මෙම බෝගයේ නිරෝගීභාවය රැකගෙන උපරිම අස්වැන්නක් ලබා ගැනීමට අවශ්‍ය ජල සම්පාදනය, පොහොර යෙදීම සහ රැකවරණ උපදෙස් කරුණු වශයෙන් පැහැදිලි කරන්න.';
+              } else if (currentLang == 'ta') {
+                prompt = 'எனது பயிர் ஆரோக்கியமானது (${result.label}) என ஸ்கேன் செய்யப்பட்டுள்ளது. இந்த பயிரின் ஆரோக்கியத்தைப் பேணி அதிக மகசூல் பெற தேவையான நீர்ப்பாசனம், உரமிடல் மற்றும் பராமரிப்பு ஆலோசனைகளை குறிப்புகளாக வழங்கவும்.';
               } else {
                 prompt = 'I scanned my crop leaf and it was identified as healthy (${result.label}). Please provide point-by-point advice on optimal fertilizers, irrigation schedule, and preventive care to maximize healthy yield.';
               }

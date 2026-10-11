@@ -308,8 +308,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                   ? Icons.light_mode_rounded
                                   : Icons.brightness_auto_rounded),
                           locale.languageCode == 'si'
-                              ? 'තේමාව (Theme)'
-                              : (locale.languageCode == 'ta' ? 'தீம் (Theme)' : 'Theme Mode'),
+                              ? 'තේමාව'
+                              : (locale.languageCode == 'ta' ? 'தீம்' : 'Theme Mode'),
                           _getThemeModeName(themeMode, locale.languageCode),
                           textColor,
                           subtextColor,
@@ -480,20 +480,20 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     if (lang == 'si') {
       switch (mode) {
         case ThemeMode.light:
-          return 'ලා තේමාව (Light Mode)';
+          return 'ලා තේමාව';
         case ThemeMode.dark:
-          return 'අඳුරු තේමාව (Dark Mode)';
+          return 'අඳුරු තේමාව';
         case ThemeMode.system:
-          return 'පද්ධතිය අනුව (System Default)';
+          return 'පද්ධතිය අනුව';
       }
     } else if (lang == 'ta') {
       switch (mode) {
         case ThemeMode.light:
-          return 'வெளிச்சம் (Light Mode)';
+          return 'வெளிச்சப் பயன்முறை';
         case ThemeMode.dark:
-          return 'இருள் (Dark Mode)';
+          return 'இருண்ட பயன்முறை';
         case ThemeMode.system:
-          return 'கணினி இயல்புநிலை (System)';
+          return 'சாதன இயல்புநிலை';
       }
     } else {
       switch (mode) {
@@ -533,7 +533,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   const SizedBox(width: 10),
                   Text(
                     lang == 'si'
-                        ? 'තේමාව තෝරන්න (Theme Mode)'
+                        ? 'තේමාව තෝරන්න'
                         : (lang == 'ta' ? 'தீம் அமைப்புகள்' : 'Select Theme Mode'),
                     style: TextStyle(color: textColor, fontSize: 18, fontWeight: FontWeight.bold),
                   ),
@@ -544,8 +544,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               // Light Mode Option
               _buildThemeOptionTile(
                 context,
-                title: lang == 'si' ? 'ලා තේමාව (Light Mode)' : 'Light Mode',
-                subtitle: lang == 'si' ? 'දවල් කාලයට පහසු සුදු/ලා පැහැය' : 'Clean & bright interface for daytime',
+                title: lang == 'si' ? 'ලා තේමාව' : (lang == 'ta' ? 'வெளிச்சப் பயன்முறை' : 'Light Mode'),
+                subtitle: lang == 'si'
+                    ? 'දවල් කාලයට පහසු සුදු/ලා පැහැය'
+                    : (lang == 'ta' ? 'பகல் நேரத்திற்கு ஏற்ற வெளிச்சத் தோற்றம்' : 'Clean & bright interface for daytime'),
                 icon: Icons.light_mode_rounded,
                 iconColor: Colors.amber,
                 isSelected: currentMode == ThemeMode.light,
@@ -563,8 +565,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               // Dark Mode Option
               _buildThemeOptionTile(
                 context,
-                title: lang == 'si' ? 'අඳුරු තේමාව (Dark Mode)' : 'Dark Mode',
-                subtitle: lang == 'si' ? 'ඇසට පහසු නවීන අඳුරු/Obsidian පැහැය' : 'Sleek dark obsidian look, easy on eyes',
+                title: lang == 'si' ? 'අඳුරු තේමාව' : (lang == 'ta' ? 'இருண்ட பயன்முறை' : 'Dark Mode'),
+                subtitle: lang == 'si'
+                    ? 'ඇසට පහසු නවීන අඳුරු පැහැය'
+                    : (lang == 'ta' ? 'கண்களுக்கு இதமான இருண்ட தோற்றம்' : 'Sleek dark obsidian look, easy on eyes'),
                 icon: Icons.dark_mode_rounded,
                 iconColor: Colors.tealAccent,
                 isSelected: currentMode == ThemeMode.dark,
@@ -582,8 +586,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               // System Default Option
               _buildThemeOptionTile(
                 context,
-                title: lang == 'si' ? 'පද්ධතිය අනුව (System Default)' : 'System Default',
-                subtitle: lang == 'si' ? 'දුරකථනයේ තේමාව අනුව ස්වයංක්‍රීයව' : 'Match device OS settings automatically',
+                title: lang == 'si' ? 'පද්ධතිය අනුව' : (lang == 'ta' ? 'சாதன இயல்புநிலை' : 'System Default'),
+                subtitle: lang == 'si'
+                    ? 'දුරකථනයේ තේමාව අනුව ස්වයංක්‍රීයව'
+                    : (lang == 'ta' ? 'தொலைபேசி அமைப்புகளுக்கு ஏற்ப தானாக மாறும்' : 'Match device OS settings automatically'),
                 icon: Icons.brightness_auto_rounded,
                 iconColor: Colors.blueAccent,
                 isSelected: currentMode == ThemeMode.system,
@@ -713,12 +719,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 Navigator.pop(context);
               }),
               const SizedBox(height: 8),
-              _buildLanguageTile('සිංහල (Sinhala)', 'si', currentCode == 'si', textColor, subtextColor, isDark, () {
+              _buildLanguageTile('සිංහල', 'si', currentCode == 'si', textColor, subtextColor, isDark, () {
                 ref.read(localeProvider.notifier).setLocale(const Locale('si'));
                 Navigator.pop(context);
               }),
               const SizedBox(height: 8),
-              _buildLanguageTile('தமிழ் (Tamil)', 'ta', currentCode == 'ta', textColor, subtextColor, isDark, () {
+              _buildLanguageTile('தமிழ்', 'ta', currentCode == 'ta', textColor, subtextColor, isDark, () {
                 ref.read(localeProvider.notifier).setLocale(const Locale('ta'));
                 Navigator.pop(context);
               }),
