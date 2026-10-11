@@ -3,7 +3,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lottie/lottie.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../data/weather_provider.dart';
 import '../../../core/utils/location_service.dart';
@@ -281,6 +280,7 @@ class _WeatherDashboard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final weatherAsync = ref.watch(weatherProvider);
     final l10n = AppLocalizations.of(context)!;
+    final lang = ref.watch(localeProvider).languageCode;
     
     return ClipRRect(
       borderRadius: BorderRadius.circular(24),
@@ -303,8 +303,16 @@ class _WeatherDashboard extends ConsumerWidget {
           child: weatherAsync.when(
             data: (weather) {
               final temp = weather['temperature'] ?? '--';
-              final desc = weather['description'] ?? l10n.currentWeather;
+              final desc = (lang == 'si'
+                      ? weather['description_si']
+                      : lang == 'ta'
+                          ? weather['description_ta']
+                          : weather['description_en']) ??
+                  weather['description'] ??
+                  l10n.currentWeather;
               final location = weather['city'] ?? weather['location'] ?? 'Current Location';
+              final emoji = (weather['emoji'] as String?) ?? '☀️';
+              final condition = (weather['condition'] as String?) ?? 'sunny';
 
               return Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -354,10 +362,9 @@ class _WeatherDashboard extends ConsumerWidget {
                       ),
                     ],
                   ),
-                  SizedBox(
-                    width: 80,
-                    height: 80,
-                    child: Lottie.asset('assets/animations/weather_sun.json'),
+                  _WeatherVisualBadge(
+                    emoji: emoji,
+                    condition: condition,
                   ),
                 ],
               );
@@ -378,6 +385,131 @@ class _WeatherDashboard extends ConsumerWidget {
                 ),
               ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _WeatherVisualBadge extends StatefulWidget {
+  final String emoji;
+  final String condition;
+
+  const _WeatherVisualBadge({
+    required this.emoji,
+    required this.condition,
+  });
+
+  @override
+  State<_WeatherVisualBadge> createState() => _WeatherVisualBadgeState();
+}
+
+class _WeatherVisualBadgeState extends State<_WeatherVisualBadge>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2400),
+    )..repeat(reverse: true);
+    _scaleAnimation = Tween<double>(begin: 0.94, end: 1.06).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  List<Color> _getGlowColors(String condition) {
+    switch (condition) {
+      case 'sunny':
+        return [
+          const Color(0xFFFFD54F).withValues(alpha: 0.40),
+          const Color(0xFFFF9800).withValues(alpha: 0.15),
+        ];
+      case 'mostly_sunny':
+      case 'partly_cloudy':
+        return [
+          const Color(0xFF64B5F6).withValues(alpha: 0.40),
+          const Color(0xFFFFB74D).withValues(alpha: 0.20),
+        ];
+      case 'cloudy':
+        return [
+          const Color(0xFF90A4AE).withValues(alpha: 0.40),
+          const Color(0xFF546E7A).withValues(alpha: 0.20),
+        ];
+      case 'rainy':
+      case 'drizzle':
+        return [
+          const Color(0xFF42A5F5).withValues(alpha: 0.45),
+          const Color(0xFF1E88E5).withValues(alpha: 0.22),
+        ];
+      case 'stormy':
+        return [
+          const Color(0xFFAB47BC).withValues(alpha: 0.50),
+          const Color(0xFF5E35B1).withValues(alpha: 0.25),
+        ];
+      case 'snowy':
+        return [
+          const Color(0xFF80DEEA).withValues(alpha: 0.45),
+          const Color(0xFFB2EBF2).withValues(alpha: 0.20),
+        ];
+      case 'foggy':
+      default:
+        return [
+          const Color(0xFFB0BEC5).withValues(alpha: 0.40),
+          const Color(0xFF78909C).withValues(alpha: 0.15),
+        ];
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final glow = _getGlowColors(widget.condition);
+
+    return AnimatedBuilder(
+      animation: _scaleAnimation,
+      builder: (context, child) {
+        return Transform.scale(
+          scale: _scaleAnimation.value,
+          child: child,
+        );
+      },
+      child: Container(
+        width: 76,
+        height: 76,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: RadialGradient(
+            colors: glow,
+            radius: 0.85,
+          ),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.30),
+            width: 1.5,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: glow.first.withValues(alpha: 0.35),
+              blurRadius: 18,
+              spreadRadius: 2,
+            ),
+          ],
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          widget.emoji,
+          style: const TextStyle(
+            fontSize: 42,
+            height: 1.0,
           ),
         ),
       ),
