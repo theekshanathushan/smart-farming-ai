@@ -75,7 +75,11 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
       } else if (next.status == AuthStateStatus.otpSent) {
         context.push('/verify-otp');
       } else if (next.status == AuthStateStatus.success && next.isLoggedIn) {
-        context.go('/home');
+        if (next.needsPhoneNumber) {
+          _showCompleteProfilePhoneSheet(context);
+        } else {
+          context.go('/home');
+        }
       }
     });
 
@@ -461,6 +465,124 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
         borderRadius: BorderRadius.circular(14),
         borderSide: const BorderSide(color: Color(0xFFEF4444), width: 2),
       ),
+    );
+  }
+
+  void _showCompleteProfilePhoneSheet(BuildContext context) {
+    final phoneController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
+    final subtextColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
+
+    showModalBottomSheet(
+      context: context,
+      isDismissible: false,
+      enableDrag: false,
+      isScrollControlled: true,
+      backgroundColor: theme.scaffoldBackgroundColor,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (sheetContext) {
+        return Padding(
+          padding: EdgeInsets.only(
+            left: 24,
+            right: 24,
+            top: 24,
+            bottom: MediaQuery.of(sheetContext).viewInsets.bottom + 24,
+          ),
+          child: Form(
+            key: formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Center(
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.primary.withValues(alpha: 0.12),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.phone_android_rounded,
+                      color: theme.colorScheme.primary,
+                      size: 36,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Add Phone Number / දුරකථන අංකය',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: textColor,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Every user profile must include a valid mobile number for market updates and farmer verification.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 13, color: subtextColor, height: 1.4),
+                ),
+                const SizedBox(height: 20),
+                TextFormField(
+                  controller: phoneController,
+                  autofocus: true,
+                  keyboardType: TextInputType.phone,
+                  style: TextStyle(fontSize: 15, color: textColor, fontWeight: FontWeight.w500),
+                  decoration: _inputDecoration(
+                    sheetContext,
+                    'Mobile Number (e.g. 0771234567)',
+                    Icons.phone_outlined,
+                  ),
+                  validator: (val) {
+                    if (val == null || val.trim().isEmpty) {
+                      return 'Please enter your phone number';
+                    }
+                    final digits = val.replaceAll(RegExp(r'[^0-9]'), '');
+                    if (digits.length < 9) {
+                      return 'Please enter a valid phone number (at least 9 digits)';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  onPressed: () async {
+                    if (formKey.currentState!.validate()) {
+                      final phone = phoneController.text.trim();
+                      await ref.read(authProvider.notifier).updatePhoneNumber(phone);
+                      if (sheetContext.mounted) {
+                        Navigator.pop(sheetContext);
+                      }
+                      if (context.mounted) {
+                        context.go('/home');
+                      }
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: theme.colorScheme.primary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                  child: const Text(
+                    'Save & Continue',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

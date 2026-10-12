@@ -135,9 +135,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
         if (doc.exists && doc.data() != null) {
           final cloudPhone = doc.data()!['phone'] as String?;
           if (AuthState.isRealPhoneNumber(cloudPhone)) {
-            savedPhone = cloudPhone;
-            await prefs.setString('userPhone', savedPhone!);
-            await prefs.setString('registered_user_phone_$savedEmail', savedPhone!);
+            savedPhone = cloudPhone!;
+            await prefs.setString('userPhone', savedPhone);
+            await prefs.setString('registered_user_phone_$savedEmail', savedPhone);
           }
         }
       } catch (_) {}

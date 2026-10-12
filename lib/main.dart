@@ -41,9 +41,24 @@ void main() async {
   try {
     final prefs = await SharedPreferences.getInstance();
     final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
-    final userPhone = prefs.getString('userPhone');
-    final userEmail = prefs.getString('userEmail');
-    final activeAccount = userPhone ?? userEmail;
+    String? userPhone = prefs.getString('userPhone');
+    String? userEmail = prefs.getString('userEmail');
+    if (userPhone != null && userPhone.contains('@')) {
+      if (userEmail == null || userEmail.isEmpty) {
+        userEmail = userPhone;
+        await prefs.setString('userEmail', userEmail);
+      }
+      await prefs.remove('userPhone');
+      userPhone = null;
+    }
+    if (userPhone == null && userEmail != null) {
+      final perEmailPhone = prefs.getString('registered_user_phone_$userEmail');
+      if (perEmailPhone != null && !perEmailPhone.contains('@')) {
+        userPhone = perEmailPhone;
+      }
+    }
+
+    final activeAccount = (userEmail != null && userEmail.isNotEmpty) ? userEmail : userPhone;
     if (isLoggedIn && activeAccount != null && activeAccount.isNotEmpty) {
       final name = prefs.getString('registered_user_name_$activeAccount') ?? prefs.getString('userName');
       String? profileImage = prefs.getString('user_profile_photo_$activeAccount') ?? prefs.getString('profileImagePath');
@@ -52,7 +67,7 @@ void main() async {
       }
       initialAuthState = AuthState(
         isLoggedIn: true,
-        phoneNumber: userPhone ?? userEmail,
+        phoneNumber: (userPhone != null && !userPhone.contains('@')) ? userPhone : null,
         email: userEmail,
         name: name,
         profileImagePath: profileImage,

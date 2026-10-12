@@ -163,6 +163,74 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
   }
 
+  void _showEditPhoneDialog(BuildContext context, String? currentPhone) {
+    final cleanPhone = AuthState.isRealPhoneNumber(currentPhone) ? currentPhone! : '';
+    final controller = TextEditingController(text: cleanPhone);
+    final formKey = GlobalKey<FormState>();
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Phone Number / දුරකථන අංකය'),
+        content: Form(
+          key: formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Please enter your active mobile phone number:',
+                style: TextStyle(fontSize: 13, color: Colors.grey),
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: controller,
+                autofocus: true,
+                keyboardType: TextInputType.phone,
+                decoration: const InputDecoration(
+                  labelText: 'Mobile Number',
+                  hintText: 'e.g. 0771234567 or +94771234567',
+                  prefixIcon: Icon(Icons.phone_outlined),
+                ),
+                validator: (val) {
+                  if (val == null || val.trim().isEmpty) {
+                    return 'Please enter your phone number';
+                  }
+                  final digits = val.replaceAll(RegExp(r'[^0-9]'), '');
+                  if (digits.length < 9) {
+                    return 'Please enter a valid phone number (at least 9 digits)';
+                  }
+                  return null;
+                },
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () async {
+              if (formKey.currentState!.validate()) {
+                final newPhone = controller.text.trim();
+                await ref.read(authProvider.notifier).updatePhoneNumber(newPhone);
+                if (ctx.mounted) Navigator.pop(ctx);
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Phone number updated successfully!')),
+                  );
+                }
+              }
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
@@ -266,6 +334,52 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   ),
                   const SizedBox(height: 32),
 
+                  // Phone Missing Alert Banner
+                  if (authState.needsPhoneNumber) ...[
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 20),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.amber.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Colors.amber.withValues(alpha: 0.5)),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.warning_amber_rounded, color: Colors.amber, size: 28),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Phone Number Required',
+                                  style: TextStyle(fontWeight: FontWeight.bold, color: textColor, fontSize: 14),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  'Please add your mobile number to complete your farmer profile.',
+                                  style: TextStyle(fontSize: 12, color: subtextColor),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          ElevatedButton(
+                            onPressed: () => _showEditPhoneDialog(context, null),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.amber,
+                              foregroundColor: Colors.black,
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            ),
+                            child: const Text('Add Now', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+
                   // Personal Info Section
                   _buildSectionTitle(l10n.personalDetails, textColor),
                   const SizedBox(height: 12),
@@ -277,9 +391,16 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         _buildInfoRow(
                           Icons.phone_rounded,
                           l10n.phoneNumber,
-                          authState.phoneNumber ?? l10n.notProvided,
+                          AuthState.isRealPhoneNumber(authState.phoneNumber)
+                              ? authState.phoneNumber!
+                              : l10n.notProvided,
                           textColor,
                           subtextColor,
+                          trailing: IconButton(
+                            icon: Icon(Icons.edit_outlined, color: textColor.withValues(alpha: 0.7), size: 20),
+                            tooltip: 'Edit Phone / දුරකථන අංකය',
+                            onPressed: () => _showEditPhoneDialog(context, authState.phoneNumber),
+                          ),
                         ),
                         if (authState.email != null && authState.email!.isNotEmpty) ...[
                           Divider(color: isDark ? Colors.white12 : Colors.black12, height: 24),
