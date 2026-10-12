@@ -30,6 +30,18 @@ class HomeScreen extends ConsumerWidget {
     }
   }
 
+  ImageProvider? _resolveProfileImage(String? path) {
+    if (path == null || path.trim().isEmpty) return null;
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+      return NetworkImage(path);
+    }
+    final f = File(path);
+    if (f.existsSync()) {
+      return FileImage(f);
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
@@ -114,15 +126,18 @@ class HomeScreen extends ConsumerWidget {
                               shape: BoxShape.circle,
                               border: Border.all(color: Colors.white.withValues(alpha: 0.5), width: 2),
                             ),
-                            child: CircleAvatar(
-                              radius: 24,
-                              backgroundColor: Colors.white24,
-                              backgroundImage: (authState.profileImagePath != null && File(authState.profileImagePath!).existsSync())
-                                  ? FileImage(File(authState.profileImagePath!))
-                                  : null,
-                              child: (authState.profileImagePath == null || !File(authState.profileImagePath!).existsSync())
-                                  ? const Icon(Icons.person, color: Colors.white)
-                                  : null,
+                            child: Builder(
+                              builder: (context) {
+                                final avatarImage = _resolveProfileImage(authState.profileImagePath);
+                                return CircleAvatar(
+                                  radius: 24,
+                                  backgroundColor: Colors.white24,
+                                  backgroundImage: avatarImage,
+                                  child: avatarImage == null
+                                      ? const Icon(Icons.person, color: Colors.white)
+                                      : null,
+                                );
+                              },
                             ),
                           ),
                         ],

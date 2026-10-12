@@ -45,7 +45,7 @@ void main() async {
     if (isLoggedIn && userPhone != null && userPhone.isNotEmpty) {
       final name = prefs.getString('registered_user_name_$userPhone') ?? prefs.getString('userName');
       String? profileImage = prefs.getString('user_profile_photo_$userPhone') ?? prefs.getString('profileImagePath');
-      if (profileImage != null && !File(profileImage).existsSync()) {
+      if (profileImage != null && !profileImage.startsWith('http') && !File(profileImage).existsSync()) {
         profileImage = null;
       }
       initialAuthState = AuthState(

@@ -40,6 +40,18 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     }
   }
 
+  ImageProvider? _resolveProfileImage(String? path) {
+    if (path == null || path.trim().isEmpty) return null;
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+      return NetworkImage(path);
+    }
+    final f = File(path);
+    if (f.existsSync()) {
+      return FileImage(f);
+    }
+    return null;
+  }
+
   void _showImagePickerOptions(AppLocalizations l10n, Color textColor, Color subtextColor, bool isDark) {
     final authState = ref.read(authProvider);
 
@@ -196,15 +208,18 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                               width: 3,
                             ),
                           ),
-                          child: CircleAvatar(
-                            radius: 50,
-                            backgroundColor: isDark ? Colors.white24 : Colors.black12,
-                            backgroundImage: (authState.profileImagePath != null && File(authState.profileImagePath!).existsSync())
-                                ? FileImage(File(authState.profileImagePath!))
-                                : null,
-                            child: (authState.profileImagePath == null || !File(authState.profileImagePath!).existsSync())
-                                ? Icon(Icons.person, size: 50, color: textColor)
-                                : null,
+                          child: Builder(
+                            builder: (context) {
+                              final avatarImage = _resolveProfileImage(authState.profileImagePath);
+                              return CircleAvatar(
+                                radius: 50,
+                                backgroundColor: isDark ? Colors.white24 : Colors.black12,
+                                backgroundImage: avatarImage,
+                                child: avatarImage == null
+                                    ? Icon(Icons.person, size: 50, color: textColor)
+                                    : null,
+                              );
+                            },
                           ),
                         ),
                         Positioned(
