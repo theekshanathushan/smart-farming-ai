@@ -62,6 +62,8 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
         );
       } else if (next.status == AuthStateStatus.otpSent) {
         context.push('/verify-otp');
+      } else if (next.status == AuthStateStatus.success && next.isLoggedIn) {
+        context.go('/home');
       }
     });
 
@@ -263,6 +265,79 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                       ),
                     ),
                   ),
+
+                const SizedBox(height: 28),
+
+                // OR Divider
+                Row(
+                  children: [
+                    Expanded(
+                      child: Divider(
+                        color: isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1),
+                        thickness: 1,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        l10n.orDivider,
+                        style: TextStyle(
+                          color: subtextColor,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.8,
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Divider(
+                        color: isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1),
+                        thickness: 1,
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 24),
+
+                // Sign in with Google Button
+                OutlinedButton(
+                  onPressed: isLoading
+                      ? null
+                      : () {
+                          final currentLang = ref.read(localeProvider).languageCode;
+                          ref.read(authProvider.notifier).signInWithGoogle(language: currentLang);
+                        },
+                  style: OutlinedButton.styleFrom(
+                    backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+                    foregroundColor: textColor,
+                    side: BorderSide(
+                      color: isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1),
+                      width: 1.5,
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    elevation: isDark ? 0 : 1,
+                    shadowColor: Colors.black.withValues(alpha: 0.08),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const _GoogleGLogo(size: 22),
+                      const SizedBox(width: 12),
+                      Text(
+                        l10n.signInWithGoogle,
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: textColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
@@ -305,4 +380,63 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
       ),
     );
   }
+}
+
+class _GoogleGLogo extends StatelessWidget {
+  final double size;
+  const _GoogleGLogo({this.size = 24});
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(
+      size: Size(size, size),
+      painter: _GoogleGLogoPainter(),
+    );
+  }
+}
+
+class _GoogleGLogoPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final double w = size.width;
+    final double h = size.height;
+    final center = Offset(w / 2, h / 2);
+    final radius = w / 2;
+    final strokeWidth = w * 0.22;
+
+    final rect = Rect.fromCircle(center: center, radius: radius - strokeWidth / 2);
+    final strokePaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.butt;
+
+    // Red: Top arc
+    strokePaint.color = const Color(0xFFEA4335);
+    canvas.drawArc(rect, -2.4, 1.4, false, strokePaint);
+
+    // Yellow: Left arc
+    strokePaint.color = const Color(0xFFFBBC05);
+    canvas.drawArc(rect, 2.3, 1.5, false, strokePaint);
+
+    // Green: Bottom arc
+    strokePaint.color = const Color(0xFF34A853);
+    canvas.drawArc(rect, 0.7, 1.6, false, strokePaint);
+
+    // Blue: Right arc
+    strokePaint.color = const Color(0xFF4285F4);
+    canvas.drawArc(rect, -1.0, 1.7, false, strokePaint);
+
+    // Horizontal bar for "G"
+    final barPaint = Paint()
+      ..color = const Color(0xFF4285F4)
+      ..style = PaintingStyle.fill;
+    final barRect = RRect.fromRectAndRadius(
+      Rect.fromLTWH(center.dx - strokeWidth * 0.1, center.dy - strokeWidth / 2, radius * 0.95, strokeWidth),
+      Radius.circular(strokeWidth * 0.2),
+    );
+    canvas.drawRRect(barRect, barPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

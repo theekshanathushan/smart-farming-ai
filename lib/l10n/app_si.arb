@@ -157,5 +157,7 @@
     "otherMarkets": "වෙනත් වෙළඳපොලවල් සමඟ සංසන්දනය",
     "aiMarketInsight": "AI වෙළඳපල උපදෙස",
     "sellThisCrop": "මෙම අස්වැන්න විකුණන්න",
-    "noProduceFound": "සෙවීමට ගැළපෙන බෝග හමු නොවීය"
+    "noProduceFound": "සෙවීමට ගැළපෙන බෝග හමු නොවීය",
+    "signInWithGoogle": "Google සමඟ සම්බන්ධ වන්න",
+    "orDivider": "හෝ"
 }

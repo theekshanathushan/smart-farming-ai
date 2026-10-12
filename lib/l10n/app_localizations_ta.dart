@@ -491,4 +491,10 @@ class AppLocalizationsTa extends AppLocalizations {
 
   @override
   String get sellThisCrop => 'இந்த விளைச்சலை விற்கவும்';
+
+  @override
+  String get signInWithGoogle => 'Google மூலம் உள்நுழைக';
+
+  @override
+  String get orDivider => 'அல்லது';
 }

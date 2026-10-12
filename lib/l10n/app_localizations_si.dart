@@ -487,4 +487,10 @@ class AppLocalizationsSi extends AppLocalizations {
 
   @override
   String get sellThisCrop => 'මෙම අස්වැන්න විකුණන්න';
+
+  @override
+  String get signInWithGoogle => 'Google සමඟ සම්බන්ධ වන්න';
+
+  @override
+  String get orDivider => 'හෝ';
 }

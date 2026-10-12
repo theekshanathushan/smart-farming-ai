@@ -1023,6 +1023,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sell This Produce'**
   String get sellThisCrop;
+
+  /// No description provided for @signInWithGoogle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with Google'**
+  String get signInWithGoogle;
+
+  /// No description provided for @orDivider.
+  ///
+  /// In en, this message translates to:
+  /// **'OR'**
+  String get orDivider;
 }
 
 class _AppLocalizationsDelegate

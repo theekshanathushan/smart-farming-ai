@@ -192,5 +192,7 @@
     "otherMarkets": "Other Markets Comparison",
     "aiMarketInsight": "AI Market Advice",
     "sellThisCrop": "Sell This Produce",
-    "noProduceFound": "No produce found matching your search"
+    "noProduceFound": "No produce found matching your search",
+    "signInWithGoogle": "Sign in with Google",
+    "orDivider": "OR"
 }

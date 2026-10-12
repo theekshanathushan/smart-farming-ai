@@ -487,4 +487,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sellThisCrop => 'Sell This Produce';
+
+  @override
+  String get signInWithGoogle => 'Sign in with Google';
+
+  @override
+  String get orDivider => 'OR';
 }

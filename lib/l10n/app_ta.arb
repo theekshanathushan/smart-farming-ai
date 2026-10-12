@@ -157,5 +157,7 @@
     "otherMarkets": "பிற சந்தைகளுடன் ஒப்பீடு",
     "aiMarketInsight": "AI சந்தை வழிகாட்டல்",
     "sellThisCrop": "இந்த விளைச்சலை விற்கவும்",
-    "noProduceFound": "பொருத்தமான பயிர் எதுவும் கிடைக்கவில்லை"
+    "noProduceFound": "பொருத்தமான பயிர் எதுவும் கிடைக்கவில்லை",
+    "signInWithGoogle": "Google மூலம் உள்நுழைக",
+    "orDivider": "அல்லது"
 }

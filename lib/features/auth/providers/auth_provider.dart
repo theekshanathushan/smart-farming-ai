@@ -3,6 +3,7 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase;
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -63,26 +64,33 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<void> _loadSession() async {
     final prefs = await SharedPreferences.getInstance();
     final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
-    final phone = prefs.getString('userPhone') ?? _auth.currentUser?.phoneNumber;
+    final accountId = prefs.getString('userPhone') ??
+        prefs.getString('userEmail') ??
+        _auth.currentUser?.phoneNumber ??
+        _auth.currentUser?.email;
 
-    if (isLoggedIn && phone != null && phone.trim().isNotEmpty) {
-      final activePhone = phone.trim();
-      final name = prefs.getString('registered_user_name_$activePhone') ?? prefs.getString('userName');
-      var profileImagePath = prefs.getString('user_profile_photo_$activePhone') ?? prefs.getString('profileImagePath');
+    if (isLoggedIn && accountId != null && accountId.trim().isNotEmpty) {
+      final activeAccount = accountId.trim();
+      final name = prefs.getString('registered_user_name_$activeAccount') ??
+          prefs.getString('userName') ??
+          _auth.currentUser?.displayName;
+      var profileImagePath = prefs.getString('user_profile_photo_$activeAccount') ??
+          prefs.getString('profileImagePath') ??
+          _auth.currentUser?.photoURL;
 
-      if (profileImagePath != null) {
+      if (profileImagePath != null && !profileImagePath.startsWith('http')) {
         final f = File(profileImagePath);
         if (!await f.exists()) {
           profileImagePath = null;
         }
       }
 
-      await _ensureUserRegisteredLocally(activePhone, name ?? '');
+      await _ensureUserRegisteredLocally(activeAccount, name ?? '');
 
       state = state.copyWith(
         isLoggedIn: true,
         name: name,
-        phoneNumber: activePhone,
+        phoneNumber: activeAccount,
         profileImagePath: profileImagePath,
       );
     } else if (!isLoggedIn) {
@@ -433,10 +441,109 @@ class AuthNotifier extends StateNotifier<AuthState> {
     } catch (_) {}
 
     try {
+      await GoogleSignIn().signOut();
+    } catch (_) {}
+
+    try {
       await _auth.signOut();
     } catch (_) {}
 
     state = const AuthState();
+  }
+
+  Future<void> signInWithGoogle({String? language}) async {
+    try {
+      state = state.copyWith(status: AuthStateStatus.loading, errorMessage: null);
+
+      final GoogleSignIn googleSignIn = GoogleSignIn(
+        scopes: ['email', 'profile'],
+      );
+
+      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+
+      if (googleUser == null) {
+        // User aborted the Google sign-in dialog
+        state = state.copyWith(status: AuthStateStatus.initial);
+        return;
+      }
+
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+
+      final credential = firebase.GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      final userCredential = await _auth.signInWithCredential(credential);
+      final user = userCredential.user;
+
+      if (user != null) {
+        final email = user.email ?? googleUser.email;
+        final name = (user.displayName != null && user.displayName!.trim().isNotEmpty)
+            ? user.displayName!.trim()
+            : (googleUser.displayName ?? 'Farmer');
+        final photoUrl = user.photoURL ?? googleUser.photoUrl;
+
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('isLoggedIn', true);
+        await prefs.setString('userPhone', email);
+        await prefs.setString('userEmail', email);
+        await prefs.setString('userName', name);
+        if (photoUrl != null) {
+          await prefs.setString('profileImagePath', photoUrl);
+          await prefs.setString('user_profile_photo_$email', photoUrl);
+        }
+        await prefs.setString('registered_user_name_$email', name);
+
+        await _ensureUserRegisteredLocally(email, name);
+        try {
+          await FirebaseFirestore.instance.collection('users').doc(email).set({
+            'email': email,
+            'name': name,
+            if (photoUrl != null) 'photoUrl': photoUrl,
+            'authProvider': 'google',
+            'lastLoginAt': FieldValue.serverTimestamp(),
+          }, SetOptions(merge: true));
+        } catch (_) {}
+
+        state = state.copyWith(
+          status: AuthStateStatus.success,
+          isLoggedIn: true,
+          phoneNumber: email,
+          name: name,
+          profileImagePath: photoUrl,
+        );
+      } else {
+        state = state.copyWith(
+          status: AuthStateStatus.error,
+          errorMessage: language == 'si'
+              ? 'Google ගිණුමට සම්බන්ධ වීමට නොහැකි විය.'
+              : (language == 'ta'
+                  ? 'Google கணக்கில் உள்நுழைய முடியவில்லை.'
+                  : 'Failed to sign in with Google.'),
+        );
+      }
+    } catch (e) {
+      String msg = e.toString();
+      if (msg.contains('network_error') || msg.contains('ApiException: 7')) {
+        msg = language == 'si'
+            ? 'අන්තර්ජාල සම්බන්ධතාවය පරීක්ෂා කරන්න.'
+            : (language == 'ta'
+                ? 'இணைய இணைப்பை சரிபார்க்கவும்.'
+                : 'Network error. Please check your internet connection.');
+      } else if (msg.contains('ApiException: 10') || msg.contains('12500')) {
+        msg = language == 'si'
+            ? 'Google Sign-in configuration (SHA-1 fingerprint) ගැටලුවකි.'
+            : 'Google Sign-In configuration error. Please ensure SHA-1 is added in Firebase Console.';
+      } else if (msg.contains('canceled') || msg.contains('cancelled')) {
+        state = state.copyWith(status: AuthStateStatus.initial);
+        return;
+      }
+      state = state.copyWith(
+        status: AuthStateStatus.error,
+        errorMessage: msg,
+      );
+    }
   }
 
   void resetState() {
