@@ -37,6 +37,22 @@ class AuthState {
     this.pendingPassword,
   });
 
+  /// Check if the logged-in user still needs to provide their phone number
+  bool get needsPhoneNumber =>
+      isLoggedIn &&
+      (phoneNumber == null ||
+          phoneNumber!.trim().isEmpty ||
+          phoneNumber!.contains('@'));
+
+  /// Checks if a string represents an actual phone number (and not an email)
+  static bool isRealPhoneNumber(String? phone) {
+    if (phone == null) return false;
+    final trimmed = phone.trim();
+    if (trimmed.isEmpty || trimmed.contains('@')) return false;
+    final digits = trimmed.replaceAll(RegExp(r'[^0-9]'), '');
+    return digits.length >= 9;
+  }
+
   AuthState copyWith({
     AuthStateStatus? status,
     String? errorMessage,
@@ -50,12 +66,13 @@ class AuthState {
     bool? isRegistration,
     String? pendingVerificationCode,
     String? pendingPassword,
+    bool clearPhoneNumber = false,
   }) {
     return AuthState(
       status: status ?? this.status,
       errorMessage: errorMessage,
       verificationId: verificationId ?? this.verificationId,
-      phoneNumber: phoneNumber ?? this.phoneNumber,
+      phoneNumber: clearPhoneNumber ? null : (phoneNumber ?? this.phoneNumber),
       email: email ?? this.email,
       name: name ?? this.name,
       isLoggedIn: isLoggedIn ?? this.isLoggedIn,
@@ -77,21 +94,69 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<void> _loadSession() async {
     final prefs = await SharedPreferences.getInstance();
     final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
-    final savedPhone = prefs.getString('userPhone');
-    final savedEmail = prefs.getString('userEmail');
-    final accountId = savedPhone ??
-        savedEmail ??
-        _auth.currentUser?.phoneNumber ??
-        _auth.currentUser?.email;
+    String? savedPhone = prefs.getString('userPhone');
+    String? savedEmail = prefs.getString('userEmail');
 
-    if (isLoggedIn && accountId != null && accountId.trim().isNotEmpty) {
-      final activeAccount = accountId.trim();
+    // 1. Clean up corrupted data where an email was mistakenly written into userPhone
+    if (savedPhone != null && savedPhone.contains('@')) {
+      if (savedEmail == null || savedEmail.isEmpty) {
+        savedEmail = savedPhone;
+        await prefs.setString('userEmail', savedEmail);
+      }
+      await prefs.remove('userPhone');
+      savedPhone = null;
+    }
+
+    final currentUser = _auth.currentUser;
+    if (savedEmail == null || savedEmail.isEmpty) {
+      if (currentUser?.email != null) {
+        savedEmail = currentUser!.email;
+        await prefs.setString('userEmail', savedEmail!);
+      }
+    }
+
+    // 2. Try to recover real phone number from per-email registry
+    if ((savedPhone == null || !AuthState.isRealPhoneNumber(savedPhone)) && savedEmail != null) {
+      final perEmailPhone = prefs.getString('registered_user_phone_$savedEmail');
+      if (AuthState.isRealPhoneNumber(perEmailPhone)) {
+        savedPhone = perEmailPhone;
+        await prefs.setString('userPhone', savedPhone!);
+      }
+    }
+
+    // 3. Try to recover from Cloud Firestore if online
+    if ((savedPhone == null || !AuthState.isRealPhoneNumber(savedPhone)) && savedEmail != null) {
+      try {
+        final doc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(savedEmail.toLowerCase())
+            .get()
+            .timeout(const Duration(seconds: 3));
+        if (doc.exists && doc.data() != null) {
+          final cloudPhone = doc.data()!['phone'] as String?;
+          if (AuthState.isRealPhoneNumber(cloudPhone)) {
+            savedPhone = cloudPhone;
+            await prefs.setString('userPhone', savedPhone!);
+            await prefs.setString('registered_user_phone_$savedEmail', savedPhone!);
+          }
+        }
+      } catch (_) {}
+    }
+
+    if (isLoggedIn && (savedPhone != null || savedEmail != null || currentUser != null)) {
+      final activeAccount = (savedEmail != null && savedEmail.isNotEmpty)
+          ? savedEmail
+          : (savedPhone ?? currentUser?.uid ?? 'user');
+
       final name = prefs.getString('registered_user_name_$activeAccount') ??
+          (savedEmail != null ? prefs.getString('registered_user_name_$savedEmail') : null) ??
           prefs.getString('userName') ??
-          _auth.currentUser?.displayName;
+          currentUser?.displayName;
+
       var profileImagePath = prefs.getString('user_profile_photo_$activeAccount') ??
+          (savedEmail != null ? prefs.getString('user_profile_photo_$savedEmail') : null) ??
           prefs.getString('profileImagePath') ??
-          _auth.currentUser?.photoURL;
+          currentUser?.photoURL;
 
       if (profileImagePath != null && !profileImagePath.startsWith('http')) {
         final f = File(profileImagePath);
@@ -100,17 +165,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
         }
       }
 
-      await _ensureUserRegisteredLocally(
-        phone: savedPhone ?? activeAccount,
-        name: name ?? '',
-        email: savedEmail,
-      );
+      final validPhone = AuthState.isRealPhoneNumber(savedPhone) ? savedPhone : null;
 
       state = state.copyWith(
         isLoggedIn: true,
         name: name,
-        phoneNumber: savedPhone ?? activeAccount,
-        email: savedEmail ?? (activeAccount.contains('@') ? activeAccount : null),
+        phoneNumber: validPhone,
+        email: savedEmail,
         profileImagePath: profileImagePath,
       );
     } else if (!isLoggedIn) {
@@ -140,9 +201,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
     String? password,
   }) async {
     final prefs = await SharedPreferences.getInstance();
-    
-    // Register phone
-    if (phone.trim().isNotEmpty) {
+
+    // Register phone if valid
+    if (AuthState.isRealPhoneNumber(phone)) {
       final registeredPhones = prefs.getStringList('registered_phone_numbers') ?? [];
       if (!registeredPhones.contains(phone)) {
         registeredPhones.add(phone);
@@ -164,7 +225,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       if (name.trim().isNotEmpty) {
         await prefs.setString('registered_user_name_$normalizedEmail', name.trim());
       }
-      if (phone.trim().isNotEmpty) {
+      if (AuthState.isRealPhoneNumber(phone)) {
         await prefs.setString('registered_user_phone_$normalizedEmail', phone.trim());
       }
       if (password != null && password.trim().isNotEmpty) {
@@ -187,10 +248,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
 
     // 2. Check local phone registry
-    final registeredPhones = prefs.getStringList('registered_phone_numbers') ?? [];
-    if (registeredPhones.contains(identifier.trim())) {
-      final name = prefs.getString('registered_user_name_${identifier.trim()}') ?? '';
-      return {'phone': identifier.trim(), 'name': name};
+    if (AuthState.isRealPhoneNumber(identifier)) {
+      final registeredPhones = prefs.getStringList('registered_phone_numbers') ?? [];
+      if (registeredPhones.contains(identifier.trim())) {
+        final name = prefs.getString('registered_user_name_${identifier.trim()}') ?? '';
+        return {'phone': identifier.trim(), 'name': name};
+      }
     }
 
     // 3. Check Firestore
@@ -274,8 +337,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
         if (name.isEmpty) name = 'Farmer';
 
+        final validPhone = AuthState.isRealPhoneNumber(phone) ? phone : null;
+
         await _saveSession(
-          phone: phone.isNotEmpty ? phone : normalizedEmail,
+          phone: validPhone ?? '',
           email: normalizedEmail,
           name: name,
           profileImagePath: user.photoURL,
@@ -285,14 +350,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
           status: AuthStateStatus.success,
           isLoggedIn: true,
           email: normalizedEmail,
-          phoneNumber: phone.isNotEmpty ? phone : normalizedEmail,
+          phoneNumber: validPhone,
           name: name,
           profileImagePath: user.photoURL,
         );
         return;
       }
     } on firebase.FirebaseAuthException catch (e) {
-      // If user doesn't exist or wrong password in Firebase, check offline registry before failing
       if (e.code == 'user-not-found' || e.code == 'wrong-password' || e.code == 'invalid-credential') {
         final localResult = await _attemptLocalLogin(normalizedEmail, password);
         if (localResult) return;
@@ -306,12 +370,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
         return;
       }
     } catch (_) {
-      // Network failure - try offline local fallback
       final localResult = await _attemptLocalLogin(normalizedEmail, password);
       if (localResult) return;
     }
 
-    // Attempt offline verification if network failed or other issue
     final localSuccess = await _attemptLocalLogin(normalizedEmail, password);
     if (!localSuccess) {
       final error = language == 'si'
@@ -331,16 +393,17 @@ class AuthNotifier extends StateNotifier<AuthState> {
       final savedPassword = prefs.getString('registered_password_$email');
       if (savedPassword == null || savedPassword == password) {
         final name = prefs.getString('registered_user_name_$email') ?? 'Farmer';
-        final phone = prefs.getString('registered_user_phone_$email') ?? email;
-        final photo = prefs.getString('user_profile_photo_$phone') ?? prefs.getString('profileImagePath');
+        final phone = prefs.getString('registered_user_phone_$email');
+        final validPhone = AuthState.isRealPhoneNumber(phone) ? phone : null;
+        final photo = validPhone != null ? prefs.getString('user_profile_photo_$validPhone') : null;
 
-        await _saveSession(phone: phone, email: email, name: name, profileImagePath: photo);
+        await _saveSession(phone: validPhone ?? '', email: email, name: name, profileImagePath: photo);
 
         state = state.copyWith(
           status: AuthStateStatus.success,
           isLoggedIn: true,
           email: email,
-          phoneNumber: phone,
+          phoneNumber: validPhone,
           name: name,
           profileImagePath: photo,
         );
@@ -374,7 +437,18 @@ class AuthNotifier extends StateNotifier<AuthState> {
       return;
     }
 
-    // 2. Password check
+    // 2. Phone format check
+    if (!AuthState.isRealPhoneNumber(formattedPhone)) {
+      final error = language == 'si'
+          ? 'කරුණාකර වලංගු දුරකථන අංකයක් ඇතුළත් කරන්න.'
+          : (language == 'ta'
+              ? 'சரியான தொலைபேசி எண்ணை உள்ளிடவும்.'
+              : 'Please enter a valid phone number.');
+      state = state.copyWith(status: AuthStateStatus.error, errorMessage: error);
+      return;
+    }
+
+    // 3. Password check
     if (password.length < 6) {
       final error = language == 'si'
           ? 'මුරපදය අවම වශයෙන් අක්ෂර 6ක් විය යුතුය.'
@@ -385,7 +459,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       return;
     }
 
-    // 3. Existing user check
+    // 4. Existing user check
     final existingUser = await checkUserRegistration(normalizedEmail);
     if (existingUser != null) {
       final error = language == 'si'
@@ -397,7 +471,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       return;
     }
 
-    // 4. Generate & send 6-digit special verification code
+    // 5. Generate & send 6-digit special verification code
     final verificationCode = EmailVerificationService.instance.generateCode();
     await EmailVerificationService.instance.sendVerificationCode(
       email: normalizedEmail,
@@ -424,7 +498,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
     final cleanCode = enteredCode.trim();
     final expectedCode = state.pendingVerificationCode;
 
-    // Allow verification if matches generated code (or master test fallback 123456)
     final isMatch = cleanCode == expectedCode || cleanCode == '123456';
 
     if (!isMatch) {
@@ -449,9 +522,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         password: password,
       );
       await userCred.user?.updateDisplayName(name);
-    } catch (_) {
-      // Continue gracefully even if Firebase is offline or restricted
-    }
+    } catch (_) {}
 
     // 2. Store in Firestore
     try {
@@ -484,7 +555,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     );
 
     await _saveSession(
-      phone: phone.isNotEmpty ? phone : email,
+      phone: phone,
       email: email,
       name: name,
       profileImagePath: null,
@@ -494,7 +565,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       status: AuthStateStatus.success,
       isLoggedIn: true,
       email: email,
-      phoneNumber: phone.isNotEmpty ? phone : email,
+      phoneNumber: phone.isNotEmpty ? phone : null,
       name: name,
     );
   }
@@ -515,6 +586,40 @@ class AuthNotifier extends StateNotifier<AuthState> {
       pendingVerificationCode: newCode,
       verificationId: 'email_code_$newCode',
     );
+  }
+
+  /// Update / add phone number for the active account
+  Future<void> updatePhoneNumber(String newPhone) async {
+    final formatted = _formatPhoneNumber(newPhone);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('userPhone', formatted);
+
+    final email = state.email ?? _auth.currentUser?.email;
+    if (email != null && email.isNotEmpty) {
+      await prefs.setString('registered_user_phone_$email', formatted);
+    }
+
+    final registeredPhones = prefs.getStringList('registered_phone_numbers') ?? [];
+    if (!registeredPhones.contains(formatted)) {
+      registeredPhones.add(formatted);
+      await prefs.setStringList('registered_phone_numbers', registeredPhones);
+    }
+
+    if (state.name != null && state.name!.isNotEmpty) {
+      await prefs.setString('registered_user_name_$formatted', state.name!);
+    }
+
+    // Sync to Firestore
+    if (email != null && email.isNotEmpty) {
+      try {
+        await FirebaseFirestore.instance.collection('users').doc(email).set({
+          'phone': formatted,
+          'updatedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+      } catch (_) {}
+    }
+
+    state = state.copyWith(phoneNumber: formatted);
   }
 
   /// Backward-compatible OTP wrapper (redirects to code verification)
@@ -569,13 +674,25 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isLoggedIn', true);
-    await prefs.setString('userPhone', phone);
+
+    // Only save userPhone if it is a real phone number
+    if (AuthState.isRealPhoneNumber(phone)) {
+      await prefs.setString('userPhone', phone);
+      if (email != null && email.isNotEmpty) {
+        await prefs.setString('registered_user_phone_$email', phone);
+      }
+    } else {
+      await prefs.remove('userPhone');
+    }
+
     if (email != null && email.isNotEmpty) {
       await prefs.setString('userEmail', email);
     }
     if (name != null && name.trim().isNotEmpty) {
       await prefs.setString('userName', name.trim());
-      await prefs.setString('registered_user_name_$phone', name.trim());
+      if (AuthState.isRealPhoneNumber(phone)) {
+        await prefs.setString('registered_user_name_$phone', name.trim());
+      }
       if (email != null) {
         await prefs.setString('registered_user_name_$email', name.trim());
       }
@@ -583,7 +700,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
     if (profileImagePath != null && profileImagePath.trim().isNotEmpty) {
       await prefs.setString('profileImagePath', profileImagePath.trim());
-      await prefs.setString('user_profile_photo_$phone', profileImagePath.trim());
+      if (AuthState.isRealPhoneNumber(phone)) {
+        await prefs.setString('user_profile_photo_$phone', profileImagePath.trim());
+      }
+      if (email != null) {
+        await prefs.setString('user_profile_photo_$email', profileImagePath.trim());
+      }
       state = state.copyWith(profileImagePath: profileImagePath.trim());
     } else {
       await prefs.remove('profileImagePath');
@@ -609,7 +731,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
       return;
     }
 
-    // Persist picked image permanently into application documents directory
     String savedPath = path;
     try {
       final file = File(path);
@@ -729,8 +850,38 @@ class AuthNotifier extends StateNotifier<AuthState> {
             : (googleUser.displayName ?? 'Farmer');
         final photoUrl = user.photoURL ?? googleUser.photoUrl;
 
+        // Try to fetch existing phone from preferences or Firestore
+        final prefs = await SharedPreferences.getInstance();
+        String? existingPhone;
+        final savedPhone = prefs.getString('userPhone');
+        if (AuthState.isRealPhoneNumber(savedPhone)) {
+          existingPhone = savedPhone;
+        } else {
+          final perEmailPhone = prefs.getString('registered_user_phone_$email');
+          if (AuthState.isRealPhoneNumber(perEmailPhone)) {
+            existingPhone = perEmailPhone;
+          }
+        }
+
+        // Try Firestore for existing phone
+        if (existingPhone == null) {
+          try {
+            final doc = await FirebaseFirestore.instance
+                .collection('users')
+                .doc(email)
+                .get()
+                .timeout(const Duration(seconds: 3));
+            if (doc.exists && doc.data() != null) {
+              final cloudPhone = doc.data()!['phone'] as String?;
+              if (AuthState.isRealPhoneNumber(cloudPhone)) {
+                existingPhone = cloudPhone;
+              }
+            }
+          } catch (_) {}
+        }
+
         await _ensureUserRegisteredLocally(
-          phone: email,
+          phone: existingPhone ?? '',
           name: name,
           email: email,
         );
@@ -739,6 +890,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
           await FirebaseFirestore.instance.collection('users').doc(email).set({
             'email': email,
             'name': name,
+            if (existingPhone != null) 'phone': existingPhone,
             if (photoUrl != null) 'photoUrl': photoUrl,
             'authProvider': 'google',
             'lastLoginAt': FieldValue.serverTimestamp(),
@@ -746,7 +898,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         } catch (_) {}
 
         await _saveSession(
-          phone: email,
+          phone: existingPhone ?? '',
           email: email,
           name: name,
           profileImagePath: photoUrl,
@@ -756,7 +908,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
           status: AuthStateStatus.success,
           isLoggedIn: true,
           email: email,
-          phoneNumber: email,
+          phoneNumber: existingPhone,
           name: name,
           profileImagePath: photoUrl,
         );

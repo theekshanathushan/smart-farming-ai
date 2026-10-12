@@ -23,10 +23,14 @@ part 'app_database.g.dart';
 final databaseProvider = Provider<AppDatabase>((ref) {
   final authState = ref.watch(authProvider);
   final userPhone = authState.phoneNumber;
+  final userEmail = authState.email;
+  final accountKey = (userPhone != null && userPhone.trim().isNotEmpty && !userPhone.contains('@'))
+      ? userPhone.trim()
+      : (userEmail != null && userEmail.trim().isNotEmpty ? userEmail.trim() : null);
 
   final String dbName;
-  if (userPhone != null && userPhone.trim().isNotEmpty) {
-    final sanitized = userPhone.trim().replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_');
+  if (accountKey != null) {
+    final sanitized = accountKey.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_');
     dbName = 'db_$sanitized.sqlite';
   } else {
     dbName = 'db_guest.sqlite';
