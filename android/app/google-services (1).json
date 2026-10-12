@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "229195180845",
+    "project_id": "agri-ai-20e34",
+    "storage_bucket": "agri-ai-20e34.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:229195180845:android:208fdf50d259dcc5da81a4",
+        "android_client_info": {
+          "package_name": "com.example.agri_ai"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAHSi9GI-Lz9TP4QipYWnfPanPofQXrJ5A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
