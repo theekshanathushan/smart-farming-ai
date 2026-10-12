@@ -493,4 +493,44 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get orDivider => 'OR';
+
+  @override
+  String get emailAddress => 'Email Address';
+
+  @override
+  String get enterEmailValidation => 'Please enter your email';
+
+  @override
+  String get enterValidEmailValidation => 'Please enter a valid email address';
+
+  @override
+  String get password => 'Password';
+
+  @override
+  String get enterPasswordValidation => 'Please enter your password';
+
+  @override
+  String get passwordTooShortValidation =>
+      'Password must be at least 6 characters';
+
+  @override
+  String get verifyEmail => 'Verify Email';
+
+  @override
+  String get enterEmailCode => 'Enter Verification Code';
+
+  @override
+  String get sentCodeToEmail => 'We sent a 6-digit verification code to';
+
+  @override
+  String get registerAndVerify => 'Register & Verify Email';
+
+  @override
+  String get sendingVerificationCode => 'Sending verification code...';
+
+  @override
+  String get verifyAndRegister => 'Verify & Complete Registration';
+
+  @override
+  String get enterCredentialsToContinue => 'Enter your credentials to continue';
 }

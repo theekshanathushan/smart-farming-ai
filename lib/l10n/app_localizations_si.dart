@@ -493,4 +493,47 @@ class AppLocalizationsSi extends AppLocalizations {
 
   @override
   String get orDivider => 'හෝ';
+
+  @override
+  String get emailAddress => 'විද්‍යුත් තැපෑල (Email)';
+
+  @override
+  String get enterEmailValidation =>
+      'කරුණාකර ඔබගේ විද්‍යුත් තැපෑල ඇතුළත් කරන්න';
+
+  @override
+  String get enterValidEmailValidation =>
+      'කරුණාකර වලංගු විද්‍යුත් තැපැල් ලිපිනයක් ඇතුළත් කරන්න';
+
+  @override
+  String get password => 'මුරපදය (Password)';
+
+  @override
+  String get enterPasswordValidation => 'කරුණාකර ඔබගේ මුරපදය ඇතුළත් කරන්න';
+
+  @override
+  String get passwordTooShortValidation =>
+      'මුරපදය අවම වශයෙන් අක්ෂර 6ක් විය යුතුය';
+
+  @override
+  String get verifyEmail => 'විද්‍යුත් තැපෑල තහවුරු කරන්න';
+
+  @override
+  String get enterEmailCode => 'තහවුරු කිරීමේ කේතය ඇතුළත් කරන්න';
+
+  @override
+  String get sentCodeToEmail => 'අපි ඉලක්කම් 6 ක විශේෂ කේතයක් එවා ඇත:';
+
+  @override
+  String get registerAndVerify => 'ලියාපදිංචි වී ඊමේල් තහවුරු කරන්න';
+
+  @override
+  String get sendingVerificationCode => 'තහවුරු කිරීමේ කේතය යවමින් පවතී...';
+
+  @override
+  String get verifyAndRegister => 'තහවුරු කර ලියාපදිංචිය සම්පූර්ණ කරන්න';
+
+  @override
+  String get enterCredentialsToContinue =>
+      'ඉදිරියට යාමට ඔබගේ විස්තර ඇතුළත් කරන්න';
 }

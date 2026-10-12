@@ -1035,6 +1035,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'OR'**
   String get orDivider;
+
+  /// No description provided for @emailAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Email Address'**
+  String get emailAddress;
+
+  /// No description provided for @enterEmailValidation.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your email'**
+  String get enterEmailValidation;
+
+  /// No description provided for @enterValidEmailValidation.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid email address'**
+  String get enterValidEmailValidation;
+
+  /// No description provided for @password.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get password;
+
+  /// No description provided for @enterPasswordValidation.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your password'**
+  String get enterPasswordValidation;
+
+  /// No description provided for @passwordTooShortValidation.
+  ///
+  /// In en, this message translates to:
+  /// **'Password must be at least 6 characters'**
+  String get passwordTooShortValidation;
+
+  /// No description provided for @verifyEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify Email'**
+  String get verifyEmail;
+
+  /// No description provided for @enterEmailCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter Verification Code'**
+  String get enterEmailCode;
+
+  /// No description provided for @sentCodeToEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'We sent a 6-digit verification code to'**
+  String get sentCodeToEmail;
+
+  /// No description provided for @registerAndVerify.
+  ///
+  /// In en, this message translates to:
+  /// **'Register & Verify Email'**
+  String get registerAndVerify;
+
+  /// No description provided for @sendingVerificationCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending verification code...'**
+  String get sendingVerificationCode;
+
+  /// No description provided for @verifyAndRegister.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify & Complete Registration'**
+  String get verifyAndRegister;
+
+  /// No description provided for @enterCredentialsToContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your credentials to continue'**
+  String get enterCredentialsToContinue;
 }
 
 class _AppLocalizationsDelegate

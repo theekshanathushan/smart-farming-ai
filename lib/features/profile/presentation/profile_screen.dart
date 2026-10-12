@@ -281,6 +281,16 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           textColor,
                           subtextColor,
                         ),
+                        if (authState.email != null && authState.email!.isNotEmpty) ...[
+                          Divider(color: isDark ? Colors.white12 : Colors.black12, height: 24),
+                          _buildInfoRow(
+                            Icons.email_outlined,
+                            l10n.emailAddress,
+                            authState.email!,
+                            textColor,
+                            subtextColor,
+                          ),
+                        ],
                         Divider(color: isDark ? Colors.white12 : Colors.black12, height: 24),
                         _buildInfoRow(
                           Icons.location_on_rounded,

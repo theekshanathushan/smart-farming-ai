@@ -159,5 +159,18 @@
     "sellThisCrop": "මෙම අස්වැන්න විකුණන්න",
     "noProduceFound": "සෙවීමට ගැළපෙන බෝග හමු නොවීය",
     "signInWithGoogle": "Google සමඟ සම්බන්ධ වන්න",
-    "orDivider": "හෝ"
+    "orDivider": "හෝ",
+    "emailAddress": "විද්‍යුත් තැපෑල (Email)",
+    "enterEmailValidation": "කරුණාකර ඔබගේ විද්‍යුත් තැපෑල ඇතුළත් කරන්න",
+    "enterValidEmailValidation": "කරුණාකර වලංගු විද්‍යුත් තැපැල් ලිපිනයක් ඇතුළත් කරන්න",
+    "password": "මුරපදය (Password)",
+    "enterPasswordValidation": "කරුණාකර ඔබගේ මුරපදය ඇතුළත් කරන්න",
+    "passwordTooShortValidation": "මුරපදය අවම වශයෙන් අක්ෂර 6ක් විය යුතුය",
+    "verifyEmail": "විද්‍යුත් තැපෑල තහවුරු කරන්න",
+    "enterEmailCode": "තහවුරු කිරීමේ කේතය ඇතුළත් කරන්න",
+    "sentCodeToEmail": "අපි ඉලක්කම් 6 ක විශේෂ කේතයක් එවා ඇත:",
+    "registerAndVerify": "ලියාපදිංචි වී ඊමේල් තහවුරු කරන්න",
+    "sendingVerificationCode": "තහවුරු කිරීමේ කේතය යවමින් පවතී...",
+    "verifyAndRegister": "තහවුරු කර ලියාපදිංචිය සම්පූර්ණ කරන්න",
+    "enterCredentialsToContinue": "ඉදිරියට යාමට ඔබගේ විස්තර ඇතුළත් කරන්න"
 }

@@ -159,5 +159,18 @@
     "sellThisCrop": "இந்த விளைச்சலை விற்கவும்",
     "noProduceFound": "பொருத்தமான பயிர் எதுவும் கிடைக்கவில்லை",
     "signInWithGoogle": "Google மூலம் உள்நுழைக",
-    "orDivider": "அல்லது"
+    "orDivider": "அல்லது",
+    "emailAddress": "மின்னஞ்சல் முகவரி",
+    "enterEmailValidation": "உங்கள் மின்னஞ்சலை உள்ளிடவும்",
+    "enterValidEmailValidation": "சரியான மின்னஞ்சல் முகவரியை உள்ளிடவும்",
+    "password": "கடவுச்சொல்",
+    "enterPasswordValidation": "உங்கள் கடவுச்சொல்லை உள்ளிடவும்",
+    "passwordTooShortValidation": "கடவுச்சொல் குறைந்தது 6 எழுத்துக்களாக இருக்க வேண்டும்",
+    "verifyEmail": "மின்னஞ்சலை சரிபார்க்கவும்",
+    "enterEmailCode": "சரிபார்ப்புக் குறியீட்டை உள்ளிடவும்",
+    "sentCodeToEmail": "நாங்கள் 6 இலக்க சிறப்பு குறியீட்டை அனுப்பியுள்ளோம்:",
+    "registerAndVerify": "பதிவு செய்து மின்னஞ்சலை சரிபார்க்கவும்",
+    "sendingVerificationCode": "சரிபார்ப்புக் குறியீடு அனுப்பப்படுகிறது...",
+    "verifyAndRegister": "சரிபார்த்து பதிவை முடிக்கவும்",
+    "enterCredentialsToContinue": "தொடர உங்கள் விபரங்களை உள்ளிடவும்"
 }

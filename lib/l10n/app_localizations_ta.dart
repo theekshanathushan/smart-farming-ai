@@ -497,4 +497,47 @@ class AppLocalizationsTa extends AppLocalizations {
 
   @override
   String get orDivider => 'அல்லது';
+
+  @override
+  String get emailAddress => 'மின்னஞ்சல் முகவரி';
+
+  @override
+  String get enterEmailValidation => 'உங்கள் மின்னஞ்சலை உள்ளிடவும்';
+
+  @override
+  String get enterValidEmailValidation =>
+      'சரியான மின்னஞ்சல் முகவரியை உள்ளிடவும்';
+
+  @override
+  String get password => 'கடவுச்சொல்';
+
+  @override
+  String get enterPasswordValidation => 'உங்கள் கடவுச்சொல்லை உள்ளிடவும்';
+
+  @override
+  String get passwordTooShortValidation =>
+      'கடவுச்சொல் குறைந்தது 6 எழுத்துக்களாக இருக்க வேண்டும்';
+
+  @override
+  String get verifyEmail => 'மின்னஞ்சலை சரிபார்க்கவும்';
+
+  @override
+  String get enterEmailCode => 'சரிபார்ப்புக் குறியீட்டை உள்ளிடவும்';
+
+  @override
+  String get sentCodeToEmail =>
+      'நாங்கள் 6 இலக்க சிறப்பு குறியீட்டை அனுப்பியுள்ளோம்:';
+
+  @override
+  String get registerAndVerify => 'பதிவு செய்து மின்னஞ்சலை சரிபார்க்கவும்';
+
+  @override
+  String get sendingVerificationCode =>
+      'சரிபார்ப்புக் குறியீடு அனுப்பப்படுகிறது...';
+
+  @override
+  String get verifyAndRegister => 'சரிபார்த்து பதிவை முடிக்கவும்';
+
+  @override
+  String get enterCredentialsToContinue => 'தொடர உங்கள் விபரங்களை உள்ளிடவும்';
 }

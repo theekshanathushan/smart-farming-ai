@@ -42,15 +42,18 @@ void main() async {
     final prefs = await SharedPreferences.getInstance();
     final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
     final userPhone = prefs.getString('userPhone');
-    if (isLoggedIn && userPhone != null && userPhone.isNotEmpty) {
-      final name = prefs.getString('registered_user_name_$userPhone') ?? prefs.getString('userName');
-      String? profileImage = prefs.getString('user_profile_photo_$userPhone') ?? prefs.getString('profileImagePath');
+    final userEmail = prefs.getString('userEmail');
+    final activeAccount = userPhone ?? userEmail;
+    if (isLoggedIn && activeAccount != null && activeAccount.isNotEmpty) {
+      final name = prefs.getString('registered_user_name_$activeAccount') ?? prefs.getString('userName');
+      String? profileImage = prefs.getString('user_profile_photo_$activeAccount') ?? prefs.getString('profileImagePath');
       if (profileImage != null && !profileImage.startsWith('http') && !File(profileImage).existsSync()) {
         profileImage = null;
       }
       initialAuthState = AuthState(
         isLoggedIn: true,
-        phoneNumber: userPhone,
+        phoneNumber: userPhone ?? userEmail,
+        email: userEmail,
         name: name,
         profileImagePath: profileImage,
       );

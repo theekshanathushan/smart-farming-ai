@@ -14,12 +14,17 @@ class AuthScreen extends ConsumerStatefulWidget {
 
 class _AuthScreenState extends ConsumerState<AuthScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
   final _phoneController = TextEditingController();
   final _nameController = TextEditingController();
   bool _isLogin = true;
+  bool _obscurePassword = true;
 
   @override
   void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
     _phoneController.dispose();
     _nameController.dispose();
     super.dispose();
@@ -27,19 +32,26 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
 
   void _submit() {
     if (_formKey.currentState!.validate()) {
-      // Clear previous states
       ref.read(authProvider.notifier).resetState();
-      
-      final phone = _phoneController.text.trim();
-      final name = _nameController.text.trim().isNotEmpty ? _nameController.text.trim() : null;
       final currentLang = ref.read(localeProvider).languageCode;
-      
-      ref.read(authProvider.notifier).sendOTP(
-        phone,
-        name: name,
-        isLogin: _isLogin,
-        language: currentLang,
-      );
+
+      if (_isLogin) {
+        // Email & Password Login
+        ref.read(authProvider.notifier).loginWithEmailAndPassword(
+              _emailController.text.trim(),
+              _passwordController.text,
+              language: currentLang,
+            );
+      } else {
+        // Registration: Send special email verification code
+        ref.read(authProvider.notifier).sendEmailVerificationCode(
+              name: _nameController.text.trim(),
+              email: _emailController.text.trim(),
+              phone: _phoneController.text.trim(),
+              password: _passwordController.text,
+              language: currentLang,
+            );
+      }
     }
   }
 
@@ -54,7 +66,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
           SnackBar(
             content: Text(
               next.errorMessage!,
-              style: const TextStyle(color: Colors.white, fontSize: 16),
+              style: const TextStyle(color: Colors.white, fontSize: 15),
             ),
             backgroundColor: Colors.red[800],
             duration: const Duration(seconds: 4),
@@ -86,7 +98,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
           child: Form(
             key: _formKey,
             child: Column(
@@ -95,7 +107,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                 Text(
                   _isLogin ? l10n.welcomeBack : l10n.createAccount,
                   style: TextStyle(
-                    fontSize: 30,
+                    fontSize: 28,
                     fontWeight: FontWeight.w900,
                     color: textColor,
                     letterSpacing: -0.5,
@@ -104,16 +116,16 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                 const SizedBox(height: 8),
                 Text(
                   _isLogin
-                      ? l10n.enterPhoneToContinue
+                      ? l10n.enterCredentialsToContinue
                       : l10n.registerToAccess,
                   style: TextStyle(
-                    fontSize: 15,
+                    fontSize: 14,
                     color: subtextColor,
                     height: 1.4,
                   ),
                 ),
-                const SizedBox(height: 32),
-                
+                const SizedBox(height: 28),
+
                 // Toggle Login / Register
                 Container(
                   padding: const EdgeInsets.all(4),
@@ -134,7 +146,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                           },
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 200),
-                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            padding: const EdgeInsets.symmetric(vertical: 13),
                             decoration: BoxDecoration(
                               color: _isLogin ? toggleActiveBg : Colors.transparent,
                               borderRadius: BorderRadius.circular(10),
@@ -159,7 +171,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                           },
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 200),
-                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            padding: const EdgeInsets.symmetric(vertical: 13),
                             decoration: BoxDecoration(
                               color: !_isLogin ? toggleActiveBg : Colors.transparent,
                               borderRadius: BorderRadius.circular(10),
@@ -179,18 +191,18 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 28),
+                const SizedBox(height: 24),
 
-                // Name field (Required only during registration)
+                // Fields for Register: Name
                 if (!_isLogin) ...[
                   TextFormField(
                     controller: _nameController,
                     decoration: _inputDecoration(
                       context,
                       l10n.fullNameOrFarmName,
-                      Icons.person_outline,
+                      Icons.person_outline_rounded,
                     ),
-                    style: TextStyle(fontSize: 16, color: textColor, fontWeight: FontWeight.w500),
+                    style: TextStyle(fontSize: 15, color: textColor, fontWeight: FontWeight.w500),
                     textInputAction: TextInputAction.next,
                     validator: (value) {
                       if (!_isLogin && (value == null || value.trim().isEmpty)) {
@@ -199,40 +211,106 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 16),
                 ],
 
-                // Phone number field
+                // Email field (Used in both Login and Register)
                 TextFormField(
-                  controller: _phoneController,
-                  decoration: _inputDecoration(context, l10n.phoneNumber, Icons.phone_outlined),
-                  style: TextStyle(fontSize: 16, color: textColor, fontWeight: FontWeight.w500),
-                  keyboardType: TextInputType.phone,
-                  textInputAction: TextInputAction.done,
+                  controller: _emailController,
+                  decoration: _inputDecoration(
+                    context,
+                    l10n.emailAddress,
+                    Icons.email_outlined,
+                  ),
+                  style: TextStyle(fontSize: 15, color: textColor, fontWeight: FontWeight.w500),
+                  keyboardType: TextInputType.emailAddress,
+                  textInputAction: TextInputAction.next,
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return l10n.enterPhoneValidation;
+                      return l10n.enterEmailValidation;
                     }
-                    if (value.trim().length < 9) {
-                      return l10n.enterValidPhoneValidation;
+                    final emailRegex = RegExp(
+                      r'^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+$',
+                    );
+                    if (!emailRegex.hasMatch(value.trim())) {
+                      return l10n.enterValidEmailValidation;
                     }
                     return null;
                   },
                 ),
-                const SizedBox(height: 36),
+                const SizedBox(height: 16),
 
-                // Submit button
+                // Fields for Register: Phone Number
+                if (!_isLogin) ...[
+                  TextFormField(
+                    controller: _phoneController,
+                    decoration: _inputDecoration(
+                      context,
+                      l10n.phoneNumber,
+                      Icons.phone_outlined,
+                    ),
+                    style: TextStyle(fontSize: 15, color: textColor, fontWeight: FontWeight.w500),
+                    keyboardType: TextInputType.phone,
+                    textInputAction: TextInputAction.next,
+                    validator: (value) {
+                      if (!_isLogin && (value == null || value.trim().isEmpty)) {
+                        return l10n.enterPhoneValidation;
+                      }
+                      if (!_isLogin && value!.trim().length < 9) {
+                        return l10n.enterValidPhoneValidation;
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                ],
+
+                // Password field (Used in both Login and Register)
+                TextFormField(
+                  controller: _passwordController,
+                  obscureText: _obscurePassword,
+                  decoration: _inputDecoration(
+                    context,
+                    l10n.password,
+                    Icons.lock_outline_rounded,
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                        color: subtextColor,
+                        size: 20,
+                      ),
+                      onPressed: () {
+                        setState(() => _obscurePassword = !_obscurePassword);
+                      },
+                    ),
+                  ),
+                  style: TextStyle(fontSize: 15, color: textColor, fontWeight: FontWeight.w500),
+                  textInputAction: TextInputAction.done,
+                  onFieldSubmitted: (_) => _submit(),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return l10n.enterPasswordValidation;
+                    }
+                    if (!_isLogin && value.length < 6) {
+                      return l10n.passwordTooShortValidation;
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 28),
+
+                // Submit button (Login or Register & Verify)
                 ElevatedButton(
                   onPressed: isLoading ? null : _submit,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: theme.colorScheme.primary,
                     foregroundColor: Colors.white,
                     disabledBackgroundColor: isDark ? const Color(0xFF334155) : Colors.grey.shade400,
-                    padding: const EdgeInsets.symmetric(vertical: 18),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
-                    elevation: 3,
+                    elevation: 2,
                   ),
                   child: isLoading
                       ? const SizedBox(
@@ -244,29 +322,29 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                           ),
                         )
                       : Text(
-                          _isLogin ? l10n.sendOtp : l10n.registerAndSendOtp,
+                          _isLogin ? l10n.login : l10n.registerAndVerify,
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                 ),
-                
+
                 if (isLoading)
                   Padding(
-                    padding: const EdgeInsets.only(top: 16.0),
+                    padding: const EdgeInsets.only(top: 14.0),
                     child: Text(
-                      l10n.sendingOtp,
+                      _isLogin ? l10n.login : l10n.sendingVerificationCode,
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 13,
                         fontWeight: FontWeight.w600,
                         color: theme.colorScheme.primary,
                       ),
                     ),
                   ),
 
-                const SizedBox(height: 28),
+                const SizedBox(height: 24),
 
                 // OR Divider
                 Row(
@@ -297,10 +375,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                     ),
                   ],
                 ),
+                const SizedBox(height: 20),
 
-                const SizedBox(height: 24),
-
-                // Sign in with Google Button
+                // Sign in with Google Button (Active on Login & Register)
                 OutlinedButton(
                   onPressed: isLoading
                       ? null
@@ -315,7 +392,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                       color: isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1),
                       width: 1.5,
                     ),
-                    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                    padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
@@ -338,6 +415,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                     ],
                   ),
                 ),
+                const SizedBox(height: 16),
               ],
             ),
           ),
@@ -346,8 +424,12 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     );
   }
 
-  // Extracted input decoration for high contrast & theme adaptivity
-  InputDecoration _inputDecoration(BuildContext context, String hint, IconData icon) {
+  InputDecoration _inputDecoration(
+    BuildContext context,
+    String hint,
+    IconData icon, {
+    Widget? suffixIcon,
+  }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final fillBg = isDark ? const Color(0xFF16222F) : Colors.white;
     final borderCol = isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1);
@@ -357,11 +439,12 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
 
     return InputDecoration(
       hintText: hint,
-      hintStyle: TextStyle(color: hintCol, fontSize: 15),
-      prefixIcon: Icon(icon, color: iconCol),
+      hintStyle: TextStyle(color: hintCol, fontSize: 14),
+      prefixIcon: Icon(icon, color: iconCol, size: 22),
+      suffixIcon: suffixIcon,
       filled: true,
       fillColor: fillBg,
-      contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
+      contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
         borderSide: BorderSide(color: borderCol, width: 1.5),
