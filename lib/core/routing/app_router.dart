@@ -21,8 +21,10 @@ import '../../features/auth/presentation/otp_verification_screen.dart';
 import '../../features/market/presentation/market_screen.dart';
 import '../../features/farm/presentation/farm_screen.dart';
 import '../../features/farm/presentation/add_crop_screen.dart';
+import '../../features/farm/presentation/crop_situation_report_screen.dart';
 import '../../features/ledger/presentation/ledger_screen.dart';
 import '../../features/ledger/presentation/add_transaction_screen.dart';
+import '../../features/ledger/presentation/monthly_financial_report_screen.dart';
 import '../../features/fertilizer/presentation/fertilizer_calc_screen.dart';
 import '../../features/community/presentation/community_screen.dart';
 import '../../features/ecommerce/presentation/marketplace_screen.dart';
@@ -88,6 +90,10 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: 'add-crop',
                     builder: (context, state) => const AddCropScreen(),
+                  ),
+                  GoRoute(
+                    path: 'crop-report',
+                    builder: (context, state) => const CropSituationReportScreen(),
                   ),
                 ],
               ),
@@ -156,6 +162,10 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: 'add',
             builder: (context, state) => const AddTransactionScreen(),
+          ),
+          GoRoute(
+            path: 'report',
+            builder: (context, state) => const MonthlyFinancialReportScreen(),
           ),
         ],
       ),

@@ -29,6 +29,13 @@ class LedgerScreen extends ConsumerWidget {
         elevation: 0,
         centerTitle: true,
         iconTheme: IconThemeData(color: textColor),
+        actions: [
+          IconButton(
+            tooltip: 'Download Monthly PDF Report',
+            icon: const Icon(Icons.picture_as_pdf_rounded),
+            onPressed: () => context.push('/ledger/report'),
+          ),
+        ],
       ),
       body: Stack(
         children: [
@@ -121,7 +128,47 @@ class LedgerScreen extends ConsumerWidget {
               _buildDashboardMetric('Income', income, isDark ? Colors.greenAccent : Colors.green.shade700, subtextColor),
               _buildDashboardMetric('Expense', expense, Theme.of(context).colorScheme.error, subtextColor),
             ],
-          )
+          ),
+          const SizedBox(height: 18),
+          InkWell(
+            onTap: () => context.push('/ledger/report'),
+            borderRadius: BorderRadius.circular(14),
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Theme.of(context).colorScheme.primary,
+                    Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(14),
+                boxShadow: [
+                  BoxShadow(
+                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.picture_as_pdf_rounded, color: Colors.white, size: 18),
+                  SizedBox(width: 8),
+                  Text(
+                    'Download Monthly Statement (PDF)',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );

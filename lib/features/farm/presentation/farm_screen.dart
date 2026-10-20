@@ -36,6 +36,13 @@ class FarmScreen extends ConsumerWidget {
         elevation: 0,
         centerTitle: true,
         iconTheme: IconThemeData(color: textColor),
+        actions: [
+          IconButton(
+            tooltip: 'Monthly Crop Situation Report (PDF)',
+            icon: const Icon(Icons.picture_as_pdf_rounded),
+            onPressed: () => context.push('/farm/crop-report'),
+          ),
+        ],
       ),
       body: Stack(
         fit: StackFit.expand,
@@ -252,6 +259,12 @@ class FarmScreen extends ConsumerWidget {
                 _showAddNoteDialog(context, ref, crops);
               });
             },
+          ),
+          _ActionBtn(
+            icon: Icons.assessment_rounded, 
+            label: lang == 'si' ? 'බෝග වාර්තාව' : (lang == 'ta' ? 'பயிர் அறிக்கை' : 'Crop Report'),
+            textColor: textColor, 
+            onTap: () => context.push('/farm/crop-report'),
           ),
           _ActionBtn(
             icon: Icons.smart_toy, 
